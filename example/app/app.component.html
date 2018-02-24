@@ -1,0 +1,75 @@
+<h1>Frontal</h1>
+
+<section>
+  <h2>Simple</h2>
+  <frontal>
+    <ng-template let-value="inputValue" let-open="open" let-highlightedIndex="highlightedIndex" let-selectedItem="selectedItem">
+      <label>Select your hero!
+        <input type="text" frontalInput/>
+      </label>
+
+      <ul *ngIf="open">
+        <li *ngFor="let hero of filteredHeroes(value); trackBy:trackById; let index=index;" [style.background]="highlightedIndex === index ? 'yellow' : ''">
+          <div frontalItem [toString]="heroToString" [value]="hero">{{hero.name}}</div>
+        </li>
+
+        <div *ngIf="!filteredHeroes(value).length">
+          No heroes found...
+        </div>
+      </ul>
+
+      <h4>Selected hero:</h4>
+      <pre>{{selectedItem | json}}</pre>
+    </ng-template>
+  </frontal>
+</section>
+
+<hr/>
+
+<section>
+  <h2>Disabled items</h2>
+  <frontal [reducer]="reducer">
+    <ng-template let-value="inputValue" let-open="open" let-highlightedIndex="highlightedIndex" let-selectedItem="selectedItem">
+      <label>Select your hero!
+        <input type="text" frontalInput/>
+      </label>
+
+      <ul *ngIf="open">
+        <li *ngFor="let hero of filteredHeroes(value); trackBy:trackById; let index=index;" [style.background]="highlightedIndex === findIndex(hero, filteredHeroes(value)) ? 'yellow' : ''">
+          <div *ngIf="!hero.disabled" frontalItem [toString]="heroToString" [value]="hero">{{hero.name}}</div>
+          <div *ngIf="hero.disabled" [style.color]="'#ccc'">{{hero.name}}</div>
+        </li>
+
+        <div *ngIf="!filteredHeroes(value).length">
+          No heroes found...
+        </div>
+      </ul>
+
+      <h4>Selected hero:</h4>
+      <pre>{{selectedItem | json}}</pre>
+    </ng-template>
+  </frontal>
+</section>
+
+<hr/>
+
+
+<section>
+  <h2>Dropdown</h2>
+  <frontal #frontal>
+    <ng-template>
+      <button (click)="frontal.state.toggleMenu()">
+        {{frontal.state.selectedItem ? frontal.state.selectedItem.name : 'Select your hero'}}
+      </button>
+
+      <ul *ngIf="frontal.state.open">
+        <li *ngFor="let hero of heroes; trackBy:trackById; let index=index;" [style.background]="frontal.state.highlightedIndex === index ? 'yellow' : ''">
+          <div frontalItem [toString]="heroToString" [value]="hero">{{hero.name}}</div>
+        </li>
+      </ul>
+
+      <h4>Selected hero:</h4>
+      <pre>{{frontal.state.selectedItem | json}}</pre>
+    </ng-template>
+  </frontal>
+</section>
