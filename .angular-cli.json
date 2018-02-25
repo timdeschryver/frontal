@@ -5,8 +5,22 @@
   },
   "apps": [
     {
+      "name": "frontal",
+      "root": "src",
+      "outDir": "dist-frontal",
+      "main": "main.ts",
+      "test": "test.ts",
+      "testTsconfig": "tsconfig.spec.json",
+      "environmentSource": "environments/environment.ts",
+      "environments": {
+        "dev": "environments/environment.ts",
+        "prod": "environments/environment.prod.ts"
+      }
+    },
+    {
+      "name": "example",
       "root": "example",
-      "outDir": "dist",
+      "outDir": "dist-example",
       "assets": [
         "assets",
         "favicon.ico"
@@ -14,9 +28,7 @@
       "index": "index.html",
       "main": "main.ts",
       "polyfills": "polyfills.ts",
-      "test": "test.ts",
       "tsconfig": "tsconfig.app.json",
-      "testTsconfig": "tsconfig.spec.json",
       "styles": [
         "styles.css"
       ],

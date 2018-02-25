@@ -2,10 +2,8 @@
   "name": "frontal",
   "version": "0.0.0",
   "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build --prod",
-    "test": "ng test",
+    "start": "ng serve --app example",
+    "test": "ng test --app fronal",
     "lint": "ng lint",
     "precommit": "lint-staged"
   },

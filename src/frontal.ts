@@ -14,6 +14,7 @@ import {
   IterableDiffers,
   AfterViewInit,
   IterableDiffer,
+  Inject,
 } from '@angular/core';
 
 export interface State {
@@ -80,7 +81,7 @@ export class FrontalInputDirective {
   onInput: (event: KeyboardEvent) => void;
   onKeydown: (event: KeyboardEvent) => void;
 
-  constructor(private element: ElementRef) {}
+  constructor(@Inject(ElementRef) private element: ElementRef) {}
 
   @HostBinding('attr.role') role = 'combobox';
   @HostBinding('attr.autocomplete') autocomplete = 'off';
@@ -187,7 +188,7 @@ export class FrontalButtonDirective {
   selector: 'frontal',
   exportAs: 'frontal',
   template: `
-    <ng-container *ngTemplateOutlet="template; context: state"></ng-container>
+    <ng-container *ngTemplateOutlet="template; context: getState()"></ng-container>
   `,
 })
 export class FrontalComponent implements AfterViewInit {
@@ -198,10 +199,10 @@ export class FrontalComponent implements AfterViewInit {
   @ContentChild(FrontalButtonDirective) frontalButton: FrontalButtonDirective;
   @ContentChildren(FrontalItemDirective) frontalItems: QueryList<FrontalItemDirective>;
 
-  state: State = initialState;
+  private state: State = initialState;
   private differ: IterableDiffer<FrontalItemDirective>;
 
-  constructor(private differs: IterableDiffers) {
+  constructor(@Inject(IterableDiffers) private differs: IterableDiffers) {
     this.state = {
       ...initialState,
       toggleMenu: this.toggleMenu,
@@ -216,33 +217,47 @@ export class FrontalComponent implements AfterViewInit {
       buttonClick: this.buttonClick,
     };
 
-    this.differ = this.differs.find([]).create();
+    this.differ = differs.find([]).create();
   }
+
+  getState = () => this.state;
 
   ngAfterViewInit() {
     requestAnimationFrame(() => {
+      this.frontalItems.forEach(this.bindItemEvents);
+      this.bindInputEvents(this.frontalInput);
+      this.bindButtonEvents(this.frontalButton);
+
       this.frontalItems.changes.subscribe(changes => {
         const changeDiff = this.differ.diff(changes);
         if (changeDiff) {
           changeDiff.forEachItem(change => {
-            change.item.onClick = this.state.itemClick.bind(null, change.item, change.currentIndex);
-            change.item.onEnter = this.state.itemEnter.bind(null, change.item, change.currentIndex);
-            change.item.onLeave = this.state.itemLeave.bind(null, change.item, change.currentIndex);
+            this.bindItemEvents(change.item, change.currentIndex);
           });
         }
       });
-
-      if (this.frontalInput) {
-        this.frontalInput.onBlur = this.state.inputBlur;
-        this.frontalInput.onInput = this.state.inputChange;
-        this.frontalInput.onKeydown = this.state.inputKeydown;
-      }
-
-      if (this.frontalButton) {
-        this.frontalButton.onClick = this.state.buttonClick;
-      }
     });
   }
+
+  bindItemEvents = (item: FrontalItemDirective, index: number | null) => {
+    item.onClick = this.state.itemClick.bind(null, item, index);
+    item.onEnter = this.state.itemEnter.bind(null, item, index);
+    item.onLeave = this.state.itemLeave.bind(null, item, index);
+  };
+
+  bindInputEvents = (input: FrontalInputDirective) => {
+    if (input) {
+      input.onBlur = this.state.inputBlur;
+      input.onInput = this.state.inputChange;
+      input.onKeydown = this.state.inputKeydown;
+    }
+  };
+
+  bindButtonEvents = (button: FrontalButtonDirective) => {
+    if (button) {
+      button.onClick = this.state.buttonClick;
+    }
+  };
 
   toggleMenu = () => {
     this.handle({
