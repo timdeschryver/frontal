@@ -23,13 +23,14 @@ export interface State {
   openMenu: () => void;
   closeMenu: () => void;
   inputValue: string;
-  input: (event: KeyboardEvent) => void;
-  blur: () => void;
+  inputChange: (event: KeyboardEvent) => void;
+  inputBlur: () => void;
   highlightedIndex: number | null;
-  keydown: (event: KeyboardEvent) => void;
-  click: (value: FrontalItemDirective, index: number) => void;
-  enter: (value: FrontalItemDirective, index: number) => void;
-  leave: (value: FrontalItemDirective, index: number) => void;
+  inputKeydown: (event: KeyboardEvent) => void;
+  itemClick: (value: FrontalItemDirective, index: number) => void;
+  itemEnter: (value: FrontalItemDirective, index: number) => void;
+  itemLeave: (value: FrontalItemDirective, index: number) => void;
+  buttonClick: () => void;
 }
 
 export enum StateChanges {
@@ -45,6 +46,7 @@ export enum StateChanges {
   ItemMouseClick = 'frontal_item_mouseclick',
   ItemMouseEnter = 'frontal_item_mouseenter',
   ItemMouseLeave = 'frontal_item_mouseleave',
+  ButtonClick = 'frontal_button_click',
 }
 
 export interface Action {
@@ -59,13 +61,14 @@ export const initialState: State = {
   openMenu: noop,
   closeMenu: noop,
   inputValue: '',
-  input: noop,
-  blur: noop,
+  inputChange: noop,
+  inputBlur: noop,
   highlightedIndex: null,
-  keydown: noop,
-  click: noop,
-  enter: noop,
-  leave: noop,
+  inputKeydown: noop,
+  itemClick: noop,
+  itemEnter: noop,
+  itemLeave: noop,
+  buttonClick: noop,
 };
 
 @Directive({
@@ -119,7 +122,6 @@ export class FrontalInputDirective {
   exportAs: 'frontalItem',
 })
 export class FrontalItemDirective {
-  constructor(private element: ElementRef) {}
   @Input() value: any;
   @Input() toString: (value: any) => string;
 
@@ -155,6 +157,32 @@ export class FrontalItemDirective {
   }
 }
 
+@Directive({
+  selector: '[frontalButton]',
+  exportAs: 'frontalButton',
+})
+export class FrontalButtonDirective {
+  @HostBinding('attr.type') type = 'button';
+  @HostBinding('attr.role') role = 'button';
+  @HostBinding('attr.aria-label') ariaLabel = 'close menu';
+  @HostBinding('attr.aria-expanded') ariaExpanded = false;
+  @HostBinding('attr.aria-haspopup') ariaHasPopup = true;
+
+  onClick: () => void;
+
+  @HostListener('click', ['$event'])
+  click(event: Event) {
+    if (this.onClick) {
+      this.onClick();
+    }
+  }
+
+  setAriaExpanded(value: boolean) {
+    this.ariaExpanded = value;
+    this.ariaLabel = value ? 'close menu' : 'open menu';
+  }
+}
+
 @Component({
   selector: 'frontal',
   exportAs: 'frontal',
@@ -166,11 +194,12 @@ export class FrontalComponent implements AfterViewInit {
   @Input() reducer: (action: Action) => Action;
 
   @ContentChild(TemplateRef) template: TemplateRef<any>;
-  @ContentChild(FrontalInputDirective) inputTemplate: FrontalInputDirective;
-  @ContentChildren(FrontalItemDirective) items: QueryList<FrontalItemDirective>;
+  @ContentChild(FrontalInputDirective) frontalInput: FrontalInputDirective;
+  @ContentChild(FrontalButtonDirective) frontalButton: FrontalButtonDirective;
+  @ContentChildren(FrontalItemDirective) frontalItems: QueryList<FrontalItemDirective>;
 
   state: State = initialState;
-  differ: IterableDiffer<FrontalItemDirective>;
+  private differ: IterableDiffer<FrontalItemDirective>;
 
   constructor(private differs: IterableDiffers) {
     this.state = {
@@ -178,12 +207,13 @@ export class FrontalComponent implements AfterViewInit {
       toggleMenu: this.toggleMenu,
       openMenu: this.openMenu,
       closeMenu: this.closeMenu,
-      input: this.input,
-      blur: this.blur,
-      keydown: this.keydown,
-      click: this.itemClick,
-      enter: this.itemEnter,
-      leave: this.itemLeave,
+      inputChange: this.inputChange,
+      inputBlur: this.inputBlur,
+      inputKeydown: this.inputKeydown,
+      itemClick: this.itemClick,
+      itemEnter: this.itemEnter,
+      itemLeave: this.itemLeave,
+      buttonClick: this.buttonClick,
     };
 
     this.differ = this.differs.find([]).create();
@@ -191,21 +221,25 @@ export class FrontalComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     requestAnimationFrame(() => {
-      this.items.changes.subscribe(changes => {
+      this.frontalItems.changes.subscribe(changes => {
         const changeDiff = this.differ.diff(changes);
         if (changeDiff) {
           changeDiff.forEachItem(change => {
-            change.item.onClick = this.state.click.bind(null, change.item, change.currentIndex);
-            change.item.onEnter = this.state.enter.bind(null, change.item, change.currentIndex);
-            change.item.onLeave = this.state.leave.bind(null, change.item, change.currentIndex);
+            change.item.onClick = this.state.itemClick.bind(null, change.item, change.currentIndex);
+            change.item.onEnter = this.state.itemEnter.bind(null, change.item, change.currentIndex);
+            change.item.onLeave = this.state.itemLeave.bind(null, change.item, change.currentIndex);
           });
         }
       });
 
-      if (this.inputTemplate) {
-        this.inputTemplate.onBlur = this.state.blur;
-        this.inputTemplate.onInput = this.state.input;
-        this.inputTemplate.onKeydown = this.state.keydown;
+      if (this.frontalInput) {
+        this.frontalInput.onBlur = this.state.inputBlur;
+        this.frontalInput.onInput = this.state.inputChange;
+        this.frontalInput.onKeydown = this.state.inputKeydown;
+      }
+
+      if (this.frontalButton) {
+        this.frontalButton.onClick = this.state.buttonClick;
       }
     });
   }
@@ -237,7 +271,16 @@ export class FrontalComponent implements AfterViewInit {
     });
   };
 
-  blur = () => {
+  buttonClick = () => {
+    this.handle({
+      type: StateChanges.ButtonClick,
+      payload: {
+        open: !this.state.open,
+      },
+    });
+  };
+
+  inputBlur = () => {
     if (this.state.open) {
       this.handle({
         type: StateChanges.InputBlur,
@@ -251,7 +294,7 @@ export class FrontalComponent implements AfterViewInit {
     }
   };
 
-  input = (event: KeyboardEvent) => {
+  inputChange = (event: KeyboardEvent) => {
     this.handle({
       type: StateChanges.InputChange,
       payload: {
@@ -262,7 +305,7 @@ export class FrontalComponent implements AfterViewInit {
     });
   };
 
-  keydown = (event: KeyboardEvent) => {
+  inputKeydown = (event: KeyboardEvent) => {
     if (!this.state.open) {
       return;
     }
@@ -274,11 +317,11 @@ export class FrontalComponent implements AfterViewInit {
           payload: {
             selectedItem: null,
             highlightedIndex:
-              this.items.length === 0
+              this.frontalItems.length === 0
                 ? null
                 : ((this.state.highlightedIndex === null ? -1 : this.state.highlightedIndex) +
                     (event.shiftKey ? 5 : 1)) %
-                  this.items.length,
+                  this.frontalItems.length,
           },
         },
         ArrowUp: {
@@ -286,12 +329,12 @@ export class FrontalComponent implements AfterViewInit {
           payload: {
             selectedItem: null,
             highlightedIndex:
-              this.items.length === 0
+              this.frontalItems.length === 0
                 ? null
                 : ((this.state.highlightedIndex === null ? 1 : this.state.highlightedIndex) -
                     (event.shiftKey ? 5 : 1) +
-                    this.items.length) %
-                  this.items.length,
+                    this.frontalItems.length) %
+                  this.frontalItems.length,
           },
         },
         Enter: {
@@ -358,7 +401,7 @@ export class FrontalComponent implements AfterViewInit {
   getHighlightedItem = () =>
     this.state.highlightedIndex === null
       ? null
-      : this.items.find((item, index) => this.state.highlightedIndex === index);
+      : this.frontalItems.find((item, index) => this.state.highlightedIndex === index);
 
   handle = (action: Action) => {
     const { payload } = this.reducer ? this.reducer(action) : action;
@@ -367,14 +410,21 @@ export class FrontalComponent implements AfterViewInit {
       ...payload,
     };
 
-    this.setInputTemplateProperties(this.inputTemplate, newState);
+    this.setInputProperties(this.frontalInput, newState);
+    this.setButtonProperties(this.frontalButton, newState);
     this.state = newState;
   };
 
-  setInputTemplateProperties = (input: FrontalInputDirective, state: State) => {
+  setInputProperties = (input: FrontalInputDirective, state: State) => {
     if (input) {
       input.setAriaExpanded(state.open);
       input.setValue(state.inputValue);
+    }
+  };
+
+  setButtonProperties = (button: FrontalButtonDirective, state: State) => {
+    if (button) {
+      button.setAriaExpanded(state.open);
     }
   };
 }

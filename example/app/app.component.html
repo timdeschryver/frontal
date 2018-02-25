@@ -53,12 +53,11 @@
 
 <hr/>
 
-
 <section>
   <h2>Dropdown</h2>
   <frontal #frontal>
     <ng-template>
-      <button (click)="frontal.state.toggleMenu()">
+      <button frontalButton>
         {{frontal.state.selectedItem ? frontal.state.selectedItem.name : 'Select your hero'}}
       </button>
 
