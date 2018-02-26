@@ -27,12 +27,16 @@ export class AppComponent {
     return hero.id;
   }
 
+  findIndex(hero: Hero, heroes: Hero[]) {
+    return heroes.filter(p => !p.disabled).indexOf(hero);
+  }
+
   heroToString(hero: Hero) {
     return hero.name;
   }
 
-  findIndex(hero: Hero, heroes: Hero[]) {
-    return heroes.filter(p => !p.disabled).indexOf(hero);
+  heroToJson(hero: Hero) {
+    return JSON.stringify(hero);
   }
 
   reducer(action: Action) {

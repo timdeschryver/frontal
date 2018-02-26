@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "start": "ng serve --app example",
-    "test": "ng test --app fronal",
+    "test": "ng test --app frontal",
+    "e2e": "ng e2e --serve --app example",
     "lint": "ng lint",
     "precommit": "lint-staged"
   },
