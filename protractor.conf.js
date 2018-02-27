@@ -17,6 +17,9 @@ exports.config = {
     defaultTimeoutInterval: 30000,
     print: function() {},
   },
+  suites: {
+    simple: './e2e/simple/**/*.e2e-spec.ts',
+  },
   onPrepare() {
     require('ts-node').register({
       project: 'e2e/tsconfig.e2e.json',
