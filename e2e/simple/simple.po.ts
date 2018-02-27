@@ -13,6 +13,12 @@ export class SimplePage {
     return element(by.css('ul.menu'));
   }
 
+  getSecondInMenu() {
+    return this.getMenu()
+      .all(by.css('li'))
+      .get(1);
+  }
+
   getHighlightedItem() {
     return element(by.css('li.highlight'));
   }
