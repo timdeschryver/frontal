@@ -224,17 +224,19 @@ export class FrontalComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     requestAnimationFrame(() => {
-      this.frontalItems.forEach(this.bindItemEvents);
-      this.bindInputEvents(this.frontalInput);
-      this.bindButtonEvents(this.frontalButton);
+      requestAnimationFrame(() => {
+        this.frontalItems.forEach(this.bindItemEvents);
+        this.bindInputEvents(this.frontalInput);
+        this.bindButtonEvents(this.frontalButton);
 
-      this.frontalItems.changes.subscribe(changes => {
-        const changeDiff = this.differ.diff(changes);
-        if (changeDiff) {
-          changeDiff.forEachItem(change => {
-            this.bindItemEvents(change.item, change.currentIndex);
-          });
-        }
+        this.frontalItems.changes.subscribe(changes => {
+          const changeDiff = this.differ.diff(changes);
+          if (changeDiff) {
+            changeDiff.forEachItem(change => {
+              this.bindItemEvents(change.item, change.currentIndex);
+            });
+          }
+        });
       });
     });
   }

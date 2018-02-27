@@ -2,7 +2,7 @@ import { browser, element, by, Key } from 'protractor';
 
 export class SimplePage {
   navigateTo() {
-    return browser.get('/');
+    return browser.get('/simple');
   }
 
   getInput() {
