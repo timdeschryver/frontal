@@ -19,6 +19,7 @@ exports.config = {
   },
   suites: {
     simple: './e2e/simple/**/*.e2e-spec.ts',
+    dropdown: './e2e/dropdown/**/*.e2e-spec.ts',
   },
   onPrepare() {
     require('ts-node').register({

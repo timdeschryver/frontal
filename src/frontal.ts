@@ -15,7 +15,10 @@ import {
   AfterViewInit,
   IterableDiffer,
   Inject,
+  OnDestroy,
 } from '@angular/core';
+import { Subscription } from 'rxjs/Subscription';
+import { startWith } from 'rxjs/operators';
 
 export interface State {
   selectedItem: any;
@@ -173,9 +176,11 @@ export class FrontalButtonDirective {
 
   @HostListener('click', ['$event'])
   click(event: Event) {
-    if (this.onClick) {
-      this.onClick();
-    }
+    requestAnimationFrame(() => {
+      if (this.onClick) {
+        this.onClick();
+      }
+    });
   }
 
   setAriaExpanded(value: boolean) {
@@ -191,7 +196,7 @@ export class FrontalButtonDirective {
     <ng-container *ngTemplateOutlet="template; context: getState()"></ng-container>
   `,
 })
-export class FrontalComponent implements AfterViewInit {
+export class FrontalComponent implements AfterViewInit, AfterContentChecked, OnDestroy {
   @Input() reducer: (action: Action) => Action;
 
   @ContentChild(TemplateRef) template: TemplateRef<any>;
@@ -201,6 +206,7 @@ export class FrontalComponent implements AfterViewInit {
 
   private state: State = initialState;
   private differ: IterableDiffer<FrontalItemDirective>;
+  private changesSubscription: Subscription;
 
   constructor(@Inject(IterableDiffers) private differs: IterableDiffers) {
     this.state = {
@@ -222,23 +228,26 @@ export class FrontalComponent implements AfterViewInit {
 
   getState = () => this.state;
 
-  ngAfterViewInit() {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        this.frontalItems.forEach(this.bindItemEvents);
-        this.bindInputEvents(this.frontalInput);
-        this.bindButtonEvents(this.frontalButton);
+  ngAfterContentChecked() {
+    this.bindInputEvents(this.frontalInput);
+    this.bindButtonEvents(this.frontalButton);
+  }
 
-        this.frontalItems.changes.subscribe(changes => {
-          const changeDiff = this.differ.diff(changes);
-          if (changeDiff) {
-            changeDiff.forEachItem(change => {
-              this.bindItemEvents(change.item, change.currentIndex);
-            });
-          }
-        });
+  ngAfterViewInit() {
+    this.changesSubscription = this.frontalItems.changes
+      .pipe(startWith(this.frontalItems.toArray()))
+      .subscribe(changes => {
+        const changeDiff = this.differ.diff(changes);
+        if (changeDiff) {
+          changeDiff.forEachItem(change => {
+            this.bindItemEvents(change.item, change.currentIndex);
+          });
+        }
       });
-    });
+  }
+
+  ngOnDestroy() {
+    this.changesSubscription.unsubscribe();
   }
 
   bindItemEvents = (item: FrontalItemDirective, index: number | null) => {

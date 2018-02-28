@@ -7,7 +7,7 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
     <frontal>
       <ng-template let-value="inputValue" let-open="open" let-highlightedIndex="highlightedIndex" let-selectedItem="selectedItem">
         <label>Select your hero!
-          <input type="text" id="input" frontalInput/>
+          <input type="text" frontalInput/>
         </label>
 
         <ul *ngIf="open" class="menu">

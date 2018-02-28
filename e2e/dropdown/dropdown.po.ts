@@ -1,12 +1,12 @@
 import { browser, element, by, Key } from 'protractor';
 
-export class SimplePage {
+export class DropdownPage {
   navigateTo() {
-    return browser.get('/simple');
+    return browser.get('/dropdown');
   }
 
-  getInput() {
-    return element(by.css('[frontalInput]'));
+  getButton() {
+    return element(by.css('[frontalButton]'));
   }
 
   getMenu() {

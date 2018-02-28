@@ -1,9 +1,9 @@
-import { SimplePage } from './simple.po';
 import { browser } from 'protractor';
 import { Key } from 'selenium-webdriver';
 import { createWriteStream, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { heroes, filter } from '../../example/data/hero';
+import { SimplePage } from './simple.po';
 
 jasmine.getEnv().addReporter({
   specDone: ({ id, fullName }) => {
@@ -19,14 +19,14 @@ jasmine.getEnv().addReporter({
   },
 });
 
-const page = new SimplePage();
 const query = 'm';
 const heroesFiltered = filter(heroes, query);
 
-describe('Frontal simple', function() {
-  page.navigateTo();
+describe('Frontal simple', () => {
+  const page = new SimplePage();
 
   it('should initialize with a closed menu', () => {
+    page.navigateTo();
     expect(page.getMenu().isPresent()).toBeFalsy();
   });
 
