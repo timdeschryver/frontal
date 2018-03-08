@@ -39,7 +39,7 @@ export class SimpleComponent {
   heroes = heroes;
 
   filteredHeroes(query: string) {
-    return filter(this.heroes, query);
+    return filter(query);
   }
 
   trackHeroById(index: number, hero: Hero) {

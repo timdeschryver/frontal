@@ -2,20 +2,15 @@ import {
   Component,
   ContentChild,
   TemplateRef,
-  OnInit,
   Directive,
-  AfterContentChecked,
   HostListener,
   HostBinding,
   ElementRef,
   Input,
   ContentChildren,
   QueryList,
-  IterableDiffers,
-  AfterViewInit,
-  IterableDiffer,
   Inject,
-  OnDestroy,
+  forwardRef,
 } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { startWith } from 'rxjs/operators';
@@ -80,35 +75,37 @@ export const initialState: State = {
   exportAs: 'frontalInput',
 })
 export class FrontalInputDirective {
-  onBlur: () => void;
-  onInput: (event: KeyboardEvent) => void;
-  onKeydown: (event: KeyboardEvent) => void;
-
-  constructor(@Inject(ElementRef) private element: ElementRef) {}
-
   @HostBinding('attr.role') role = 'combobox';
   @HostBinding('attr.autocomplete') autocomplete = 'off';
   @HostBinding('attr.aria-autocomplete') ariaAutocomplete = 'off';
   @HostBinding('attr.aria-expanded') ariaExpanded = false;
 
+  constructor(
+    @Inject(ElementRef) private element: ElementRef,
+    // prettier-ignore
+    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent,
+  ) {}
+
   @HostListener('blur', ['$event'])
   blur(event: Event) {
-    if (this.onBlur) {
-      this.onBlur();
+    if (this.frontal.inputBlur) {
+      this.frontal.inputBlur();
     }
   }
 
   @HostListener('input', ['$event'])
   input(event: KeyboardEvent) {
-    if (this.onInput) {
-      this.onInput(event);
+    if (this.frontal.inputChange) {
+      this.frontal.inputChange(event);
     }
   }
 
   @HostListener('keydown', ['$event'])
   keydown(event: KeyboardEvent) {
-    if (this.onKeydown) {
-      this.onKeydown(event);
+    if (this.frontal.inputKeydown) {
+      requestAnimationFrame(() => {
+        this.frontal.inputKeydown(event);
+      });
     }
   }
 
@@ -129,35 +126,36 @@ export class FrontalItemDirective {
   @Input() value: any;
   @Input() toString: (value: any) => string;
 
-  onClick: () => void;
-  onEnter: () => void;
-  onLeave: () => void;
-
-  valueToString() {
-    return this.toString ? this.toString(this.value) : this.value;
-  }
+  constructor(
+    // prettier-ignore
+    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent,
+  ) {}
 
   @HostListener('mousedown', ['$event'])
   mousedown(event: Event) {
-    if (this.onClick) {
-      this.onClick();
+    if (this.frontal.itemClick) {
+      this.frontal.itemClick(this);
     }
   }
 
   @HostListener('mouseenter', ['$event'])
   enter(event: Event) {
-    requestAnimationFrame(() => {
-      if (this.onEnter) {
-        this.onEnter();
-      }
-    });
+    if (this.frontal.itemEnter) {
+      requestAnimationFrame(() => {
+        this.frontal.itemEnter(this);
+      });
+    }
   }
 
   @HostListener('mouseleave', ['$event'])
   mouseleave(event: Event) {
-    if (this.onLeave) {
-      this.onLeave();
+    if (this.frontal.itemLeave) {
+      this.frontal.itemLeave(this);
     }
+  }
+
+  valueToString() {
+    return this.toString ? this.toString(this.value) : this.value;
   }
 }
 
@@ -172,15 +170,16 @@ export class FrontalButtonDirective {
   @HostBinding('attr.aria-expanded') ariaExpanded = false;
   @HostBinding('attr.aria-haspopup') ariaHasPopup = true;
 
-  onClick: () => void;
+  constructor(
+    // prettier-ignore
+    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent,
+  ) {}
 
   @HostListener('click', ['$event'])
   click(event: Event) {
-    requestAnimationFrame(() => {
-      if (this.onClick) {
-        this.onClick();
-      }
-    });
+    if (this.frontal.buttonClick) {
+      this.frontal.buttonClick();
+    }
   }
 
   setAriaExpanded(value: boolean) {
@@ -196,8 +195,8 @@ export class FrontalButtonDirective {
     <ng-container *ngTemplateOutlet="template; context: getState()"></ng-container>
   `,
 })
-export class FrontalComponent implements AfterViewInit, AfterContentChecked, OnDestroy {
-  @Input() reducer: (action: Action) => Action;
+export class FrontalComponent {
+  @Input() reducer: (state: State, action: Action) => Action;
 
   @ContentChild(TemplateRef) template: TemplateRef<any>;
   @ContentChild(FrontalInputDirective) frontalInput: FrontalInputDirective;
@@ -205,10 +204,8 @@ export class FrontalComponent implements AfterViewInit, AfterContentChecked, OnD
   @ContentChildren(FrontalItemDirective) frontalItems: QueryList<FrontalItemDirective>;
 
   private state: State = initialState;
-  private differ: IterableDiffer<FrontalItemDirective>;
-  private changesSubscription: Subscription;
 
-  constructor(@Inject(IterableDiffers) private differs: IterableDiffers) {
+  constructor() {
     this.state = {
       ...initialState,
       toggleMenu: this.toggleMenu,
@@ -222,53 +219,9 @@ export class FrontalComponent implements AfterViewInit, AfterContentChecked, OnD
       itemLeave: this.itemLeave,
       buttonClick: this.buttonClick,
     };
-
-    this.differ = differs.find([]).create();
   }
 
   getState = () => this.state;
-
-  ngAfterContentChecked() {
-    this.bindInputEvents(this.frontalInput);
-    this.bindButtonEvents(this.frontalButton);
-  }
-
-  ngAfterViewInit() {
-    this.changesSubscription = this.frontalItems.changes
-      .pipe(startWith(this.frontalItems.toArray()))
-      .subscribe(changes => {
-        const changeDiff = this.differ.diff(changes);
-        if (changeDiff) {
-          changeDiff.forEachItem(change => {
-            this.bindItemEvents(change.item, change.currentIndex);
-          });
-        }
-      });
-  }
-
-  ngOnDestroy() {
-    this.changesSubscription.unsubscribe();
-  }
-
-  bindItemEvents = (item: FrontalItemDirective, index: number | null) => {
-    item.onClick = this.state.itemClick.bind(null, item, index);
-    item.onEnter = this.state.itemEnter.bind(null, item, index);
-    item.onLeave = this.state.itemLeave.bind(null, item, index);
-  };
-
-  bindInputEvents = (input: FrontalInputDirective) => {
-    if (input) {
-      input.onBlur = this.state.inputBlur;
-      input.onInput = this.state.inputChange;
-      input.onKeydown = this.state.inputKeydown;
-    }
-  };
-
-  bindButtonEvents = (button: FrontalButtonDirective) => {
-    if (button) {
-      button.onClick = this.state.buttonClick;
-    }
-  };
 
   toggleMenu = () => {
     this.handle({
@@ -336,61 +289,58 @@ export class FrontalComponent implements AfterViewInit, AfterContentChecked, OnD
       return;
     }
 
-    requestAnimationFrame(() => {
-      const handlers: { [key: string]: Action } = {
-        ArrowDown: {
-          type: StateChanges.InputKeydownArrowDown,
-          payload: {
-            selectedItem: null,
-            highlightedIndex:
-              this.frontalItems.length === 0
-                ? null
-                : ((this.state.highlightedIndex === null ? -1 : this.state.highlightedIndex) +
-                    (event.shiftKey ? 5 : 1)) %
-                  this.frontalItems.length,
-          },
+    const handlers: { [key: string]: Action } = {
+      ArrowDown: {
+        type: StateChanges.InputKeydownArrowDown,
+        payload: {
+          selectedItem: null,
+          highlightedIndex:
+            this.frontalItems.length === 0
+              ? null
+              : ((this.state.highlightedIndex === null ? -1 : this.state.highlightedIndex) + 1) %
+                this.frontalItems.length,
         },
-        ArrowUp: {
-          type: StateChanges.InputKeydownArrowUp,
-          payload: {
-            selectedItem: null,
-            highlightedIndex:
-              this.frontalItems.length === 0
-                ? null
-                : ((this.state.highlightedIndex === null ? 1 : this.state.highlightedIndex) -
-                    (event.shiftKey ? 5 : 1) +
-                    this.frontalItems.length) %
-                  this.frontalItems.length,
-          },
+      },
+      ArrowUp: {
+        type: StateChanges.InputKeydownArrowUp,
+        payload: {
+          selectedItem: null,
+          highlightedIndex:
+            this.frontalItems.length === 0
+              ? null
+              : ((this.state.highlightedIndex === null ? 1 : this.state.highlightedIndex) -
+                  1 +
+                  this.frontalItems.length) %
+                this.frontalItems.length,
         },
-        Enter: {
-          type: StateChanges.InputKeydownEnter,
-          payload: {
-            open: false,
-            highlightedIndex: null,
-            selectedItem: this.getHighlightedItem() ? this.getHighlightedItem()!.value : null,
-            inputValue: this.getHighlightedItem() ? this.getHighlightedItem()!.valueToString() : '',
-          },
+      },
+      Enter: {
+        type: StateChanges.InputKeydownEnter,
+        payload: {
+          open: false,
+          highlightedIndex: null,
+          selectedItem: this.getHighlightedItem() ? this.getHighlightedItem()!.value : null,
+          inputValue: this.getHighlightedItem() ? this.getHighlightedItem()!.valueToString() : '',
         },
-        Escape: {
-          type: StateChanges.InputKeydownEsc,
-          payload: {
-            open: false,
-            highlightedIndex: null,
-            selectedItem: null,
-            inputValue: '',
-          },
+      },
+      Escape: {
+        type: StateChanges.InputKeydownEsc,
+        payload: {
+          open: false,
+          highlightedIndex: null,
+          selectedItem: null,
+          inputValue: '',
         },
-      };
+      },
+    };
 
-      const handler = handlers[event.key];
-      if (handler) {
-        this.handle(handler);
-      }
-    });
+    const handler = handlers[event.key];
+    if (handler) {
+      this.handle(handler);
+    }
   };
 
-  itemClick = (item: FrontalItemDirective, index: number) => {
+  itemClick = (item: FrontalItemDirective) => {
     if (this.state.open && item) {
       this.handle({
         type: StateChanges.ItemMouseClick,
@@ -404,18 +354,18 @@ export class FrontalComponent implements AfterViewInit, AfterContentChecked, OnD
     }
   };
 
-  itemEnter = (item: FrontalItemDirective, index: number) => {
+  itemEnter = (item: FrontalItemDirective) => {
     if (this.state.open && item) {
       this.handle({
         type: StateChanges.ItemMouseEnter,
         payload: {
-          highlightedIndex: index,
+          highlightedIndex: this.frontalItems.toArray().indexOf(item),
         },
       });
     }
   };
 
-  itemLeave = (item: FrontalItemDirective, index: number) => {
+  itemLeave = (item: FrontalItemDirective) => {
     if (this.state.open && item) {
       this.handle({
         type: StateChanges.ItemMouseLeave,
@@ -430,7 +380,7 @@ export class FrontalComponent implements AfterViewInit, AfterContentChecked, OnD
       : this.frontalItems.find((item, index) => this.state.highlightedIndex === index);
 
   handle = (action: Action) => {
-    const { payload } = this.reducer ? this.reducer(action) : action;
+    const { payload } = this.reducer ? this.reducer(this.state, action) : action;
     const newState = {
       ...this.state,
       ...payload,

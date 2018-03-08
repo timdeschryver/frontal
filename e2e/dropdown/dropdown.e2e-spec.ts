@@ -2,7 +2,7 @@ import { browser } from 'protractor';
 import { Key } from 'selenium-webdriver';
 import { createWriteStream, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
-import { heroes, filter } from '../../example/data/hero';
+import { heroes } from '../../example/data/hero';
 import { DropdownPage } from './dropdown.po';
 
 jasmine.getEnv().addReporter({
@@ -12,7 +12,7 @@ jasmine.getEnv().addReporter({
       if (!existsSync(folder)) {
         mkdirSync(folder);
       }
-      var stream = createWriteStream(join(folder, `${id}-${fullName.replace(/\s+/g, '-').toLowerCase()}.png`));
+      const stream = createWriteStream(join(folder, `${id}-${fullName.replace(/\s+/g, '-').toLowerCase()}.png`));
       stream.write(new Buffer(screenshot, 'base64'));
       stream.end();
     });

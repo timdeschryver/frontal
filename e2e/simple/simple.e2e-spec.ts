@@ -12,7 +12,7 @@ jasmine.getEnv().addReporter({
       if (!existsSync(folder)) {
         mkdirSync(folder);
       }
-      var stream = createWriteStream(join(folder, `${id}-${fullName.replace(/\s+/g, '-').toLowerCase()}.png`));
+      const stream = createWriteStream(join(folder, `${id}-${fullName.replace(/\s+/g, '-').toLowerCase()}.png`));
       stream.write(new Buffer(screenshot, 'base64'));
       stream.end();
     });
@@ -20,7 +20,7 @@ jasmine.getEnv().addReporter({
 });
 
 const query = 'm';
-const heroesFiltered = filter(heroes, query);
+const heroesFiltered = filter(query);
 
 describe('Frontal simple', () => {
   const page = new SimplePage();
@@ -64,8 +64,6 @@ describe('Frontal simple', () => {
         expect(page.getHighlightedItem().getText()).toBe(heroesFiltered[1].name);
       });
     });
-
-    describe;
   });
 
   describe('press enter', () => {

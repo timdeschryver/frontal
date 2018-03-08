@@ -51,7 +51,11 @@
       "exclude": "**/node_modules/**"
     },
     {
-      "project": "example/tsconfig.spec.json",
+      "project": "src/tsconfig.app.json",
+      "exclude": "**/node_modules/**"
+    },
+    {
+      "project": "src/tsconfig.spec.json",
       "exclude": "**/node_modules/**"
     },
     {

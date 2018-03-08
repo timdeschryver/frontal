@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
+import { heroes, toString, toJson, Hero } from '../../data/hero';
 
 @Component({
   selector: 'frontal-dropdown',

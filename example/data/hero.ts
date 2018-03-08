@@ -17,7 +17,7 @@ export const heroes: Hero[] = [
   { id: 20, name: 'Tornado', disabled: false },
 ];
 
-export const filter = (heroes: Hero[], query: string) =>
+export const filter = (query: string) =>
   heroes.filter(({ name }) => name.toLowerCase().startsWith(query.toLowerCase()));
 
 export const toString = (hero: Hero) => hero.name;
