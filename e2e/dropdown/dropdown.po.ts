@@ -26,4 +26,8 @@ export class DropdownPage {
   getSelectedItem() {
     return element(by.id('selected'));
   }
+
+  getSelectedHeader() {
+    return element(by.css('h4'));
+  }
 }

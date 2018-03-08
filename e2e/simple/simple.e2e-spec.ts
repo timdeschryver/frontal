@@ -116,9 +116,18 @@ describe('Frontal simple', () => {
       expect(page.getHighlightedItem().getText()).toBe(heroesFiltered[1].name);
     });
 
+    it('should clear the highlighted item on leave', () => {
+      browser
+        .actions()
+        .mouseMove(page.getSelectedHeader())
+        .perform();
+      expect(page.getHighlightedItem().isPresent()).toBeFalsy();
+    });
+
     it('should select the highlighted item on click', () => {
       browser
         .actions()
+        .mouseMove(page.getSecondInMenu())
         .click()
         .perform();
       expect(page.getSelectedItem().getAttribute('value')).toBe(JSON.stringify(heroesFiltered[1]));

@@ -26,4 +26,8 @@ export class SimplePage {
   getSelectedItem() {
     return element(by.id('selected'));
   }
+
+  getSelectedHeader() {
+    return element(by.css('h4'));
+  }
 }

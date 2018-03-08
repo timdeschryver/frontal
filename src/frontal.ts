@@ -341,7 +341,7 @@ export class FrontalComponent {
   };
 
   itemClick = (item: FrontalItemDirective) => {
-    if (this.state.open && item) {
+    if (this.state.open) {
       this.handle({
         type: StateChanges.ItemMouseClick,
         payload: {
@@ -355,7 +355,7 @@ export class FrontalComponent {
   };
 
   itemEnter = (item: FrontalItemDirective) => {
-    if (this.state.open && item) {
+    if (this.state.open) {
       this.handle({
         type: StateChanges.ItemMouseEnter,
         payload: {
@@ -366,10 +366,12 @@ export class FrontalComponent {
   };
 
   itemLeave = (item: FrontalItemDirective) => {
-    if (this.state.open && item) {
+    if (this.state.open) {
       this.handle({
         type: StateChanges.ItemMouseLeave,
-        payload: {},
+        payload: {
+          highlightedIndex: null,
+        },
       });
     }
   };

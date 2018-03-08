@@ -44,12 +44,21 @@ describe('Frontal dropdown', () => {
       expect(page.getHighlightedItem().isPresent()).toBeTruthy();
       expect(page.getHighlightedItem().getText()).toBe(heroes[1].name);
     });
+
+    it('should clear the highlighted item on leave', () => {
+      browser
+        .actions()
+        .mouseMove(page.getSelectedHeader())
+        .perform();
+      expect(page.getHighlightedItem().isPresent()).toBeFalsy();
+    });
   });
 
   describe('mouse click on item', () => {
     it('should select the highlighted item', () => {
       browser
         .actions()
+        .mouseMove(page.getSecondInMenu())
         .click()
         .perform();
       expect(page.getSelectedItem().getAttribute('value')).toBe(JSON.stringify(heroes[1]));
