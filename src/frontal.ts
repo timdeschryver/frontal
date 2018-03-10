@@ -12,8 +12,7 @@ import {
   Inject,
   forwardRef,
 } from '@angular/core';
-import { Subscription } from 'rxjs/Subscription';
-import { startWith } from 'rxjs/operators';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 export interface State {
   selectedItem: any;
@@ -30,6 +29,7 @@ export interface State {
   itemEnter: (value: FrontalItemDirective, index: number) => void;
   itemLeave: (value: FrontalItemDirective, index: number) => void;
   buttonClick: () => void;
+  itemToString: (value: any) => string;
 }
 
 export enum StateChanges {
@@ -68,6 +68,7 @@ export const initialState: State = {
   itemEnter: noop,
   itemLeave: noop,
   buttonClick: noop,
+  itemToString: (value: any) => value,
 };
 
 @Directive({
@@ -124,7 +125,6 @@ export class FrontalInputDirective {
 })
 export class FrontalItemDirective {
   @Input() value: any;
-  @Input() toString: (value: any) => string;
 
   constructor(
     // prettier-ignore
@@ -152,10 +152,6 @@ export class FrontalItemDirective {
     if (this.frontal.itemLeave) {
       this.frontal.itemLeave(this);
     }
-  }
-
-  valueToString() {
-    return this.toString ? this.toString(this.value) : this.value;
   }
 }
 
@@ -188,15 +184,31 @@ export class FrontalButtonDirective {
   }
 }
 
+export const FRONTAL_VALUE_ACCESSOR = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => FrontalComponent),
+  multi: true,
+};
+
 @Component({
   selector: 'frontal',
   exportAs: 'frontal',
   template: `
     <ng-container *ngTemplateOutlet="template; context: getState()"></ng-container>
   `,
+  providers: [FRONTAL_VALUE_ACCESSOR],
 })
-export class FrontalComponent {
+export class FrontalComponent implements ControlValueAccessor {
   @Input() reducer: (state: State, action: Action) => Action;
+
+  @Input()
+  get itemToString() {
+    return this.state.itemToString;
+  }
+
+  set itemToString(fn) {
+    this.state.itemToString = fn;
+  }
 
   @ContentChild(TemplateRef) template: TemplateRef<any>;
   @ContentChild(FrontalInputDirective) frontalInput: FrontalInputDirective;
@@ -204,6 +216,8 @@ export class FrontalComponent {
   @ContentChildren(FrontalItemDirective) frontalItems: QueryList<FrontalItemDirective>;
 
   private state: State = initialState;
+  private onChange = (value: any) => {};
+  private onTouched = () => {};
 
   constructor() {
     this.state = {
@@ -219,6 +233,30 @@ export class FrontalComponent {
       itemLeave: this.itemLeave,
       buttonClick: this.buttonClick,
     };
+  }
+
+  writeValue(value: any) {
+    this.state.selectedItem = value;
+    this.state.inputValue = value ? this.state.itemToString(value) : '';
+
+    // TODO: this can be better...
+    if (this.frontalInput) {
+      this.setInputProperties(this.frontalInput, this.state);
+    } else {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          this.setInputProperties(this.frontalInput, this.state);
+        });
+      });
+    }
+  }
+
+  registerOnChange(fn: any) {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: any) {
+    this.onTouched = fn;
   }
 
   getState = () => this.state;
@@ -267,7 +305,7 @@ export class FrontalComponent {
           open: false,
           highlightedIndex: null,
           selectedItem: this.getHighlightedItem() ? this.getHighlightedItem()!.value : null,
-          inputValue: this.getHighlightedItem() ? this.getHighlightedItem()!.valueToString() : '',
+          inputValue: this.getHighlightedItem() ? this.state.itemToString(this.getHighlightedItem()!.value) : '',
         },
       });
     }
@@ -320,7 +358,7 @@ export class FrontalComponent {
           open: false,
           highlightedIndex: null,
           selectedItem: this.getHighlightedItem() ? this.getHighlightedItem()!.value : null,
-          inputValue: this.getHighlightedItem() ? this.getHighlightedItem()!.valueToString() : '',
+          inputValue: this.getHighlightedItem() ? this.state.itemToString(this.getHighlightedItem()!.value) : '',
         },
       },
       Escape: {
@@ -348,7 +386,7 @@ export class FrontalComponent {
           open: false,
           highlightedIndex: null,
           selectedItem: item.value,
-          inputValue: item.valueToString(),
+          inputValue: this.state.itemToString(item.value),
         },
       });
     }
@@ -390,6 +428,9 @@ export class FrontalComponent {
 
     this.setInputProperties(this.frontalInput, newState);
     this.setButtonProperties(this.frontalButton, newState);
+    if (newState.selectedItem !== this.state.selectedItem) {
+      this.onChange(newState.selectedItem);
+    }
     this.state = newState;
   };
 

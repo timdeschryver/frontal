@@ -1,23 +1,7 @@
 import { browser } from 'protractor';
 import { Key } from 'selenium-webdriver';
-import { createWriteStream, existsSync, mkdirSync } from 'fs';
-import { join } from 'path';
-import { heroes, filter } from '../../example/data/hero';
+import { heroes, filter, toJson } from '../../example/data/hero';
 import { SimplePage } from './simple.po';
-
-jasmine.getEnv().addReporter({
-  specDone: ({ id, fullName }) => {
-    browser.takeScreenshot().then(screenshot => {
-      const folder = join(__dirname, 'screenshots');
-      if (!existsSync(folder)) {
-        mkdirSync(folder);
-      }
-      const stream = createWriteStream(join(folder, `${id}-${fullName.replace(/\s+/g, '-').toLowerCase()}.png`));
-      stream.write(new Buffer(screenshot, 'base64'));
-      stream.end();
-    });
-  },
-});
 
 const query = 'm';
 const heroesFiltered = filter(query);
@@ -69,7 +53,7 @@ describe('Frontal simple', () => {
   describe('press enter', () => {
     it('should select the highlighted item', () => {
       page.getInput().sendKeys(Key.ENTER);
-      expect(page.getSelectedItem().getAttribute('value')).toBe(JSON.stringify(heroesFiltered[1]));
+      expect(page.getSelectedItem().getAttribute('value')).toBe(toJson(heroesFiltered[1]));
     });
 
     it('should set the input value', () => {
@@ -92,7 +76,7 @@ describe('Frontal simple', () => {
       page.getInput().clear();
       page.getInput().sendKeys(query);
       page.getInput().sendKeys(Key.ESCAPE);
-      expect(page.getSelectedItem().getAttribute('value')).toBe('null');
+      expect(page.getSelectedItem().getAttribute('value')).toBe('');
     });
 
     it('should clear the input', () => {
@@ -130,7 +114,7 @@ describe('Frontal simple', () => {
         .mouseMove(page.getSecondInMenu())
         .click()
         .perform();
-      expect(page.getSelectedItem().getAttribute('value')).toBe(JSON.stringify(heroesFiltered[1]));
+      expect(page.getSelectedItem().getAttribute('value')).toBe(toJson(heroesFiltered[1]));
       expect(page.getInput().getAttribute('value')).toBe(heroesFiltered[1].name);
       expect(page.getMenu().isPresent()).toBeFalsy();
     });

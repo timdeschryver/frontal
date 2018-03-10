@@ -22,4 +22,4 @@ export const filter = (query: string) =>
 
 export const toString = (hero: Hero) => hero.name;
 
-export const toJson = (hero: Hero) => JSON.stringify(hero);
+export const toJson = (hero: Hero) => (hero ? JSON.stringify(hero) : '');

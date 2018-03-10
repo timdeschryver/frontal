@@ -2,10 +2,10 @@ import { Component } from '@angular/core';
 import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
 
 @Component({
-  selector: 'app-simple',
+  selector: 'app-form',
   template: `
-    <frontal [itemToString]="heroToString">
-      <ng-template let-value="inputValue" let-open="open" let-highlightedIndex="highlightedIndex" let-selectedItem="selectedItem">
+    <frontal [(ngModel)]="hero" [itemToString]="heroToString">
+      <ng-template let-value="inputValue" let-open="open" let-highlightedIndex="highlightedIndex">
         <label>Select your hero!
           <input type="text" frontalInput/>
         </label>
@@ -22,10 +22,11 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
         </ul>
 
         <h4>Selected hero:</h4>
-        <input type="hidden" id="selected" [value]="heroToJson(selectedItem)">
-        <pre>{{selectedItem | json}}</pre>
+        <input type="hidden" id="selected" [value]="heroToJson(hero)">
+        <pre>{{hero | json}}</pre>
       </ng-template>
     </frontal>
+    <button id="reset" (click)="reset()">Change hero</button>
   `,
   styles: [
     `
@@ -35,8 +36,9 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
     `,
   ],
 })
-export class SimpleComponent {
+export class ModelComponent {
   heroes = heroes;
+  hero = heroes[3];
 
   filteredHeroes(query: string) {
     return filter(query);
@@ -52,5 +54,9 @@ export class SimpleComponent {
 
   heroToJson(hero: Hero) {
     return toJson(hero);
+  }
+
+  reset() {
+    this.hero = this.heroes[3];
   }
 }
