@@ -8,9 +8,8 @@ import { FormBuilder, FormGroup } from '@angular/forms';
     <form [formGroup]="form">
       <frontal [itemToString]="heroToString" formControlName="hero">
         <ng-template let-value="inputValue" let-open="open" let-highlightedIndex="highlightedIndex">
-          <label>Select your hero!
-            <input type="text" frontalInput/>
-          </label>
+          <label>Select your hero!</label>
+          <input type="text" frontalInput/>
 
           <ul *ngIf="open" class="menu">
             <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;"

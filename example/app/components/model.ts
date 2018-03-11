@@ -6,9 +6,8 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
   template: `
     <frontal [(ngModel)]="hero" [itemToString]="heroToString">
       <ng-template let-value="inputValue" let-open="open" let-highlightedIndex="highlightedIndex">
-        <label>Select your hero!
-          <input type="text" frontalInput/>
-        </label>
+        <label>Select your hero!</label>
+        <input type="text" frontalInput/>
 
         <ul *ngIf="open" class="menu">
           <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;"
