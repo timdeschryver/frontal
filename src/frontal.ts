@@ -11,6 +11,11 @@ import {
   QueryList,
   Inject,
   forwardRef,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  OnInit,
+  AfterViewInit,
+  OnDestroy,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
@@ -75,17 +80,43 @@ export const initialState: State = {
   selector: '[frontalInput]',
   exportAs: 'frontalInput',
 })
-export class FrontalInputDirective {
+export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
   @HostBinding('attr.role') role = 'combobox';
   @HostBinding('attr.autocomplete') autocomplete = 'off';
   @HostBinding('attr.aria-autocomplete') ariaAutocomplete = 'off';
   @HostBinding('attr.aria-expanded') ariaExpanded = false;
+
+  id = Date.now();
 
   constructor(
     @Inject(ElementRef) private element: ElementRef,
     // prettier-ignore
     @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent,
   ) {}
+
+  ngOnInit() {
+    this.frontal.addListener({ id: this.id, listener: this.stateChange.bind(this) });
+  }
+
+  ngAfterViewInit() {
+    const state = this.frontal.getState();
+    this.setAriaExpanded(state.open);
+    this.setValue(state.inputValue);
+  }
+
+  ngOnDestroy() {
+    this.frontal.removeListener(this.id);
+  }
+
+  stateChange(state: State, action: Action) {
+    if (this.ariaExpanded !== state.open) {
+      this.setAriaExpanded(state.open);
+    }
+
+    if (this.element.nativeElement.value !== state.inputValue) {
+      this.setValue(state.inputValue);
+    }
+  }
 
   @HostListener('blur', ['$event'])
   blur(event: Event) {
@@ -104,9 +135,7 @@ export class FrontalInputDirective {
   @HostListener('keydown', ['$event'])
   keydown(event: KeyboardEvent) {
     if (this.frontal.inputKeydown) {
-      requestAnimationFrame(() => {
-        this.frontal.inputKeydown(event);
-      });
+      this.frontal.inputKeydown(event);
     }
   }
 
@@ -141,9 +170,7 @@ export class FrontalItemDirective {
   @HostListener('mouseenter', ['$event'])
   enter(event: Event) {
     if (this.frontal.itemEnter) {
-      requestAnimationFrame(() => {
-        this.frontal.itemEnter(this);
-      });
+      this.frontal.itemEnter(this);
     }
   }
 
@@ -159,17 +186,38 @@ export class FrontalItemDirective {
   selector: '[frontalButton]',
   exportAs: 'frontalButton',
 })
-export class FrontalButtonDirective {
+export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy {
   @HostBinding('attr.type') type = 'button';
   @HostBinding('attr.role') role = 'button';
   @HostBinding('attr.aria-label') ariaLabel = 'close menu';
   @HostBinding('attr.aria-expanded') ariaExpanded = false;
   @HostBinding('attr.aria-haspopup') ariaHasPopup = true;
 
+  id = Date.now();
+
   constructor(
     // prettier-ignore
     @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent,
   ) {}
+
+  ngOnInit() {
+    this.frontal.addListener({ id: this.id, listener: this.stateChange.bind(this) });
+  }
+
+  ngAfterViewInit() {
+    const state = this.frontal.getState();
+    this.setAriaExpanded(state.open);
+  }
+
+  ngOnDestroy() {
+    this.frontal.removeListener(this.id);
+  }
+
+  stateChange(state: State, action: Action) {
+    if (this.ariaExpanded !== state.open) {
+      this.setAriaExpanded(state.open);
+    }
+  }
 
   @HostListener('click', ['$event'])
   click(event: Event) {
@@ -180,7 +228,7 @@ export class FrontalButtonDirective {
 
   setAriaExpanded(value: boolean) {
     this.ariaExpanded = value;
-    this.ariaLabel = value ? 'close menu' : 'open menu';
+    this.ariaLabel = value ? 'open menu' : 'close menu';
   }
 }
 
@@ -193,6 +241,7 @@ export const FRONTAL_VALUE_ACCESSOR = {
 @Component({
   selector: 'frontal',
   exportAs: 'frontal',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ng-container *ngTemplateOutlet="template; context: getState()"></ng-container>
   `,
@@ -206,20 +255,19 @@ export class FrontalComponent implements ControlValueAccessor {
     return this.state.itemToString;
   }
 
-  set itemToString(fn) {
+  set itemToString(fn: (value: any) => string) {
     this.state.itemToString = fn;
   }
 
   @ContentChild(TemplateRef) template: TemplateRef<any>;
-  @ContentChild(FrontalInputDirective) frontalInput: FrontalInputDirective;
-  @ContentChild(FrontalButtonDirective) frontalButton: FrontalButtonDirective;
   @ContentChildren(FrontalItemDirective) frontalItems: QueryList<FrontalItemDirective>;
 
+  private stateListeners: { id: number; listener: ((state: State, action: Action) => void) }[] = [];
   private state: State = initialState;
   private onChange = (value: any) => {};
   private onTouched = () => {};
 
-  constructor() {
+  constructor(public cd: ChangeDetectorRef) {
     this.state = {
       ...initialState,
       toggleMenu: this.toggleMenu,
@@ -236,19 +284,16 @@ export class FrontalComponent implements ControlValueAccessor {
   }
 
   writeValue(value: any) {
-    this.state.selectedItem = value;
-    this.state.inputValue = value ? this.state.itemToString(value) : '';
-
-    // TODO: this can be better...
-    if (this.frontalInput) {
-      this.setInputProperties(this.frontalInput, this.state);
-    } else {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          this.setInputProperties(this.frontalInput, this.state);
-        });
-      });
-    }
+    this.handle(
+      {
+        type: StateChanges.InputChange,
+        payload: {
+          selectedItem: value,
+          inputValue: value ? this.state.itemToString(value) : '',
+        },
+      },
+      false,
+    );
   }
 
   registerOnChange(fn: any) {
@@ -258,6 +303,16 @@ export class FrontalComponent implements ControlValueAccessor {
   registerOnTouched(fn: any) {
     this.onTouched = fn;
   }
+
+  addListener = ({ id, listener }: { id: number; listener: (state: State, action: Action) => void }) => {
+    this.stateListeners = [...this.stateListeners, { id, listener }];
+  };
+
+  removeListener = (id: number) => {
+    console.log('before', this.stateListeners);
+    this.stateListeners = this.stateListeners.filter(p => p.id !== id);
+    console.log('after', this.stateListeners);
+  };
 
   getState = () => this.state;
 
@@ -419,31 +474,22 @@ export class FrontalComponent implements ControlValueAccessor {
       ? null
       : this.frontalItems.find((item, index) => this.state.highlightedIndex === index);
 
-  handle = (action: Action) => {
+  handle = (action: Action, detactChanges: boolean = true) => {
     const { payload } = this.reducer ? this.reducer(this.state, action) : action;
     const newState = {
       ...this.state,
       ...payload,
     };
 
-    this.setInputProperties(this.frontalInput, newState);
-    this.setButtonProperties(this.frontalButton, newState);
     if (newState.selectedItem !== this.state.selectedItem) {
       this.onChange(newState.selectedItem);
     }
+
     this.state = newState;
-  };
+    this.stateListeners.forEach(({ listener }) => listener(this.state, { type: action.type, payload }));
 
-  setInputProperties = (input: FrontalInputDirective, state: State) => {
-    if (input) {
-      input.setAriaExpanded(state.open);
-      input.setValue(state.inputValue);
-    }
-  };
-
-  setButtonProperties = (button: FrontalButtonDirective, state: State) => {
-    if (button) {
-      button.setAriaExpanded(state.open);
+    if (detactChanges) {
+      this.cd.detectChanges();
     }
   };
 }

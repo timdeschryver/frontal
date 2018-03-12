@@ -5,19 +5,6 @@
   },
   "apps": [
     {
-      "name": "frontal",
-      "root": "src",
-      "outDir": "dist-frontal",
-      "main": "main.ts",
-      "test": "test.ts",
-      "testTsconfig": "tsconfig.spec.json",
-      "environmentSource": "environments/environment.ts",
-      "environments": {
-        "dev": "environments/environment.ts",
-        "prod": "environments/environment.prod.ts"
-      }
-    },
-    {
       "name": "example",
       "root": "example",
       "outDir": "dist-example",
@@ -33,6 +20,19 @@
         "styles.css"
       ],
       "scripts": [],
+      "environmentSource": "environments/environment.ts",
+      "environments": {
+        "dev": "environments/environment.ts",
+        "prod": "environments/environment.prod.ts"
+      }
+    },
+    {
+      "name": "frontal",
+      "root": "src",
+      "outDir": "dist-frontal",
+      "main": "main.ts",
+      "test": "test.ts",
+      "testTsconfig": "tsconfig.spec.json",
       "environmentSource": "environments/environment.ts",
       "environments": {
         "dev": "environments/environment.ts",
