@@ -232,7 +232,7 @@ export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy 
   }
 }
 
-export const FRONTAL_VALUE_ACCESSOR = {
+export const FRONTAL_VALUE_ACCESSOR: any = {
   provide: NG_VALUE_ACCESSOR,
   useExisting: forwardRef(() => FrontalComponent),
   multi: true,
@@ -309,9 +309,7 @@ export class FrontalComponent implements ControlValueAccessor {
   };
 
   removeListener = (id: number) => {
-    console.log('before', this.stateListeners);
     this.stateListeners = this.stateListeners.filter(p => p.id !== id);
-    console.log('after', this.stateListeners);
   };
 
   getState = () => this.state;
@@ -472,7 +470,7 @@ export class FrontalComponent implements ControlValueAccessor {
   getHighlightedItem = () =>
     this.state.highlightedIndex === null
       ? null
-      : this.frontalItems.find((item, index) => this.state.highlightedIndex === index);
+      : this.frontalItems.find((_: FrontalItemDirective, index: number) => this.state.highlightedIndex === index);
 
   handle = (action: Action, detactChanges: boolean = true) => {
     const { payload } = this.reducer ? this.reducer(this.state, action) : action;

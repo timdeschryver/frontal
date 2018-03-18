@@ -1,0 +1,26 @@
+{
+  "name": "frontal",
+  "version": "0.0.0-pre-alpha.1",
+  "description": "An Angular select/dropdown component",
+  "module": "index.js",
+  "main": "bundles/frontal.umd.js",
+  "typings": "index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tdeschryver/frontal.git"
+  },
+  "keywords": [
+    "Angular"
+  ],
+  "author": "tdeschryver",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tdeschryver/frontal/issues"
+  },
+  "homepage": "https://github.com/tdeschryver/frontal#readme",
+  "peerDependencies": {
+    "@angular/common": "^5.2.0",
+    "@angular/core": "^5.2.0",
+    "@angular/forms": "^5.2.0"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "rootDir": "./",
+    "outDir": "../dist",
+    "sourceMap": true,
+    "declaration": true,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "stripInternal": true,
+    "skipLibCheck": true,
+    "module": "es2015",
+    "target": "es5",
+    "strict": true,
+    "lib": [
+      "es2017",
+      "dom"
+    ]
+  },
+  "files": [
+    "index.ts"
+  ],
+  "angularCompilerOptions": {
+    "strictMetadataEmit": true,
+    "flatModuleOutFile": "frontal.js",
+    "flatModuleId": "frontal"
+
+  }
+}

@@ -3,7 +3,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { Routes, RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { FrontalModule } from 'frontal/frontal.module';
+import { FrontalModule } from 'frontal';
+
 import { AppComponent } from './app.component';
 import { SimpleComponent } from './components/simple';
 import { DropdownComponent } from './components/dropdown';

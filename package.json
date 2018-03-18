@@ -1,12 +1,15 @@
 {
   "name": "frontal",
-  "version": "0.0.0",
+  "version": "0.0.0-pre-alpha.1",
   "scripts": {
-    "start": "ng serve --app example",
-    "test": "ng test --app frontal",
-    "e2e": "ng e2e --serve --app example",
+    "start": "ng serve",
+    "e2e": "ng e2e",
     "lint": "ng lint",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "transpile": "ngc -p ./src/tsconfig.build.json",
+    "package": "rollup -c ./src/rollup.config.js",
+    "minify": "uglifyjs ./dist/bundles/frontal.umd.js --screw-ie8 --compress --mangle --comments --output ./dist/bundles/frontal.umd.min.js",
+    "build": "rimraf ./dist/* && npm run transpile && npm run package && npm run minify"
   },
   "lint-staged": {
     "*.{ts,json,md}": [
@@ -47,8 +50,11 @@
     "lint-staged": "^7.0.0",
     "prettier": "^1.10.2",
     "protractor": "~5.1.2",
+    "rimraf": "^2.6.2",
+    "rollup": "^0.57.1",
     "ts-node": "~4.1.0",
     "tslint": "~5.9.1",
-    "typescript": "~2.6.2"
+    "typescript": "~2.6.2",
+    "uglify-js": "^3.3.15"
   }
 }

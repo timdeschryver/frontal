@@ -1,10 +1,16 @@
+import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { FrontalComponent, FrontalInputDirective, FrontalItemDirective, FrontalButtonDirective } from './frontal';
+import {
+  FrontalComponent,
+  FrontalInputDirective,
+  FrontalItemDirective,
+  FrontalButtonDirective,
+} from './frontal.component';
 
+const components = [FrontalComponent, FrontalInputDirective, FrontalItemDirective, FrontalButtonDirective];
 @NgModule({
-  declarations: [FrontalComponent, FrontalInputDirective, FrontalItemDirective, FrontalButtonDirective],
-  imports: [BrowserModule],
-  exports: [FrontalComponent, FrontalInputDirective, FrontalItemDirective, FrontalButtonDirective],
+  imports: [CommonModule],
+  declarations: components,
+  exports: components,
 })
 export class FrontalModule {}

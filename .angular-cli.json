@@ -25,19 +25,6 @@
         "dev": "environments/environment.ts",
         "prod": "environments/environment.prod.ts"
       }
-    },
-    {
-      "name": "frontal",
-      "root": "src",
-      "outDir": "dist-frontal",
-      "main": "main.ts",
-      "test": "test.ts",
-      "testTsconfig": "tsconfig.spec.json",
-      "environmentSource": "environments/environment.ts",
-      "environments": {
-        "dev": "environments/environment.ts",
-        "prod": "environments/environment.prod.ts"
-      }
     }
   ],
   "e2e": {
