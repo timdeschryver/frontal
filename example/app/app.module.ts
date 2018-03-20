@@ -11,6 +11,7 @@ import { DropdownComponent } from './components/dropdown';
 import { ModelComponent } from './components/model';
 import { ReactiveComponent } from './components/reactive';
 import { BootstrapComponent } from './components/bootstrap';
+import { ReducerComponent } from './components/reducer';
 
 const routes: Routes = [
   {
@@ -33,6 +34,10 @@ const routes: Routes = [
     path: 'bootstrap',
     component: BootstrapComponent,
   },
+  {
+    path: 'reducer',
+    component: ReducerComponent,
+  },
 ];
 
 @NgModule({
@@ -43,6 +48,7 @@ const routes: Routes = [
     ModelComponent,
     ReactiveComponent,
     BootstrapComponent,
+    ReducerComponent,
   ],
   imports: [BrowserModule, FormsModule, ReactiveFormsModule, FrontalModule, RouterModule.forRoot(routes)],
   providers: [],

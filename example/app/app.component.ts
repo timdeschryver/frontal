@@ -10,6 +10,7 @@ import { Component } from '@angular/core';
       <a routerLink="/model">Model</a>
       <a routerLink="/reactive">Reactive</a>
       <a routerLink="/bootstrap">Bootstrap</a>
+      <a routerLink="/reducer">Reducer</a>
     </nav>
 
     <router-outlet></router-outlet>

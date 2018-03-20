@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
 
 @Component({
-  selector: 'app-form',
+  selector: 'app-model',
   template: `
     <frontal [(ngModel)]="hero" [itemToString]="heroToString">
       <ng-template let-value="inputValue" let-open="open" let-highlightedIndex="highlightedIndex">
