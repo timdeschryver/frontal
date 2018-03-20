@@ -2,15 +2,21 @@
   "name": "frontal",
   "version": "0.0.0-pre-alpha.1",
   "description": "An Angular select/dropdown component",
-  "module": "index.js",
+  "module": "frontal.js",
   "main": "bundles/frontal.umd.js",
-  "typings": "index.d.ts",
+  "typings": "frontal.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tdeschryver/frontal.git"
   },
   "keywords": [
-    "Angular"
+    "Angular",
+    "select",
+    "selectbox",
+    "combobox",
+    "typeahead",
+    "autocomplete",
+    "dropdown"
   ],
   "author": "tdeschryver",
   "license": "MIT",
