@@ -26,6 +26,7 @@ export interface State {
   openMenu: () => void;
   closeMenu: () => void;
   inputValue: string;
+  inputText: string;
   inputChange: (event: KeyboardEvent) => void;
   inputBlur: () => void;
   highlightedIndex: number | null;
@@ -35,6 +36,7 @@ export interface State {
   itemLeave: (value: FrontalItemDirective, index: number) => void;
   buttonClick: () => void;
   itemToString: (value: any) => string;
+  reducer: null | ((state: State, action: Action) => Action);
 }
 
 export enum StateChanges {
@@ -55,7 +57,7 @@ export enum StateChanges {
 
 export interface Action {
   type: StateChanges;
-  payload: {};
+  payload: any;
 }
 
 export const initialState: State = {
@@ -65,6 +67,7 @@ export const initialState: State = {
   openMenu: noop,
   closeMenu: noop,
   inputValue: '',
+  inputText: '',
   inputChange: noop,
   inputBlur: noop,
   highlightedIndex: null,
@@ -74,6 +77,7 @@ export const initialState: State = {
   itemLeave: noop,
   buttonClick: noop,
   itemToString: (value: any) => value,
+  reducer: null,
 };
 
 @Directive({
@@ -86,7 +90,7 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
   @HostBinding('attr.aria-autocomplete') ariaAutocomplete = 'off';
   @HostBinding('attr.aria-expanded') ariaExpanded = false;
 
-  id = Date.now();
+  private id = Date.now();
 
   constructor(
     @Inject(ElementRef) private element: ElementRef,
@@ -101,7 +105,7 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     const state = this.frontal.getState();
     this.setAriaExpanded(state.open);
-    this.setValue(state.inputValue);
+    this.setValue(state.inputText);
   }
 
   ngOnDestroy() {
@@ -113,8 +117,8 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
       this.setAriaExpanded(state.open);
     }
 
-    if (this.element.nativeElement.value !== state.inputValue) {
-      this.setValue(state.inputValue);
+    if (this.element.nativeElement.value !== state.inputText) {
+      this.setValue(state.inputText);
     }
   }
 
@@ -193,7 +197,7 @@ export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy 
   @HostBinding('attr.aria-expanded') ariaExpanded = false;
   @HostBinding('attr.aria-haspopup') ariaHasPopup = true;
 
-  id = Date.now();
+  private id = Date.now();
 
   constructor(
     // prettier-ignore
@@ -248,7 +252,14 @@ export const FRONTAL_VALUE_ACCESSOR: any = {
   providers: [FRONTAL_VALUE_ACCESSOR],
 })
 export class FrontalComponent implements ControlValueAccessor {
-  @Input() reducer: (state: State, action: Action) => Action;
+  @Input()
+  get reducer() {
+    return this.state.reducer;
+  }
+
+  set reducer(fn: null | ((state: State, action: Action) => Action)) {
+    this.state.reducer = fn;
+  }
 
   @Input()
   get itemToString() {
@@ -284,12 +295,14 @@ export class FrontalComponent implements ControlValueAccessor {
   }
 
   writeValue(value: any) {
+    const inputText = value ? this.state.itemToString(value) : '';
     this.handle(
       {
         type: StateChanges.InputChange,
         payload: {
           selectedItem: value,
-          inputValue: value ? this.state.itemToString(value) : '',
+          inputText,
+          inputValue: inputText,
         },
       },
       false,
@@ -351,24 +364,28 @@ export class FrontalComponent implements ControlValueAccessor {
   };
 
   inputBlur = () => {
+    const { selectedItem, inputText } = this.getSelected();
     if (this.state.open) {
       this.handle({
         type: StateChanges.InputBlur,
         payload: {
           open: false,
           highlightedIndex: null,
-          selectedItem: this.getHighlightedItem() ? this.getHighlightedItem()!.value : null,
-          inputValue: this.getHighlightedItem() ? this.state.itemToString(this.getHighlightedItem()!.value) : '',
+          selectedItem,
+          inputText,
+          inputValue: inputText,
         },
       });
     }
   };
 
   inputChange = (event: KeyboardEvent) => {
+    const inputText = (<HTMLInputElement>event.target).value;
     this.handle({
       type: StateChanges.InputChange,
       payload: {
-        inputValue: (<HTMLInputElement>event.target).value,
+        inputText,
+        inputValue: inputText,
         open: true,
         selectedItem: null,
       },
@@ -380,8 +397,8 @@ export class FrontalComponent implements ControlValueAccessor {
       return;
     }
 
-    const handlers: { [key: string]: Action } = {
-      ArrowDown: {
+    const handlers: { [key: string]: () => Action } = {
+      ArrowDown: () => ({
         type: StateChanges.InputKeydownArrowDown,
         payload: {
           selectedItem: null,
@@ -391,8 +408,8 @@ export class FrontalComponent implements ControlValueAccessor {
               : ((this.state.highlightedIndex === null ? -1 : this.state.highlightedIndex) + 1) %
                 this.frontalItems.length,
         },
-      },
-      ArrowUp: {
+      }),
+      ArrowUp: () => ({
         type: StateChanges.InputKeydownArrowUp,
         payload: {
           selectedItem: null,
@@ -404,34 +421,40 @@ export class FrontalComponent implements ControlValueAccessor {
                   this.frontalItems.length) %
                 this.frontalItems.length,
         },
+      }),
+      Enter: () => {
+        const { selectedItem, inputText } = this.getSelected();
+        return {
+          type: StateChanges.InputKeydownEnter,
+          payload: {
+            open: false,
+            highlightedIndex: null,
+            selectedItem,
+            inputText,
+            inputValue: inputText,
+          },
+        };
       },
-      Enter: {
-        type: StateChanges.InputKeydownEnter,
-        payload: {
-          open: false,
-          highlightedIndex: null,
-          selectedItem: this.getHighlightedItem() ? this.getHighlightedItem()!.value : null,
-          inputValue: this.getHighlightedItem() ? this.state.itemToString(this.getHighlightedItem()!.value) : '',
-        },
-      },
-      Escape: {
+      Escape: () => ({
         type: StateChanges.InputKeydownEsc,
         payload: {
           open: false,
           highlightedIndex: null,
           selectedItem: null,
+          inputText: '',
           inputValue: '',
         },
-      },
+      }),
     };
 
     const handler = handlers[event.key];
     if (handler) {
-      this.handle(handler);
+      this.handle(handler());
     }
   };
 
   itemClick = (item: FrontalItemDirective) => {
+    const inputText = this.state.itemToString(item.value);
     if (this.state.open) {
       this.handle({
         type: StateChanges.ItemMouseClick,
@@ -439,7 +462,8 @@ export class FrontalComponent implements ControlValueAccessor {
           open: false,
           highlightedIndex: null,
           selectedItem: item.value,
-          inputValue: this.state.itemToString(item.value),
+          inputText,
+          inputValue: inputText,
         },
       });
     }
@@ -473,7 +497,8 @@ export class FrontalComponent implements ControlValueAccessor {
       : this.frontalItems.find((_: FrontalItemDirective, index: number) => this.state.highlightedIndex === index);
 
   handle = (action: Action, detactChanges: boolean = true) => {
-    const { payload } = this.reducer ? this.reducer(this.state, action) : action;
+    const { payload } = this.state.reducer ? this.state.reducer(this.state, action) : action;
+
     const newState = {
       ...this.state,
       ...payload,
@@ -489,6 +514,16 @@ export class FrontalComponent implements ControlValueAccessor {
     if (detactChanges) {
       this.cd.detectChanges();
     }
+  };
+
+  getSelected = () => {
+    let selectedItem = null;
+    const highlighted = this.getHighlightedItem();
+    if (highlighted) {
+      selectedItem = highlighted.value;
+    }
+    const inputText = highlighted ? this.state.itemToString(highlighted.value) : '';
+    return { selectedItem, inputText };
   };
 }
 

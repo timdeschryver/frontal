@@ -5,4 +5,7 @@ export {
   FrontalInputDirective,
   FrontalItemDirective,
   FRONTAL_VALUE_ACCESSOR,
+  State,
+  StateChanges,
+  Action,
 } from './frontal.component';
