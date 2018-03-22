@@ -8,7 +8,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
     <form [formGroup]="form">
       <frontal [itemToString]="heroToString" formControlName="hero">
         <ng-template let-value="inputValue" let-open="open" let-highlightedIndex="highlightedIndex">
-          <label>Select your hero!</label>
+          <label frontalLabel>Select your hero!</label>
           <input type="text" frontalInput/>
 
           <ul *ngIf="open" class="menu">

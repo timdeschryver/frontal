@@ -39,11 +39,7 @@ describe('Frontal dropdown', () => {
 
   describe('mouse click on item', () => {
     it('should select the highlighted item', () => {
-      browser
-        .actions()
-        .mouseMove(page.getSecondInMenu())
-        .click()
-        .perform();
+      page.getSecondInMenu().click();
       expect(page.getSelectedItem().getAttribute('value')).toBe(toJson(heroes[1]));
     });
 

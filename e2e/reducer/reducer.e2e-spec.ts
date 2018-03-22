@@ -29,11 +29,7 @@ describe('Frontal reducer', () => {
     });
 
     it('should not select an item on click', () => {
-      browser
-        .actions()
-        .mouseMove(page.getSecondInMenu())
-        .click()
-        .perform();
+      page.getSecondInMenu().click();
       expect(page.getInput().getAttribute('value')).toBe(heroesFiltered[0].name);
       expect(page.getSelectedItem().getAttribute('value')).toBe('');
     });

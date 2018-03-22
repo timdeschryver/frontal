@@ -89,8 +89,16 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
   @HostBinding('attr.autocomplete') autocomplete = 'off';
   @HostBinding('attr.aria-autocomplete') ariaAutocomplete = 'off';
   @HostBinding('attr.aria-expanded') ariaExpanded = false;
+  @HostBinding('attr.id') attrId = `frontal-input-${this.frontal.id}`;
 
-  private id = Date.now();
+  @Input()
+  get id() {
+    return this.attrId;
+  }
+
+  set id(value: any) {
+    this.attrId = value;
+  }
 
   constructor(
     @Inject(ElementRef) private element: ElementRef,
@@ -99,7 +107,7 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.frontal.addListener({ id: this.id, listener: this.stateChange.bind(this) });
+    this.frontal.addListener({ id: 'input', listener: this.stateChange.bind(this) });
   }
 
   ngAfterViewInit() {
@@ -109,7 +117,7 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.frontal.removeListener(this.id);
+    this.frontal.removeListener('input');
   }
 
   stateChange(state: State, action: Action) {
@@ -150,6 +158,28 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
   setValue(value: string) {
     this.element.nativeElement.value = value;
   }
+}
+
+@Directive({
+  selector: '[frontalLabel]',
+  exportAs: 'frontalLabel',
+})
+export class FrontalLabelDirective {
+  @HostBinding('attr.for') attrFor = `frontal-input-${this.frontal.id}`;
+
+  @Input()
+  get for() {
+    return this.attrFor;
+  }
+
+  set for(value: any) {
+    this.attrFor = value;
+  }
+
+  constructor(
+    // prettier-ignore
+    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent,
+  ) {}
 }
 
 @Directive({
@@ -197,15 +227,13 @@ export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy 
   @HostBinding('attr.aria-expanded') ariaExpanded = false;
   @HostBinding('attr.aria-haspopup') ariaHasPopup = true;
 
-  private id = Date.now();
-
   constructor(
     // prettier-ignore
     @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent,
   ) {}
 
   ngOnInit() {
-    this.frontal.addListener({ id: this.id, listener: this.stateChange.bind(this) });
+    this.frontal.addListener({ id: 'button', listener: this.stateChange.bind(this) });
   }
 
   ngAfterViewInit() {
@@ -214,7 +242,7 @@ export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy 
   }
 
   ngOnDestroy() {
-    this.frontal.removeListener(this.id);
+    this.frontal.removeListener('button');
   }
 
   stateChange(state: State, action: Action) {
@@ -252,6 +280,8 @@ export const FRONTAL_VALUE_ACCESSOR: any = {
   providers: [FRONTAL_VALUE_ACCESSOR],
 })
 export class FrontalComponent implements ControlValueAccessor {
+  id = +Date.now();
+
   @Input()
   get reducer() {
     return this.state.reducer;
@@ -271,9 +301,10 @@ export class FrontalComponent implements ControlValueAccessor {
   }
 
   @ContentChild(TemplateRef) template: TemplateRef<any>;
+  @ContentChild(FrontalInputDirective) frontalInput: FrontalInputDirective;
   @ContentChildren(FrontalItemDirective) frontalItems: QueryList<FrontalItemDirective>;
 
-  private stateListeners: { id: number; listener: ((state: State, action: Action) => void) }[] = [];
+  private stateListeners: { id: string; listener: ((state: State, action: Action) => void) }[] = [];
   private state: State = initialState;
   private onChange = (value: any) => {};
   private onTouched = () => {};
@@ -317,11 +348,11 @@ export class FrontalComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  addListener = ({ id, listener }: { id: number; listener: (state: State, action: Action) => void }) => {
+  addListener = ({ id, listener }: { id: string; listener: (state: State, action: Action) => void }) => {
     this.stateListeners = [...this.stateListeners, { id, listener }];
   };
 
-  removeListener = (id: number) => {
+  removeListener = (id: string) => {
     this.stateListeners = this.stateListeners.filter(p => p.id !== id);
   };
 

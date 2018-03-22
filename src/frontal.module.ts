@@ -3,11 +3,18 @@ import { NgModule } from '@angular/core';
 import {
   FrontalComponent,
   FrontalInputDirective,
+  FrontalLabelDirective,
   FrontalItemDirective,
   FrontalButtonDirective,
 } from './frontal.component';
 
-const components = [FrontalComponent, FrontalInputDirective, FrontalItemDirective, FrontalButtonDirective];
+const components = [
+  FrontalComponent,
+  FrontalInputDirective,
+  FrontalLabelDirective,
+  FrontalItemDirective,
+  FrontalButtonDirective,
+];
 @NgModule({
   imports: [CommonModule],
   declarations: components,

@@ -9,6 +9,10 @@ export class SimplePage {
     return element(by.css('[frontalInput]'));
   }
 
+  getLabel() {
+    return element(by.css('[frontalLabel]'));
+  }
+
   getMenu() {
     return element(by.css('ul.menu'));
   }

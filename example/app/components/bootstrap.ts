@@ -9,7 +9,7 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
       <frontal [itemToString]="heroToString">
         <ng-template let-value="inputValue" let-open="open" let-highlightedIndex="highlightedIndex" let-selectedItem="selectedItem">
           <div class="form-group">
-            <label>Select your hero!</label>
+            <label frontalLabel>Select your hero!</label>
             <input type="text" class="form-control form-control-lg" frontalInput/>
 
             <ul *ngIf="open" class="list-group menu">

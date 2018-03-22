@@ -3,6 +3,7 @@ export {
   FrontalButtonDirective,
   FrontalComponent,
   FrontalInputDirective,
+  FrontalLabelDirective,
   FrontalItemDirective,
   FRONTAL_VALUE_ACCESSOR,
   State,

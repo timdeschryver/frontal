@@ -24,11 +24,7 @@ describe('Frontal reactive', () => {
 
   describe('selecting an item', () => {
     it('should also set the model', () => {
-      browser
-        .actions()
-        .mouseMove(page.getSecondInMenu())
-        .click()
-        .perform();
+      page.getSecondInMenu().click();
       expect(page.getSelectedItem().getAttribute('value')).toBe(toJson(heroes[1]));
     });
   });

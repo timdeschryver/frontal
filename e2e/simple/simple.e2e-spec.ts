@@ -14,6 +14,16 @@ describe('Frontal simple', () => {
     expect(page.getMenu().isPresent()).toBeFalsy();
   });
 
+  it('should select the input on label click', () => {
+    page.getLabel().click();
+    expect(page.getInput().getAttribute('id')).toEqual(
+      browser.driver
+        .switchTo()
+        .activeElement()
+        .getAttribute('id'),
+    );
+  });
+
   it('should show the menu on input', () => {
     page.getInput().sendKeys(query);
     expect(page.getMenu().isPresent()).toBeTruthy();
@@ -109,11 +119,7 @@ describe('Frontal simple', () => {
     });
 
     it('should select the highlighted item on click', () => {
-      browser
-        .actions()
-        .mouseMove(page.getSecondInMenu())
-        .click()
-        .perform();
+      page.getSecondInMenu().click();
       expect(page.getSelectedItem().getAttribute('value')).toBe(toJson(heroesFiltered[1]));
       expect(page.getInput().getAttribute('value')).toBe(heroesFiltered[1].name);
       expect(page.getMenu().isPresent()).toBeFalsy();
