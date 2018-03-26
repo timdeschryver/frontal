@@ -33,9 +33,9 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
         query('li:enter', style({ opacity: 0 }), { optional: true }),
         query(
           'li:enter',
-          stagger('100ms', [
+          stagger('50ms', [
             animate(
-              '300ms ease-in',
+              '200ms ease-in',
               keyframes([
                 style({ opacity: 0, transform: 'translateX(-75%)', offset: 0 }),
                 style({ opacity: 0.5, transform: 'translateX(35px)', offset: 0.3 }),

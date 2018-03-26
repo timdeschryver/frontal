@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Routes, RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 
 import { FrontalModule } from 'frontal';
 
@@ -13,6 +14,7 @@ import { ModelComponent } from './components/model';
 import { ReactiveComponent } from './components/reactive';
 import { BootstrapComponent } from './components/bootstrap';
 import { ReducerComponent } from './components/reducer';
+import { HttpComponent, GitHubService } from './components/http';
 
 const routes: Routes = [
   {
@@ -39,6 +41,10 @@ const routes: Routes = [
     path: 'reducer',
     component: ReducerComponent,
   },
+  {
+    path: 'http',
+    component: HttpComponent,
+  },
 ];
 
 @NgModule({
@@ -50,6 +56,7 @@ const routes: Routes = [
     ReactiveComponent,
     BootstrapComponent,
     ReducerComponent,
+    HttpComponent,
   ],
   imports: [
     BrowserModule,
@@ -57,9 +64,10 @@ const routes: Routes = [
     FormsModule,
     ReactiveFormsModule,
     FrontalModule,
+    HttpClientModule,
     RouterModule.forRoot(routes),
   ],
-  providers: [],
+  providers: [GitHubService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

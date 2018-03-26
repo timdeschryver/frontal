@@ -16,6 +16,7 @@ import { Component } from '@angular/core';
             <li><a routerLink="/reactive" routerLinkActive="active">Reactive</a></li>
             <li><a routerLink="/bootstrap" routerLinkActive="active">Bootstrap</a></li>
             <li><a routerLink="/reducer" routerLinkActive="active">Reducer</a></li>
+            <li><a routerLink="/http" routerLinkActive="active">Http</a></li>
           </ul>
         </nav>
       </aside>
