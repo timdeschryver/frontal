@@ -27,7 +27,7 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
       </ng-template>
     </frontal>
   `,
-  styleUrls: ['../../../node_modules/bootstrap/dist/css/bootstrap.min.css'],
+  styleUrls: ['./bootstrap.scss'],
 })
 export class BootstrapComponent {
   heroes = heroes;
