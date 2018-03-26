@@ -25,15 +25,8 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
         <pre>{{hero | json}}</pre>
       </ng-template>
     </frontal>
-    <button id="reset" (click)="reset()">Change hero</button>
+    <button id="reset" (click)="reset()">Reset hero</button>
   `,
-  styles: [
-    `
-      .highlight {
-        background: yellow;
-      }
-    `,
-  ],
 })
 export class ModelComponent {
   heroes = heroes;

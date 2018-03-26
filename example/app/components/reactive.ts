@@ -28,15 +28,8 @@ import { FormBuilder, FormGroup } from '@angular/forms';
         </ng-template>
       </frontal>
     </form>
-    <button id="reset" (click)="reset()">Change hero</button>
+    <button id="reset" (click)="reset()">Reset hero</button>
   `,
-  styles: [
-    `
-      .highlight {
-        background: yellow;
-      }
-    `,
-  ],
 })
 export class ReactiveComponent implements OnInit {
   form: FormGroup;

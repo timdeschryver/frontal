@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { trigger, transition, query, style, animate, stagger, keyframes } from '@angular/animations';
 import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
 
 @Component({
@@ -9,7 +10,7 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
         <label frontalLabel>Select your hero!</label>
         <input type="text" frontalInput/>
 
-        <ul *ngIf="open" class="menu">
+        <ul *ngIf="open" class="menu" [@listAnimation]="filteredHeroes(value).length">
           <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;"
             [class.highlight]="highlightedIndex === index">
             <div frontalItem [value]="hero">{{hero.name}}</div>
@@ -26,19 +27,33 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
       </ng-template>
     </frontal>
   `,
-  styles: [
-    `
-      .highlight {
-        background: yellow;
-      }
-    `,
+  animations: [
+    trigger('listAnimation', [
+      transition('* => *', [
+        query('li:enter', style({ opacity: 0 }), { optional: true }),
+        query(
+          'li:enter',
+          stagger('100ms', [
+            animate(
+              '300ms ease-in',
+              keyframes([
+                style({ opacity: 0, transform: 'translateX(-75%)', offset: 0 }),
+                style({ opacity: 0.5, transform: 'translateX(35px)', offset: 0.3 }),
+                style({ opacity: 1, transform: 'translateX(0)', offset: 1.0 }),
+              ]),
+            ),
+          ]),
+          { optional: true },
+        ),
+      ]),
+    ]),
   ],
 })
 export class SimpleComponent {
   heroes = heroes;
 
-  filteredHeroes(query: string) {
-    return filter(query);
+  filteredHeroes(text: string) {
+    return filter(text);
   }
 
   trackHeroById(index: number, hero: Hero) {

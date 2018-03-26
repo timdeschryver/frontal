@@ -22,13 +22,6 @@ import { heroes, toString, toJson, Hero } from '../../data/hero';
       </ng-template>
     </frontal>
   `,
-  styles: [
-    `
-      .highlight {
-        background: yellow;
-      }
-    `,
-  ],
 })
 export class DropdownComponent {
   heroes = heroes;

@@ -17,7 +17,7 @@
       "polyfills": "polyfills.ts",
       "tsconfig": "tsconfig.app.json",
       "styles": [
-        "styles.css"
+        "styles.styl"
       ],
       "scripts": [],
       "environmentSource": "environments/environment.ts",
@@ -56,7 +56,8 @@
     }
   },
   "defaults": {
-    "styleExt": "css",
-    "component": {}
+    "styleExt": "styl",
+    "component": {
+    }
   }
 }

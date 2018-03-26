@@ -5,16 +5,6 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
 @Component({
   selector: 'app-reducer',
   template: `
-    <div>
-      <p>Why is this interesting?</p>
-      <p>Because we can <strong>listen</strong> to state changes and <strong>change</strong> them according to our needs.</p>
-      <p>In this example:</p>
-      <ul>
-        <li>Input text is set when the highlighted item is changed</li>
-        <li>Mouse changes are disabled</li>
-      </ul>
-    </div>
-
     <frontal [itemToString]="heroToString" [reducer]="reducer">
       <ng-template let-value="inputValue" let-open="open" let-highlightedIndex="highlightedIndex" let-selectedItem="selectedItem">
         <label frontalLabel>Select your hero!</label>
@@ -37,13 +27,6 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
       </ng-template>
     </frontal>
   `,
-  styles: [
-    `
-      .highlight {
-        background: yellow;
-      }
-    `,
-  ],
 })
 export class ReducerComponent {
   heroes = heroes;
