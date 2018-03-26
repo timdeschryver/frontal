@@ -186,13 +186,21 @@ export class FrontalLabelDirective {
   selector: '[frontalItem]',
   exportAs: 'frontalItem',
 })
-export class FrontalItemDirective {
+export class FrontalItemDirective implements OnInit, OnDestroy {
   @Input() value: any;
 
   constructor(
     // prettier-ignore
     @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent,
   ) {}
+
+  ngOnInit() {
+    this.frontal.frontalItemsLength++;
+  }
+
+  ngOnDestroy(): void {
+    this.frontal.frontalItemsLength--;
+  }
 
   @HostListener('mousedown', ['$event'])
   mousedown(event: Event) {
@@ -281,6 +289,7 @@ export const FRONTAL_VALUE_ACCESSOR: any = {
 })
 export class FrontalComponent implements ControlValueAccessor {
   id = +Date.now();
+  frontalItemsLength = 0;
 
   @Input()
   get reducer() {
@@ -434,10 +443,10 @@ export class FrontalComponent implements ControlValueAccessor {
         payload: {
           selectedItem: null,
           highlightedIndex:
-            this.frontalItems.length === 0
+            this.frontalItemsLength === 0
               ? null
               : ((this.state.highlightedIndex === null ? -1 : this.state.highlightedIndex) + 1) %
-                this.frontalItems.length,
+                this.frontalItemsLength,
         },
       }),
       ArrowUp: () => ({
@@ -445,12 +454,12 @@ export class FrontalComponent implements ControlValueAccessor {
         payload: {
           selectedItem: null,
           highlightedIndex:
-            this.frontalItems.length === 0
+            this.frontalItemsLength === 0
               ? null
               : ((this.state.highlightedIndex === null ? 1 : this.state.highlightedIndex) -
                   1 +
-                  this.frontalItems.length) %
-                this.frontalItems.length,
+                  this.frontalItemsLength) %
+                this.frontalItemsLength,
         },
       }),
       Enter: () => {
