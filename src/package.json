@@ -24,7 +24,6 @@
     "url": "https://github.com/tdeschryver/frontal/issues"
   },
   "homepage": "https://github.com/tdeschryver/frontal#readme",
-  "readme": "../README.md",
   "peerDependencies": {
     "@angular/common": "^5.2.0",
     "@angular/core": "^5.2.0",
