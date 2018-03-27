@@ -3,42 +3,26 @@ import { FrontalItemDirective } from './frontal.component';
 
 export interface State {
   selectedItem: any;
-  open: boolean;
-  toggleMenu: () => void;
-  openMenu: () => void;
-  closeMenu: () => void;
+  highlightedIndex: number | null;
   inputValue: string;
   inputText: string;
-  inputChange: (event: KeyboardEvent) => void;
-  inputBlur: () => void;
-  highlightedIndex: number | null;
-  inputKeydown: (event: KeyboardEvent) => void;
-  itemClick: (value: FrontalItemDirective, index: number) => void;
-  itemEnter: (value: FrontalItemDirective, index: number) => void;
-  itemLeave: (value: FrontalItemDirective, index: number) => void;
-  buttonClick: () => void;
+  open: boolean;
+  reducer: (state: State, action: Action) => Action;
   itemToString: (value: any) => string;
-  reducer: null | ((state: State, action: Action) => Action);
+  onSelect: (value: any) => void;
+  onChange: (value: string) => void;
 }
 
 export const initialState: State = {
   selectedItem: null,
-  open: false,
-  toggleMenu: noop,
-  openMenu: noop,
-  closeMenu: noop,
+  highlightedIndex: null,
   inputValue: '',
   inputText: '',
-  inputChange: noop,
-  inputBlur: noop,
-  highlightedIndex: null,
-  inputKeydown: noop,
-  itemClick: noop,
-  itemEnter: noop,
-  itemLeave: noop,
-  buttonClick: noop,
+  open: false,
+  reducer: (state: State, action: Action) => action,
   itemToString: (value: any) => value,
-  reducer: null,
+  onSelect: noop,
+  onChange: noop,
 };
 
 function noop() {}

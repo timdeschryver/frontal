@@ -4,7 +4,7 @@ import { heroes, toString, toJson, Hero } from '../../data/hero';
 @Component({
   selector: 'app-dropdown',
   template: `
-    <frontal #frontal [itemToString]="heroToString">
+    <frontal #frontal [itemToString]="heroToString" [onSelect]="onSelect">
       <ng-template>
         <button frontalButton>
           {{frontal.state.selectedItem ? frontal.state.selectedItem.name : 'Select your hero'}}
@@ -36,5 +36,9 @@ export class DropdownComponent {
 
   heroToJson(hero: Hero) {
     return toJson(hero);
+  }
+
+  onSelect(hero: Hero) {
+    alert(`${hero.name} selected!`);
   }
 }

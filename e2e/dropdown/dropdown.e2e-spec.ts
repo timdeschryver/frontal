@@ -1,4 +1,4 @@
-import { browser } from 'protractor';
+import { browser, protractor } from 'protractor';
 import { heroes, toJson } from '../../example/data/hero';
 import { DropdownPage } from './dropdown.po';
 
@@ -38,8 +38,15 @@ describe('Frontal dropdown', () => {
   });
 
   describe('mouse click on item', () => {
-    it('should select the highlighted item', () => {
+    it('should show an alert', () => {
       page.getSecondInMenu().click();
+      browser.wait(protractor.ExpectedConditions.alertIsPresent(), 1000);
+      const alert = browser.switchTo().alert();
+      expect(alert.getText()).toContain(heroes[1].name);
+      alert.dismiss();
+    });
+
+    it('should select the item', () => {
       expect(page.getSelectedItem().getAttribute('value')).toBe(toJson(heroes[1]));
     });
 

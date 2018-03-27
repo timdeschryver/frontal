@@ -42,7 +42,7 @@ export class GitHubService {
 @Component({
   selector: 'http-simple',
   template: `
-    <frontal [itemToString]="userToString" [reducer]="reducer">
+    <frontal [itemToString]="userToString" [onChange]="onChange">
       <ng-template let-value="inputValue" let-open="open" let-highlightedIndex="highlightedIndex" let-selectedItem="selectedItem">
         <label frontalLabel>Select your user!</label>
         <input type="text" frontalInput/>
@@ -55,10 +55,6 @@ export class GitHubService {
               {{user.login}}
             </div>
           </li>
-
-          <div *ngIf="users | async">
-            No users found...
-          </div>
         </ul>
 
         <h4>Selected user:</h4>
@@ -80,7 +76,6 @@ export class HttpComponent implements OnInit {
       distinctUntilChanged(),
       switchMap(query => (query ? this.github.getUsers(query) : empty<User[]>())),
       catchError(_ => empty<User[]>()),
-      share(),
     );
   }
 
@@ -96,10 +91,7 @@ export class HttpComponent implements OnInit {
     return JSON.stringify(user);
   }
 
-  reducer = (state: State, action: Action) => {
-    if (action.type === StateChanges.InputChange) {
-      this.query.next(action.payload.inputText);
-    }
-    return action;
+  onChange = (value: string) => {
+    this.query.next(value);
   };
 }

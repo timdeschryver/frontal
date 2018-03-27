@@ -10,4 +10,8 @@ describe('Frontal http', () => {
     page.getInput().sendKeys('tdeschryver');
     browser.wait(page.getMenu().isPresent(), 1000);
   });
+
+  it('should show list items', () => {
+    expect(page.getListItem().isPresent()).toBeTruthy();
+  });
 });

@@ -12,4 +12,12 @@ export class HttpPage {
   getMenu() {
     return element(by.css('ul.menu'));
   }
+
+  getMenuItems() {
+    return this.getMenu().all(by.css('li'));
+  }
+
+  getListItem() {
+    return element.all(by.cssContainingText('li', 'tdeschryver'));
+  }
 }

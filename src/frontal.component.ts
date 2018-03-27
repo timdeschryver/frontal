@@ -52,9 +52,8 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    const state = this.frontal.getState();
-    this.setAriaExpanded(state.open);
-    this.setValue(state.inputText);
+    this.setAriaExpanded(this.frontal.state.open);
+    this.setValue(this.frontal.state.inputText);
   }
 
   ngOnDestroy() {
@@ -73,23 +72,17 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
 
   @HostListener('blur', ['$event'])
   blur(event: Event) {
-    if (this.frontal.inputBlur) {
-      this.frontal.inputBlur();
-    }
+    this.frontal.inputBlur();
   }
 
   @HostListener('input', ['$event'])
   input(event: KeyboardEvent) {
-    if (this.frontal.inputChange) {
-      this.frontal.inputChange(event);
-    }
+    this.frontal.inputChange(event);
   }
 
   @HostListener('keydown', ['$event'])
   keydown(event: KeyboardEvent) {
-    if (this.frontal.inputKeydown) {
-      this.frontal.inputKeydown(event);
-    }
+    this.frontal.inputKeydown(event);
   }
 
   setAriaExpanded(value: boolean) {
@@ -145,23 +138,17 @@ export class FrontalItemDirective implements OnInit, OnDestroy {
 
   @HostListener('mousedown', ['$event'])
   mousedown(event: Event) {
-    if (this.frontal.itemClick) {
-      this.frontal.itemClick(this);
-    }
+    this.frontal.itemClick(this);
   }
 
   @HostListener('mouseenter', ['$event'])
   enter(event: Event) {
-    if (this.frontal.itemEnter) {
-      this.frontal.itemEnter(this);
-    }
+    this.frontal.itemEnter(this);
   }
 
   @HostListener('mouseleave', ['$event'])
   mouseleave(event: Event) {
-    if (this.frontal.itemLeave) {
-      this.frontal.itemLeave(this);
-    }
+    this.frontal.itemLeave(this);
   }
 }
 
@@ -186,8 +173,7 @@ export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy 
   }
 
   ngAfterViewInit() {
-    const state = this.frontal.getState();
-    this.setAriaExpanded(state.open);
+    this.setAriaExpanded(this.frontal.state.open);
   }
 
   ngOnDestroy() {
@@ -224,7 +210,7 @@ export const FRONTAL_VALUE_ACCESSOR: any = {
   exportAs: 'frontal',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ng-container *ngTemplateOutlet="template; context: getState()"></ng-container>
+    <ng-container *ngTemplateOutlet="template; context: state"></ng-container>
   `,
   providers: [FRONTAL_VALUE_ACCESSOR],
 })
@@ -233,47 +219,37 @@ export class FrontalComponent implements ControlValueAccessor {
   frontalItemsLength = 0;
 
   @Input()
-  get reducer() {
-    return this.state.reducer;
-  }
-
-  set reducer(fn: null | ((state: State, action: Action) => Action)) {
-    this.state.reducer = fn;
+  set reducer(fun: (state: State, action: Action) => Action) {
+    this.state.reducer = fun;
   }
 
   @Input()
-  get itemToString() {
-    return this.state.itemToString;
+  set itemToString(fun: (value: any) => string) {
+    this.state.itemToString = fun;
   }
 
-  set itemToString(fn: (value: any) => string) {
-    this.state.itemToString = fn;
+  @Input()
+  set onSelect(fun: (value: any) => void) {
+    this.state.onSelect = fun;
+  }
+
+  @Input()
+  set onChange(fun: (value: string) => void) {
+    this.state.onChange = fun;
   }
 
   @ContentChild(TemplateRef) template: TemplateRef<any>;
   @ContentChild(FrontalInputDirective) frontalInput: FrontalInputDirective;
   @ContentChildren(FrontalItemDirective) frontalItems: QueryList<FrontalItemDirective>;
 
-  private state: State;
-  private stateListeners: { id: string; listener: ((state: State) => void) }[] = [];
-  private onChange = (value: any) => {};
-  private onTouched = () => {};
+  state: State = {
+    ...initialState,
+  };
+  private _stateListeners: { id: string; listener: ((state: State) => void) }[] = [];
+  private _onChange = (value: any) => {};
+  private _onTouched = () => {};
 
-  constructor(public cd: ChangeDetectorRef) {
-    this.state = {
-      ...initialState,
-      toggleMenu: this.toggleMenu,
-      openMenu: this.openMenu,
-      closeMenu: this.closeMenu,
-      inputChange: this.inputChange,
-      inputBlur: this.inputBlur,
-      inputKeydown: this.inputKeydown,
-      itemClick: this.itemClick,
-      itemEnter: this.itemEnter,
-      itemLeave: this.itemLeave,
-      buttonClick: this.buttonClick,
-    };
-  }
+  constructor(public cd: ChangeDetectorRef) {}
 
   writeValue(value: any) {
     const inputText = value ? this.state.itemToString(value) : '';
@@ -291,22 +267,20 @@ export class FrontalComponent implements ControlValueAccessor {
   }
 
   registerOnChange(fn: any) {
-    this.onChange = fn;
+    this._onChange = fn;
   }
 
   registerOnTouched(fn: any) {
-    this.onTouched = fn;
+    this._onTouched = fn;
   }
 
   addListener = ({ id, listener }: { id: string; listener: (state: State) => void }) => {
-    this.stateListeners = [...this.stateListeners, { id, listener }];
+    this._stateListeners = [...this._stateListeners, { id, listener }];
   };
 
   removeListener = (id: string) => {
-    this.stateListeners = this.stateListeners.filter(p => p.id !== id);
+    this._stateListeners = this._stateListeners.filter(p => p.id !== id);
   };
-
-  getState = () => this.state;
 
   toggleMenu = () => {
     this.handle({
@@ -478,7 +452,7 @@ export class FrontalComponent implements ControlValueAccessor {
       : this.frontalItems.find((_: FrontalItemDirective, index: number) => this.state.highlightedIndex === index);
 
   handle = (action: Action, detactChanges: boolean = true) => {
-    const { payload } = this.state.reducer ? this.state.reducer(this.state, action) : action;
+    const { payload } = this.state.reducer(this.state, action);
 
     const newState = {
       ...this.state,
@@ -486,11 +460,18 @@ export class FrontalComponent implements ControlValueAccessor {
     };
 
     if (newState.selectedItem !== this.state.selectedItem) {
-      this.onChange(newState.selectedItem);
+      this._onChange(newState.selectedItem);
+      if (newState.selectedItem !== null) {
+        this.state.onSelect(newState.selectedItem);
+      }
+    }
+
+    if (this.state.inputValue !== newState.inputValue) {
+      this.state.onChange(newState.inputValue);
     }
 
     this.state = newState;
-    this.stateListeners.forEach(({ listener }) => listener(this.state));
+    this._stateListeners.forEach(({ listener }) => listener(this.state));
 
     if (detactChanges) {
       this.cd.detectChanges();
