@@ -18,67 +18,8 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-
-export interface State {
-  selectedItem: any;
-  open: boolean;
-  toggleMenu: () => void;
-  openMenu: () => void;
-  closeMenu: () => void;
-  inputValue: string;
-  inputText: string;
-  inputChange: (event: KeyboardEvent) => void;
-  inputBlur: () => void;
-  highlightedIndex: number | null;
-  inputKeydown: (event: KeyboardEvent) => void;
-  itemClick: (value: FrontalItemDirective, index: number) => void;
-  itemEnter: (value: FrontalItemDirective, index: number) => void;
-  itemLeave: (value: FrontalItemDirective, index: number) => void;
-  buttonClick: () => void;
-  itemToString: (value: any) => string;
-  reducer: null | ((state: State, action: Action) => Action);
-}
-
-export enum StateChanges {
-  MenuToggle = 'frontal_menu_toggle',
-  MenuOpen = 'frontal_menu_open',
-  MenuClose = 'frontal_menu_close',
-  InputBlur = 'frontal_input_blur',
-  InputChange = 'frontal_input_change',
-  InputKeydownArrowDown = 'frontal_input_keydown_arrow_down',
-  InputKeydownArrowUp = 'frontal_input_keydown_arrow_up',
-  InputKeydownEnter = 'frontal_input_keydown_arrow_enter',
-  InputKeydownEsc = 'frontal_input_keydown_arrow_esc',
-  ItemMouseClick = 'frontal_item_mouseclick',
-  ItemMouseEnter = 'frontal_item_mouseenter',
-  ItemMouseLeave = 'frontal_item_mouseleave',
-  ButtonClick = 'frontal_button_click',
-}
-
-export interface Action {
-  type: StateChanges;
-  payload: any;
-}
-
-export const initialState: State = {
-  selectedItem: null,
-  open: false,
-  toggleMenu: noop,
-  openMenu: noop,
-  closeMenu: noop,
-  inputValue: '',
-  inputText: '',
-  inputChange: noop,
-  inputBlur: noop,
-  highlightedIndex: null,
-  inputKeydown: noop,
-  itemClick: noop,
-  itemEnter: noop,
-  itemLeave: noop,
-  buttonClick: noop,
-  itemToString: (value: any) => value,
-  reducer: null,
-};
+import { Action, StateChanges } from './actions';
+import { State, initialState } from './state';
 
 @Directive({
   selector: '[frontalInput]',
@@ -120,7 +61,7 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
     this.frontal.removeListener('input');
   }
 
-  stateChange(state: State, action: Action) {
+  stateChange(state: State) {
     if (this.ariaExpanded !== state.open) {
       this.setAriaExpanded(state.open);
     }
@@ -253,7 +194,7 @@ export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy 
     this.frontal.removeListener('button');
   }
 
-  stateChange(state: State, action: Action) {
+  stateChange(state: State) {
     if (this.ariaExpanded !== state.open) {
       this.setAriaExpanded(state.open);
     }
@@ -313,8 +254,8 @@ export class FrontalComponent implements ControlValueAccessor {
   @ContentChild(FrontalInputDirective) frontalInput: FrontalInputDirective;
   @ContentChildren(FrontalItemDirective) frontalItems: QueryList<FrontalItemDirective>;
 
-  private stateListeners: { id: string; listener: ((state: State, action: Action) => void) }[] = [];
-  private state: State = initialState;
+  private state: State;
+  private stateListeners: { id: string; listener: ((state: State) => void) }[] = [];
   private onChange = (value: any) => {};
   private onTouched = () => {};
 
@@ -357,7 +298,7 @@ export class FrontalComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  addListener = ({ id, listener }: { id: string; listener: (state: State, action: Action) => void }) => {
+  addListener = ({ id, listener }: { id: string; listener: (state: State) => void }) => {
     this.stateListeners = [...this.stateListeners, { id, listener }];
   };
 
@@ -549,7 +490,7 @@ export class FrontalComponent implements ControlValueAccessor {
     }
 
     this.state = newState;
-    this.stateListeners.forEach(({ listener }) => listener(this.state, { type: action.type, payload }));
+    this.stateListeners.forEach(({ listener }) => listener(this.state));
 
     if (detactChanges) {
       this.cd.detectChanges();
@@ -566,5 +507,3 @@ export class FrontalComponent implements ControlValueAccessor {
     return { selectedItem, inputText };
   };
 }
-
-function noop() {}

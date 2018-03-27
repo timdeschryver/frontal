@@ -15,6 +15,7 @@ const components = [
   FrontalItemDirective,
   FrontalButtonDirective,
 ];
+
 @NgModule({
   imports: [CommonModule],
   declarations: components,

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { State, Action, StateChanges } from 'frontal';
+import { State, StateChanges, Action } from 'frontal';
 import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
 
 @Component({
@@ -57,7 +57,10 @@ export class ReducerComponent {
           ...action,
           payload: {
             ...action.payload,
-            inputText: toString(filter(state.inputValue)[action.payload.highlightedIndex]),
+            inputText:
+              action.payload.highlightedIndex === null
+                ? ''
+                : toString(filter(state.inputValue)[action.payload.highlightedIndex]),
           },
         };
       case StateChanges.ItemMouseEnter:
