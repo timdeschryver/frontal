@@ -1,6 +1,6 @@
 {
   "name": "frontal",
-  "version": "0.0.0-beta.2",
+  "version": "0.0.0-beta.3",
   "description": "An Angular select/dropdown component",
   "module": "frontal.js",
   "main": "bundles/frontal.umd.js",
@@ -24,6 +24,7 @@
     "url": "https://github.com/tdeschryver/frontal/issues"
   },
   "homepage": "https://github.com/tdeschryver/frontal#readme",
+  "readme": "../README.md",
   "peerDependencies": {
     "@angular/common": "^5.2.0",
     "@angular/core": "^5.2.0",
