@@ -7,7 +7,7 @@
     {
       "name": "example",
       "root": "example",
-      "outDir": "dist-example",
+      "outDir": "dist/example",
       "assets": [
         "assets",
         "favicon.ico"
