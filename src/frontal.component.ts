@@ -129,11 +129,11 @@ export class FrontalItemDirective implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.frontal.frontalItemsLength++;
+    this.frontal.addFrontalItem();
   }
 
   ngOnDestroy(): void {
-    this.frontal.frontalItemsLength--;
+    this.frontal.removeFrontalItem();
   }
 
   @HostListener('mousedown', ['$event'])
@@ -216,7 +216,6 @@ export const FRONTAL_VALUE_ACCESSOR: any = {
 })
 export class FrontalComponent implements ControlValueAccessor {
   id = +Date.now();
-  frontalItemsLength = 0;
 
   @Input()
   set reducer(fun: (state: State, action: Action) => Action) {
@@ -245,11 +244,13 @@ export class FrontalComponent implements ControlValueAccessor {
   state: State = {
     ...initialState,
   };
+
+  private _frontalItemsLength = 0;
   private _stateListeners: { id: string; listener: ((state: State) => void) }[] = [];
   private _onChange = (value: any) => {};
   private _onTouched = () => {};
 
-  constructor(public cd: ChangeDetectorRef) {}
+  constructor(public _changeDetector: ChangeDetectorRef) {}
 
   writeValue(value: any) {
     const inputText = value ? this.state.itemToString(value) : '';
@@ -274,51 +275,51 @@ export class FrontalComponent implements ControlValueAccessor {
     this._onTouched = fn;
   }
 
-  addListener = ({ id, listener }: { id: string; listener: (state: State) => void }) => {
+  addListener({ id, listener }: { id: string; listener: (state: State) => void }) {
     this._stateListeners = [...this._stateListeners, { id, listener }];
-  };
+  }
 
-  removeListener = (id: string) => {
+  removeListener(id: string) {
     this._stateListeners = this._stateListeners.filter(p => p.id !== id);
-  };
+  }
 
-  toggleMenu = () => {
+  toggleMenu() {
     this.handle({
       type: StateChanges.MenuToggle,
       payload: {
         open: !this.state.open,
       },
     });
-  };
+  }
 
-  openMenu = () => {
+  openMenu() {
     this.handle({
       type: StateChanges.MenuOpen,
       payload: {
         open: true,
       },
     });
-  };
+  }
 
-  closeMenu = () => {
+  closeMenu() {
     this.handle({
       type: StateChanges.MenuClose,
       payload: {
         open: false,
       },
     });
-  };
+  }
 
-  buttonClick = () => {
+  buttonClick() {
     this.handle({
       type: StateChanges.ButtonClick,
       payload: {
         open: !this.state.open,
       },
     });
-  };
+  }
 
-  inputBlur = () => {
+  inputBlur() {
     const { selectedItem, inputText } = this.getSelected();
     if (this.state.open) {
       this.handle({
@@ -332,9 +333,9 @@ export class FrontalComponent implements ControlValueAccessor {
         },
       });
     }
-  };
+  }
 
-  inputChange = (event: KeyboardEvent) => {
+  inputChange(event: KeyboardEvent) {
     const inputText = (<HTMLInputElement>event.target).value;
     this.handle({
       type: StateChanges.InputChange,
@@ -345,9 +346,9 @@ export class FrontalComponent implements ControlValueAccessor {
         selectedItem: null,
       },
     });
-  };
+  }
 
-  inputKeydown = (event: KeyboardEvent) => {
+  inputKeydown(event: KeyboardEvent) {
     if (!this.state.open) {
       return;
     }
@@ -358,10 +359,10 @@ export class FrontalComponent implements ControlValueAccessor {
         payload: {
           selectedItem: null,
           highlightedIndex:
-            this.frontalItemsLength === 0
+            this._frontalItemsLength === 0
               ? null
               : ((this.state.highlightedIndex === null ? -1 : this.state.highlightedIndex) + 1) %
-                this.frontalItemsLength,
+                this._frontalItemsLength,
         },
       }),
       ArrowUp: () => ({
@@ -369,12 +370,12 @@ export class FrontalComponent implements ControlValueAccessor {
         payload: {
           selectedItem: null,
           highlightedIndex:
-            this.frontalItemsLength === 0
+            this._frontalItemsLength === 0
               ? null
               : ((this.state.highlightedIndex === null ? 1 : this.state.highlightedIndex) -
                   1 +
-                  this.frontalItemsLength) %
-                this.frontalItemsLength,
+                  this._frontalItemsLength) %
+                this._frontalItemsLength,
         },
       }),
       Enter: () => {
@@ -406,9 +407,9 @@ export class FrontalComponent implements ControlValueAccessor {
     if (handler) {
       this.handle(handler());
     }
-  };
+  }
 
-  itemClick = (item: FrontalItemDirective) => {
+  itemClick(item: FrontalItemDirective) {
     const inputText = this.state.itemToString(item.value);
     if (this.state.open) {
       this.handle({
@@ -422,9 +423,9 @@ export class FrontalComponent implements ControlValueAccessor {
         },
       });
     }
-  };
+  }
 
-  itemEnter = (item: FrontalItemDirective) => {
+  itemEnter(item: FrontalItemDirective) {
     if (this.state.open) {
       this.handle({
         type: StateChanges.ItemMouseEnter,
@@ -433,9 +434,9 @@ export class FrontalComponent implements ControlValueAccessor {
         },
       });
     }
-  };
+  }
 
-  itemLeave = (item: FrontalItemDirective) => {
+  itemLeave(item: FrontalItemDirective) {
     if (this.state.open) {
       this.handle({
         type: StateChanges.ItemMouseLeave,
@@ -444,14 +445,15 @@ export class FrontalComponent implements ControlValueAccessor {
         },
       });
     }
-  };
+  }
 
-  getHighlightedItem = () =>
-    this.state.highlightedIndex === null
+  getHighlightedItem() {
+    return this.state.highlightedIndex === null
       ? null
       : this.frontalItems.find((_: FrontalItemDirective, index: number) => this.state.highlightedIndex === index);
+  }
 
-  handle = (action: Action, detactChanges: boolean = true) => {
+  handle(action: Action, detactChanges: boolean = true) {
     const { payload } = this.state.reducer(this.state, action);
 
     const newState = {
@@ -474,11 +476,11 @@ export class FrontalComponent implements ControlValueAccessor {
     this._stateListeners.forEach(({ listener }) => listener(this.state));
 
     if (detactChanges) {
-      this.cd.detectChanges();
+      this._changeDetector.detectChanges();
     }
-  };
+  }
 
-  getSelected = () => {
+  getSelected() {
     let selectedItem = null;
     const highlighted = this.getHighlightedItem();
     if (highlighted) {
@@ -486,5 +488,13 @@ export class FrontalComponent implements ControlValueAccessor {
     }
     const inputText = highlighted ? this.state.itemToString(highlighted.value) : '';
     return { selectedItem, inputText };
-  };
+  }
+
+  addFrontalItem() {
+    this._frontalItemsLength += 1;
+  }
+
+  removeFrontalItem() {
+    this._frontalItemsLength -= 1;
+  }
 }
