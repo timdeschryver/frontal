@@ -9,8 +9,6 @@ export interface State {
   open: boolean;
   reducer: (state: State, action: Action) => Action;
   itemToString: (value: any) => string;
-  onSelect: (value: any) => void;
-  onChange: (value: string) => void;
 }
 
 export const initialState: State = {
@@ -21,8 +19,4 @@ export const initialState: State = {
   open: false,
   reducer: (state: State, action: Action) => action,
   itemToString: (value: any) => value,
-  onSelect: noop,
-  onChange: noop,
 };
-
-function noop() {}

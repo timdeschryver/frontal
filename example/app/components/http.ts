@@ -7,17 +7,6 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { empty } from 'rxjs/observable/empty';
 import { State, Action, StateChanges } from 'frontal';
 
-interface User {
-  id: number;
-  login: string;
-  score: number;
-  avatar_url: string;
-}
-
-interface UserResponse {
-  items: User[];
-}
-
 @Injectable()
 export class GitHubService {
   getUsers(user: string): Observable<User[]> {
@@ -42,7 +31,7 @@ export class GitHubService {
 @Component({
   selector: 'http-simple',
   template: `
-    <frontal [itemToString]="userToString" [onChange]="onChange">
+    <frontal [itemToString]="userToString" on-change="onChange($event)">
       <ng-template let-value="inputValue" let-open="open" let-highlightedIndex="highlightedIndex" let-selectedItem="selectedItem">
         <label frontalLabel>Select your user!</label>
         <input type="text" frontalInput/>
@@ -91,7 +80,18 @@ export class HttpComponent implements OnInit {
     return JSON.stringify(user);
   }
 
-  onChange = (value: string) => {
+  onChange(value: string) {
     this.query.next(value);
-  };
+  }
+}
+
+interface User {
+  id: number;
+  login: string;
+  score: number;
+  avatar_url: string;
+}
+
+interface UserResponse {
+  items: User[];
 }

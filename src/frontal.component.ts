@@ -16,6 +16,8 @@ import {
   OnInit,
   AfterViewInit,
   OnDestroy,
+  Output,
+  EventEmitter,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Action, StateChanges } from './actions';
@@ -227,15 +229,8 @@ export class FrontalComponent implements ControlValueAccessor {
     this.state.itemToString = fun;
   }
 
-  @Input()
-  set onSelect(fun: (value: any) => void) {
-    this.state.onSelect = fun;
-  }
-
-  @Input()
-  set onChange(fun: (value: string) => void) {
-    this.state.onChange = fun;
-  }
+  @Output() change = new EventEmitter<string>();
+  @Output() select = new EventEmitter<any>();
 
   @ContentChild(TemplateRef) template: TemplateRef<any>;
   @ContentChild(FrontalInputDirective) frontalInput: FrontalInputDirective;
@@ -464,12 +459,12 @@ export class FrontalComponent implements ControlValueAccessor {
     if (newState.selectedItem !== this.state.selectedItem) {
       this._onChange(newState.selectedItem);
       if (newState.selectedItem !== null) {
-        this.state.onSelect(newState.selectedItem);
+        this.select.emit(newState.selectedItem);
       }
     }
 
     if (this.state.inputValue !== newState.inputValue) {
-      this.state.onChange(newState.inputValue);
+      this.change.emit(newState.inputValue);
     }
 
     this.state = newState;
