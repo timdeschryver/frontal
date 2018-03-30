@@ -349,30 +349,36 @@ export class FrontalComponent implements ControlValueAccessor {
     }
 
     const handlers: { [key: string]: () => Action } = {
-      ArrowDown: () => ({
-        type: StateChanges.InputKeydownArrowDown,
-        payload: {
-          selectedItem: null,
-          highlightedIndex:
-            this._frontalItemsLength === 0
-              ? null
-              : ((this.state.highlightedIndex === null ? -1 : this.state.highlightedIndex) + 1) %
-                this._frontalItemsLength,
-        },
-      }),
-      ArrowUp: () => ({
-        type: StateChanges.InputKeydownArrowUp,
-        payload: {
-          selectedItem: null,
-          highlightedIndex:
-            this._frontalItemsLength === 0
-              ? null
-              : ((this.state.highlightedIndex === null ? 1 : this.state.highlightedIndex) -
-                  1 +
-                  this._frontalItemsLength) %
-                this._frontalItemsLength,
-        },
-      }),
+      ArrowDown: () => {
+        event.preventDefault();
+        return {
+          type: StateChanges.InputKeydownArrowDown,
+          payload: {
+            selectedItem: null,
+            highlightedIndex:
+              this._frontalItemsLength === 0
+                ? null
+                : ((this.state.highlightedIndex === null ? -1 : this.state.highlightedIndex) + 1) %
+                  this._frontalItemsLength,
+          },
+        };
+      },
+      ArrowUp: () => {
+        event.preventDefault();
+        return {
+          type: StateChanges.InputKeydownArrowUp,
+          payload: {
+            selectedItem: null,
+            highlightedIndex:
+              this._frontalItemsLength === 0
+                ? null
+                : ((this.state.highlightedIndex === null ? 1 : this.state.highlightedIndex) -
+                    1 +
+                    this._frontalItemsLength) %
+                  this._frontalItemsLength,
+          },
+        };
+      },
       Enter: () => {
         const { selectedItem, inputText } = this.getSelected();
         return {
