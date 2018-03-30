@@ -46,7 +46,7 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     @Inject(ElementRef) private element: ElementRef,
     // prettier-ignore
-    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent,
+    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent, // tslint:disable-line
   ) {}
 
   ngOnInit() {
@@ -54,7 +54,7 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    this.setAriaExpanded(this.frontal.state.open);
+    this.setAriaExpanded(this.frontal.state.isOpen);
     this.setValue(this.frontal.state.inputText);
   }
 
@@ -63,8 +63,8 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
   }
 
   stateChange(state: State) {
-    if (this.ariaExpanded !== state.open) {
-      this.setAriaExpanded(state.open);
+    if (this.ariaExpanded !== state.isOpen) {
+      this.setAriaExpanded(state.isOpen);
     }
 
     if (this.element.nativeElement.value !== state.inputText) {
@@ -114,7 +114,7 @@ export class FrontalLabelDirective {
 
   constructor(
     // prettier-ignore
-    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent,
+    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent, // tslint:disable-line
   ) {}
 }
 
@@ -127,7 +127,7 @@ export class FrontalItemDirective implements OnInit, OnDestroy {
 
   constructor(
     // prettier-ignore
-    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent,
+    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent, // tslint:disable-line
   ) {}
 
   ngOnInit() {
@@ -167,7 +167,7 @@ export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy 
 
   constructor(
     // prettier-ignore
-    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent,
+    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent, // tslint:disable-line
   ) {}
 
   ngOnInit() {
@@ -175,7 +175,7 @@ export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy 
   }
 
   ngAfterViewInit() {
-    this.setAriaExpanded(this.frontal.state.open);
+    this.setAriaExpanded(this.frontal.state.isOpen);
   }
 
   ngOnDestroy() {
@@ -183,8 +183,8 @@ export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy 
   }
 
   stateChange(state: State) {
-    if (this.ariaExpanded !== state.open) {
-      this.setAriaExpanded(state.open);
+    if (this.ariaExpanded !== state.isOpen) {
+      this.setAriaExpanded(state.isOpen);
     }
   }
 
@@ -203,7 +203,7 @@ export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy 
 
 export const FRONTAL_VALUE_ACCESSOR: any = {
   provide: NG_VALUE_ACCESSOR,
-  useExisting: forwardRef(() => FrontalComponent),
+  useExisting: forwardRef(() => FrontalComponent), // tslint:disable-line
   multi: true,
 };
 
@@ -282,7 +282,7 @@ export class FrontalComponent implements ControlValueAccessor {
     this.handle({
       type: StateChanges.MenuToggle,
       payload: {
-        open: !this.state.open,
+        isOpen: !this.state.isOpen,
       },
     });
   }
@@ -291,7 +291,7 @@ export class FrontalComponent implements ControlValueAccessor {
     this.handle({
       type: StateChanges.MenuOpen,
       payload: {
-        open: true,
+        isOpen: true,
       },
     });
   }
@@ -300,7 +300,7 @@ export class FrontalComponent implements ControlValueAccessor {
     this.handle({
       type: StateChanges.MenuClose,
       payload: {
-        open: false,
+        isOpen: false,
       },
     });
   }
@@ -309,18 +309,18 @@ export class FrontalComponent implements ControlValueAccessor {
     this.handle({
       type: StateChanges.ButtonClick,
       payload: {
-        open: !this.state.open,
+        isOpen: !this.state.isOpen,
       },
     });
   }
 
   inputBlur() {
     const { selectedItem, inputText } = this.getSelected();
-    if (this.state.open) {
+    if (this.state.isOpen) {
       this.handle({
         type: StateChanges.InputBlur,
         payload: {
-          open: false,
+          isOpen: false,
           highlightedIndex: null,
           selectedItem,
           inputText,
@@ -337,14 +337,14 @@ export class FrontalComponent implements ControlValueAccessor {
       payload: {
         inputText,
         inputValue: inputText,
-        open: true,
+        isOpen: true,
         selectedItem: null,
       },
     });
   }
 
   inputKeydown(event: KeyboardEvent) {
-    if (!this.state.open) {
+    if (!this.state.isOpen) {
       return;
     }
 
@@ -378,7 +378,7 @@ export class FrontalComponent implements ControlValueAccessor {
         return {
           type: StateChanges.InputKeydownEnter,
           payload: {
-            open: false,
+            isOpen: false,
             highlightedIndex: null,
             selectedItem,
             inputText,
@@ -389,7 +389,7 @@ export class FrontalComponent implements ControlValueAccessor {
       Escape: () => ({
         type: StateChanges.InputKeydownEsc,
         payload: {
-          open: false,
+          isOpen: false,
           highlightedIndex: null,
           selectedItem: null,
           inputText: '',
@@ -406,11 +406,11 @@ export class FrontalComponent implements ControlValueAccessor {
 
   itemClick(item: FrontalItemDirective) {
     const inputText = this.state.itemToString(item.value);
-    if (this.state.open) {
+    if (this.state.isOpen) {
       this.handle({
         type: StateChanges.ItemMouseClick,
         payload: {
-          open: false,
+          isOpen: false,
           highlightedIndex: null,
           selectedItem: item.value,
           inputText,
@@ -421,7 +421,7 @@ export class FrontalComponent implements ControlValueAccessor {
   }
 
   itemEnter(item: FrontalItemDirective) {
-    if (this.state.open) {
+    if (this.state.isOpen) {
       this.handle({
         type: StateChanges.ItemMouseEnter,
         payload: {
@@ -432,7 +432,7 @@ export class FrontalComponent implements ControlValueAccessor {
   }
 
   itemLeave(item: FrontalItemDirective) {
-    if (this.state.open) {
+    if (this.state.isOpen) {
       this.handle({
         type: StateChanges.ItemMouseLeave,
         payload: {

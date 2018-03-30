@@ -3,23 +3,23 @@ import { trigger, transition, query, style, animate, stagger, keyframes } from '
 import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
 
 @Component({
-  selector: 'app-simple',
+  selector: 'frontal-simple',
   template: `
     <frontal [itemToString]="heroToString">
-      <ng-template let-value="inputValue" let-open="open" let-highlightedIndex="highlightedIndex" let-selectedItem="selectedItem">
+      <ng-template let-value="inputValue" let-isOpen="isOpen" let-highlightedIndex="highlightedIndex" let-selectedItem="selectedItem">
         <label frontalLabel>Select your hero!</label>
         <input type="text" frontalInput/>
 
-        <ul *ngIf="open" class="menu" [@listAnimation]="filteredHeroes(value).length">
+        <ul *ngIf="isOpen" class="menu" [@listAnimation]="filteredHeroes(value).length">
           <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;"
             [class.highlight]="highlightedIndex === index">
             <div frontalItem [value]="hero">{{hero.name}}</div>
           </li>
-
-          <div *ngIf="!filteredHeroes(value).length">
-            No heroes found...
-          </div>
         </ul>
+
+        <div *ngIf="isOpen && filteredHeroes(value).length > 0">
+          No heroes found...
+        </div>
 
         <h4>Selected hero:</h4>
         <input type="hidden" id="selected" [value]="heroToJson(selectedItem)">

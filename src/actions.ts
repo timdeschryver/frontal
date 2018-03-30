@@ -17,7 +17,7 @@ export enum StateChanges {
 export interface MenuToggle {
   type: StateChanges.MenuToggle;
   payload: {
-    open: boolean;
+    isOpen: boolean;
   };
 }
 
@@ -33,28 +33,28 @@ export interface InputChange {
 export interface MenuOpen {
   type: StateChanges.MenuOpen;
   payload: {
-    open: boolean;
+    isOpen: boolean;
   };
 }
 
 export interface MenuClose {
   type: StateChanges.MenuClose;
   payload: {
-    open: boolean;
+    isOpen: boolean;
   };
 }
 
 export interface ButtonClick {
   type: StateChanges.ButtonClick;
   payload: {
-    open: boolean;
+    isOpen: boolean;
   };
 }
 
 export interface InputBlur {
   type: StateChanges.InputBlur;
   payload: {
-    open: boolean;
+    isOpen: boolean;
     highlightedIndex: null;
     selectedItem: any;
     inputText: string;
@@ -65,7 +65,7 @@ export interface InputBlur {
 export interface ItemMouseClick {
   type: StateChanges.ItemMouseClick;
   payload: {
-    open: boolean;
+    isOpen: boolean;
     highlightedIndex: null;
     selectedItem: any;
     inputText: string;
@@ -106,7 +106,7 @@ export interface InputKeydownArrowUp {
 export interface InputKeydownEnter {
   type: StateChanges.InputKeydownEnter;
   payload: {
-    open: boolean;
+    isOpen: boolean;
     highlightedIndex: number | null;
     selectedItem: any;
     inputText: string;
@@ -117,7 +117,7 @@ export interface InputKeydownEnter {
 export interface InputKeydownEsc {
   type: StateChanges.InputKeydownEsc;
   payload: {
-    open: boolean;
+    isOpen: boolean;
     highlightedIndex: number | null;
     selectedItem: any | null;
     inputText: string;

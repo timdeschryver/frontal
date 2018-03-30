@@ -29,18 +29,18 @@ Use the frontal component and directives:
 
 ```html
 <frontal [itemToString]="heroToString">
-  <ng-template let-value="inputValue" let-open="open" let-highlightedIndex="highlightedIndex" let-selectedItem="selectedItem">
+  <ng-template let-value="inputValue" let-isOpen="isOpen" let-highlightedIndex="highlightedIndex" let-selectedItem="selectedItem">
     <label frontalLabel>Select your hero!</label>
     <input type="text" frontalInput/>
 
-    <ul *ngIf="open">
+    <ul *ngIf="isOpen">
       <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;"
         [class.highlight]="highlightedIndex === index">
         <div frontalItem [value]="hero">{{hero.name}}</div>
       </li>
     </ul>
 
-    <div *ngIf="open && filteredHeroes(value).length > 0">
+    <div *ngIf="isOpen && filteredHeroes(value).length > 0">
       No heroes found...
     </div>
 

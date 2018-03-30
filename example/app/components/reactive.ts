@@ -3,24 +3,24 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
 import { FormBuilder, FormGroup } from '@angular/forms';
 
 @Component({
-  selector: 'app-reactive',
+  selector: 'frontal-reactive',
   template: `
     <form [formGroup]="form">
       <frontal [itemToString]="heroToString" formControlName="hero">
-        <ng-template let-value="inputValue" let-open="open" let-highlightedIndex="highlightedIndex">
+        <ng-template let-value="inputValue" let-isOpen="isOpen" let-highlightedIndex="highlightedIndex">
           <label frontalLabel>Select your hero!</label>
           <input type="text" frontalInput/>
 
-          <ul *ngIf="open" class="menu">
+          <ul *ngIf="isOpen" class="menu">
             <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;"
               [class.highlight]="highlightedIndex === index">
               <div frontalItem [value]="hero">{{hero.name}}</div>
             </li>
-
-            <div *ngIf="!filteredHeroes(value).length">
-              No heroes found...
-            </div>
           </ul>
+
+          <div *ngIf="isOpen && filteredHeroes(value).length > 0">
+            No heroes found...
+          </div>
 
           <h4>Form value:</h4>
           <input type="hidden" id="selected" [value]="heroToJson(form.get('hero').value)">

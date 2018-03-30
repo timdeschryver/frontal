@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { heroes, toString, toJson, Hero } from '../../data/hero';
 
 @Component({
-  selector: 'app-dropdown',
+  selector: 'frontal-dropdown',
   template: `
     <frontal #frontal [itemToString]="heroToString" on-select="onSelect($event)">
       <ng-template>
@@ -10,7 +10,7 @@ import { heroes, toString, toJson, Hero } from '../../data/hero';
           {{frontal.state.selectedItem ? frontal.state.selectedItem.name : 'Select your hero'}}
         </button>
 
-        <ul *ngIf="frontal.state.open" class="menu">
+        <ul *ngIf="frontal.state.isOpen" class="menu">
           <li *ngFor="let hero of heroes; trackBy:trackById; let index=index;" [class.highlight]="frontal.state.highlightedIndex === index">
             <div frontalItem [value]="hero">{{hero.name}}</div>
           </li>

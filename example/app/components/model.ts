@@ -2,23 +2,23 @@ import { Component } from '@angular/core';
 import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
 
 @Component({
-  selector: 'app-model',
+  selector: 'frontal-model',
   template: `
     <frontal [(ngModel)]="hero" [itemToString]="heroToString">
-      <ng-template let-value="inputValue" let-open="open" let-highlightedIndex="highlightedIndex">
+      <ng-template let-value="inputValue" let-isOpen="isOpen" let-highlightedIndex="highlightedIndex">
         <label frontalLabel>Select your hero!</label>
         <input type="text" frontalInput/>
 
-        <ul *ngIf="open" class="menu">
+        <ul *ngIf="isOpen" class="menu">
           <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;"
             [class.highlight]="highlightedIndex === index">
             <div frontalItem [value]="hero">{{hero.name}}</div>
           </li>
-
-          <div *ngIf="!filteredHeroes(value).length">
-            No heroes found...
-          </div>
         </ul>
+
+        <div *ngIf="isOpen && filteredHeroes(value).length > 0">
+          No heroes found...
+        </div>
 
         <h4>Selected hero:</h4>
         <input type="hidden" id="selected" [value]="heroToJson(hero)">

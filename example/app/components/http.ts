@@ -1,9 +1,8 @@
 import { Component, Injectable, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, catchError, switchMap, share } from 'rxjs/operators';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, map, catchError, switchMap } from 'rxjs/operators';
 import { empty } from 'rxjs/observable/empty';
 import { State, Action, StateChanges } from 'frontal';
 
@@ -29,14 +28,14 @@ export class GitHubService {
 }
 
 @Component({
-  selector: 'http-simple',
+  selector: 'frontal-http',
   template: `
     <frontal [itemToString]="userToString" on-change="onChange($event)">
-      <ng-template let-value="inputValue" let-open="open" let-highlightedIndex="highlightedIndex" let-selectedItem="selectedItem">
+      <ng-template let-value="inputValue" let-isOpen="isOpen" let-highlightedIndex="highlightedIndex" let-selectedItem="selectedItem">
         <label frontalLabel>Select your user!</label>
         <input type="text" frontalInput/>
 
-        <ul *ngIf="open" class="menu">
+        <ul *ngIf="isOpen" class="menu">
           <li *ngFor="let user of users | async; trackBy:trackUserById; let index=index;"
             [class.highlight]="highlightedIndex === index">
             <div frontalItem [value]="user">

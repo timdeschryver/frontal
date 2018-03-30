@@ -6,7 +6,7 @@ export interface State {
   highlightedIndex: number | null;
   inputValue: string;
   inputText: string;
-  open: boolean;
+  isOpen: boolean;
   reducer: (state: State, action: Action) => Action;
   itemToString: (value: any) => string;
 }
@@ -16,7 +16,7 @@ export const initialState: State = {
   highlightedIndex: null,
   inputValue: '',
   inputText: '',
-  open: false,
+  isOpen: false,
   reducer: (state: State, action: Action) => action,
   itemToString: (value: any) => value,
 };
