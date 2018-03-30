@@ -8,17 +8,17 @@ import { FormBuilder, FormGroup } from '@angular/forms';
     <form [formGroup]="form">
       <frontal [itemToString]="heroToString" formControlName="hero">
         <ng-template let-value="inputValue" let-isOpen="isOpen" let-highlightedIndex="highlightedIndex">
-          <label frontalLabel>Select your hero!</label>
+          <label frontalLabel>Select your hero:</label>
           <input type="text" frontalInput/>
 
           <ul *ngIf="isOpen" class="menu">
-            <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;"
+            <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;" frontalItem [value]="hero"
               [class.highlight]="highlightedIndex === index">
-              <div frontalItem [value]="hero">{{hero.name}}</div>
+              {{hero.name}}
             </li>
           </ul>
 
-          <div *ngIf="isOpen && filteredHeroes(value).length > 0">
+          <div *ngIf="isOpen && filteredHeroes(value).length === 0" class="no-match">
             No heroes found...
           </div>
 

@@ -45,6 +45,10 @@ const routes: Routes = [
     path: 'http',
     component: HttpComponent,
   },
+  {
+    path: '**',
+    redirectTo: 'simple',
+  },
 ];
 
 @NgModule({

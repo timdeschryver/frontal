@@ -11,8 +11,9 @@ import { heroes, toString, toJson, Hero } from '../../data/hero';
         </button>
 
         <ul *ngIf="frontal.state.isOpen" class="menu">
-          <li *ngFor="let hero of heroes; trackBy:trackById; let index=index;" [class.highlight]="frontal.state.highlightedIndex === index">
-            <div frontalItem [value]="hero">{{hero.name}}</div>
+          <li *ngFor="let hero of heroes; trackBy:trackById; let index=index;" frontalItem [value]="hero"
+            [class.highlight]="frontal.state.highlightedIndex === index">
+            {{hero.name}}
           </li>
         </ul>
 

@@ -34,4 +34,8 @@ export class SimplePage {
   getSelectedHeader() {
     return element(by.css('h4'));
   }
+
+  getNoMatch() {
+    return element(by.css('.no-match'));
+  }
 }

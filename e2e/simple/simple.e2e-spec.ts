@@ -29,6 +29,10 @@ describe('Frontal simple', () => {
     expect(page.getMenu().isPresent()).toBeTruthy();
   });
 
+  it("shouldn't show a message that no heroes are found", () => {
+    expect(page.getNoMatch().isPresent()).toBeFalsy();
+  });
+
   describe('move its highlighted index on arrow usages', () => {
     describe('arrow down', () => {
       it('should move down', () => {
@@ -124,5 +128,10 @@ describe('Frontal simple', () => {
       expect(page.getInput().getAttribute('value')).toBe(heroesFiltered[1].name);
       expect(page.getMenu().isPresent()).toBeFalsy();
     });
+  });
+
+  it('should show a message that no heroes are found', () => {
+    page.getInput().sendKeys('unknown hero');
+    expect(page.getNoMatch().isPresent()).toBeTruthy();
   });
 });

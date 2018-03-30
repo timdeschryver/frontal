@@ -7,17 +7,17 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
     <frontal [itemToString]="heroToString">
       <ng-template let-value="inputValue" let-isOpen="isOpen" let-highlightedIndex="highlightedIndex" let-selectedItem="selectedItem">
         <div class="form-group">
-          <label frontalLabel>Select your hero!</label>
+          <label frontalLabel>Select your hero:</label>
           <input type="text" class="form-control form-control-lg" frontalInput/>
 
           <ul *ngIf="isOpen" class="list-group menu">
             <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;"
-              class="list-group-item" [class.active]="highlightedIndex === index">
-              <div frontalItem [value]="hero">{{hero.name}}</div>
+              frontalItem [value]="hero" class="list-group-item" [class.active]="highlightedIndex === index">
+              {{hero.name}}
             </li>
           </ul>
 
-          <div *ngIf="isOpen && filteredHeroes(value).length > 0">
+          <div *ngIf="isOpen && filteredHeroes(value).length === 0" class="no-match">
             No heroes found...
           </div>
         </div>
