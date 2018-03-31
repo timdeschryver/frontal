@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
 import { FormBuilder, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'frontal-reactive',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <form [formGroup]="form">
       <frontal [itemToString]="heroToString" formControlName="hero">

@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { State, StateChanges, Action } from 'frontal';
 import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
 
 @Component({
   selector: 'frontal-reducer',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <frontal [itemToString]="heroToString" [reducer]="reducer">
       <ng-template let-value="inputValue" let-isOpen="isOpen" let-highlightedIndex="highlightedIndex" let-selectedItem="selectedItem">

@@ -1,4 +1,4 @@
-import { Component, Injectable, OnInit } from '@angular/core';
+import { Component, Injectable, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
@@ -29,6 +29,7 @@ export class GitHubService {
 
 @Component({
   selector: 'frontal-http',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <frontal [itemToString]="userToString" on-change="onChange($event)">
       <ng-template let-value="inputValue" let-isOpen="isOpen" let-highlightedIndex="highlightedIndex" let-selectedItem="selectedItem" let-itemCount="itemCount">

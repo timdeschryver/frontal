@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { heroes, toString, toJson, Hero } from '../../data/hero';
 
 @Component({
   selector: 'frontal-dropdown',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <frontal #frontal [itemToString]="heroToString" on-select="onSelect($event)">
       <ng-template>

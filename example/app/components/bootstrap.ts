@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
 
 @Component({
   selector: 'frontal-bootstrap',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <frontal [itemToString]="heroToString">
       <ng-template let-value="inputValue" let-isOpen="isOpen" let-highlightedIndex="highlightedIndex" let-selectedItem="selectedItem">
