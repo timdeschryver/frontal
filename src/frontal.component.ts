@@ -18,6 +18,8 @@ import {
   OnDestroy,
   Output,
   EventEmitter,
+  ViewRef,
+  ComponentRef,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Action, StateChanges } from './actions';
@@ -499,7 +501,9 @@ export class FrontalComponent implements ControlValueAccessor {
 
     // Might throw errors otherwise on *ngFor
     setTimeout(() => {
-      this._changeDetector.detectChanges();
+      if (!this.isDestroyed()) {
+        this._changeDetector.detectChanges();
+      }
     });
   }
 
@@ -510,7 +514,14 @@ export class FrontalComponent implements ControlValueAccessor {
     };
 
     setTimeout(() => {
-      this._changeDetector.detectChanges();
+      if (!this.isDestroyed()) {
+        this._changeDetector.detectChanges();
+      }
     });
+  }
+
+  isDestroyed() {
+    const viewRef = this._changeDetector as ViewRef;
+    return !viewRef || viewRef.destroyed;
   }
 }
