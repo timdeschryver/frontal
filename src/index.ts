@@ -16,7 +16,7 @@ export {
   InputKeydownEnter,
   InputKeydownEsc,
 } from './actions';
-export { State, initialState } from './state';
+export { State, initialState, createState } from './state';
 export {
   FrontalButtonDirective,
   FrontalComponent,

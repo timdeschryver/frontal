@@ -21,7 +21,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Action, StateChanges } from './actions';
-import { State, initialState } from './state';
+import { State, initialState, createState } from './state';
 
 @Directive({
   selector: '[frontalInput]',
@@ -32,7 +32,7 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
   @HostBinding('attr.autocomplete') autocomplete = 'off';
   @HostBinding('attr.aria-autocomplete') ariaAutocomplete = 'off';
   @HostBinding('attr.aria-expanded') ariaExpanded = false;
-  @HostBinding('attr.id') attrId = `frontal-input-${this.frontal.id}`;
+  @HostBinding('attr.id') attrId = `frontal-input-${this.frontal.state.id}`;
 
   @Input()
   get id() {
@@ -101,7 +101,7 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
   exportAs: 'frontalLabel',
 })
 export class FrontalLabelDirective {
-  @HostBinding('attr.for') attrFor = `frontal-input-${this.frontal.id}`;
+  @HostBinding('attr.for') attrFor = `frontal-input-${this.frontal.state.id}`;
 
   @Input()
   get for() {
@@ -217,8 +217,6 @@ export const FRONTAL_VALUE_ACCESSOR: any = {
   providers: [FRONTAL_VALUE_ACCESSOR],
 })
 export class FrontalComponent implements ControlValueAccessor {
-  id = +Date.now();
-
   @Input()
   set reducer(fun: (state: State, action: Action) => Action) {
     this.state.reducer = fun;
@@ -236,9 +234,7 @@ export class FrontalComponent implements ControlValueAccessor {
   @ContentChild(FrontalInputDirective) frontalInput: FrontalInputDirective;
   @ContentChildren(FrontalItemDirective) frontalItems: QueryList<FrontalItemDirective>;
 
-  state: State = {
-    ...initialState,
-  };
+  state: State = createState();
 
   private _stateListeners: { id: string; listener: ((state: State) => void) }[] = [];
   private _onChange = (value: any) => {};

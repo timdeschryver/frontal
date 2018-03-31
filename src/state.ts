@@ -2,6 +2,7 @@ import { Action } from './actions';
 import { FrontalItemDirective } from './frontal.component';
 
 export interface State {
+  id: string;
   selectedItem: any;
   highlightedIndex: number | null;
   inputValue: string;
@@ -13,6 +14,7 @@ export interface State {
 }
 
 export const initialState: State = {
+  id: '',
   selectedItem: null,
   highlightedIndex: null,
   inputValue: '',
@@ -22,3 +24,8 @@ export const initialState: State = {
   reducer: (state: State, action: Action) => action,
   itemToString: (value: any) => value,
 };
+
+export const createState = (): State => ({
+  ...initialState,
+  id: (+Date.now()).toString(),
+});
