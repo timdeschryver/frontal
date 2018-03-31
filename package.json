@@ -7,7 +7,7 @@
     "transpile": "ngc -p ./src/tsconfig.build.json",
     "package": "rollup -c ./src/rollup.config.js",
     "minify": "uglifyjs ./dist/bundles/frontal.umd.js --screw-ie8 --compress --mangle --comments --output ./dist/bundles/frontal.umd.min.js",
-    "build": "rimraf ./dist/* && npm run transpile && npm run package && npm run minify"
+    "build": "rimraf ./dist/* && npm run transpile && npm run package && npm run minify && cp ./README.md ./dist && cp ./src/package.json ./dist"
   },
   "lint-staged": {
     "*.{ts,json,md}": [
@@ -27,7 +27,7 @@
     "@angular/router": "^5.2.0",
     "bootstrap": "^4.0.0",
     "core-js": "^2.4.1",
-    "frontal": "0.0.0-beta.5",
+    "frontal": "0.0.0-beta.6",
     "rxjs": "^5.5.6",
     "zone.js": "^0.8.19"
   },
