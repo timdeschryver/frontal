@@ -31,9 +31,13 @@ export class GitHubService {
   selector: 'frontal-http',
   template: `
     <frontal [itemToString]="userToString" on-change="onChange($event)">
-      <ng-template let-value="inputValue" let-isOpen="isOpen" let-highlightedIndex="highlightedIndex" let-selectedItem="selectedItem">
-        <label frontalLabel>Select your user!</label>
+      <ng-template let-value="inputValue" let-isOpen="isOpen" let-highlightedIndex="highlightedIndex" let-selectedItem="selectedItem" let-itemCount="itemCount">
+        <label frontalLabel>Select a user:</label>
         <input type="text" frontalInput/>
+
+        <div *ngIf="isOpen" id="item-count">
+          Users found: {{itemCount}}
+        </div>
 
         <ul *ngIf="isOpen" class="menu">
           <li *ngFor="let user of users | async; trackBy:trackUserById; let index=index;"

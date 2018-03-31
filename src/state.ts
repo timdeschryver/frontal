@@ -7,6 +7,7 @@ export interface State {
   inputValue: string;
   inputText: string;
   isOpen: boolean;
+  itemCount: number;
   reducer: (state: State, action: Action) => Action;
   itemToString: (value: any) => string;
 }
@@ -17,6 +18,7 @@ export const initialState: State = {
   inputValue: '',
   inputText: '',
   isOpen: false,
+  itemCount: 0,
   reducer: (state: State, action: Action) => action,
   itemToString: (value: any) => value,
 };

@@ -20,4 +20,8 @@ export class HttpPage {
   getListItem() {
     return element.all(by.cssContainingText('li', 'tdeschryver'));
   }
+
+  getItemCount() {
+    return element(by.id('item-count'));
+  }
 }

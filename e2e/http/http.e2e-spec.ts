@@ -14,4 +14,8 @@ describe('Frontal http', () => {
   it('should show list items', () => {
     expect(page.getListItem().isPresent()).toBeTruthy();
   });
+
+  it('should show the number of items found', () => {
+    expect(page.getItemCount().getText()).toBe('Users found: 1');
+  });
 });

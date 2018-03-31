@@ -134,22 +134,22 @@ export class FrontalItemDirective implements OnInit, OnDestroy {
     this.frontal.addFrontalItem();
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     this.frontal.removeFrontalItem();
   }
 
   @HostListener('mousedown', ['$event'])
-  mousedown(event: Event) {
+  mousedown(event: MouseEvent) {
     this.frontal.itemClick(this);
   }
 
   @HostListener('mouseenter', ['$event'])
-  enter(event: Event) {
+  enter(event: MouseEvent) {
     this.frontal.itemEnter(this);
   }
 
   @HostListener('mouseleave', ['$event'])
-  mouseleave(event: Event) {
+  mouseleave(event: MouseEvent) {
     this.frontal.itemLeave(this);
   }
 }
@@ -189,7 +189,7 @@ export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy 
   }
 
   @HostListener('click', ['$event'])
-  click(event: Event) {
+  click(event: MouseEvent) {
     if (this.frontal.buttonClick) {
       this.frontal.buttonClick();
     }
@@ -240,7 +240,6 @@ export class FrontalComponent implements ControlValueAccessor {
     ...initialState,
   };
 
-  private _frontalItemsLength = 0;
   private _stateListeners: { id: string; listener: ((state: State) => void) }[] = [];
   private _onChange = (value: any) => {};
   private _onTouched = () => {};
@@ -356,10 +355,10 @@ export class FrontalComponent implements ControlValueAccessor {
           payload: {
             selectedItem: null,
             highlightedIndex:
-              this._frontalItemsLength === 0
+              this.state.itemCount === 0
                 ? null
                 : ((this.state.highlightedIndex === null ? -1 : this.state.highlightedIndex) + 1) %
-                  this._frontalItemsLength,
+                  this.state.itemCount,
           },
         };
       },
@@ -370,12 +369,12 @@ export class FrontalComponent implements ControlValueAccessor {
           payload: {
             selectedItem: null,
             highlightedIndex:
-              this._frontalItemsLength === 0
+              this.state.itemCount === 0
                 ? null
                 : ((this.state.highlightedIndex === null ? 1 : this.state.highlightedIndex) -
                     1 +
-                    this._frontalItemsLength) %
-                  this._frontalItemsLength,
+                    this.state.itemCount) %
+                  this.state.itemCount,
           },
         };
       },
@@ -492,10 +491,25 @@ export class FrontalComponent implements ControlValueAccessor {
   }
 
   addFrontalItem() {
-    this._frontalItemsLength += 1;
+    this.state = {
+      ...this.state,
+      itemCount: this.state.itemCount + 1,
+    };
+
+    // Might throw errors otherwise on *ngFor
+    setTimeout(() => {
+      this._changeDetector.detectChanges();
+    });
   }
 
   removeFrontalItem() {
-    this._frontalItemsLength -= 1;
+    this.state = {
+      ...this.state,
+      itemCount: this.state.itemCount - 1,
+    };
+
+    setTimeout(() => {
+      this._changeDetector.detectChanges();
+    });
   }
 }
