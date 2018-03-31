@@ -5,7 +5,7 @@ import { heroes, toString, toJson, Hero } from '../../data/hero';
   selector: 'frontal-dropdown',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <frontal #frontal [itemToString]="heroToString" on-select="onSelect($event)">
+    <frontal #frontal [itemToString]="heroToString" [isOpen]="true" on-select="onSelect($event)">
       <ng-template>
         <button frontalButton>
           {{frontal.state.selectedItem ? frontal.state.selectedItem.name : 'Select your hero'}}

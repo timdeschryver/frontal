@@ -217,6 +217,8 @@ export const FRONTAL_VALUE_ACCESSOR: any = {
   providers: [FRONTAL_VALUE_ACCESSOR],
 })
 export class FrontalComponent implements ControlValueAccessor {
+  state: State = createState();
+
   @Input()
   set reducer(fun: (state: State, action: Action) => Action) {
     this.state.reducer = fun;
@@ -227,6 +229,11 @@ export class FrontalComponent implements ControlValueAccessor {
     this.state.itemToString = fun;
   }
 
+  @Input()
+  set isOpen(value: boolean) {
+    this.state.isOpen = value;
+  }
+
   @Output() change = new EventEmitter<string>();
   @Output() select = new EventEmitter<any>();
 
@@ -234,13 +241,11 @@ export class FrontalComponent implements ControlValueAccessor {
   @ContentChild(FrontalInputDirective) frontalInput: FrontalInputDirective;
   @ContentChildren(FrontalItemDirective) frontalItems: QueryList<FrontalItemDirective>;
 
-  state: State = createState();
-
   private _stateListeners: { id: string; listener: ((state: State) => void) }[] = [];
   private _onChange = (value: any) => {};
   private _onTouched = () => {};
 
-  constructor(public _changeDetector: ChangeDetectorRef) {}
+  constructor(private _changeDetector: ChangeDetectorRef) {}
 
   writeValue(value: any) {
     const inputText = value ? this.state.itemToString(value) : '';

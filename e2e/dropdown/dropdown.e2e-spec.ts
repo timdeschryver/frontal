@@ -5,12 +5,18 @@ import { DropdownPage } from './dropdown.po';
 describe('Frontal dropdown', () => {
   const page = new DropdownPage();
 
-  it('should initialize with a closed menu', () => {
+  it('should initialize with an open menu', () => {
     page.navigateTo();
-    expect(page.getMenu().isPresent()).toBeFalsy();
+    expect(page.getMenu().isPresent()).toBeTruthy();
   });
 
-  it('should show the menu on click', () => {
+  it('should toggle the menu on click', () => {
+    browser
+      .actions()
+      .click(page.getButton())
+      .perform();
+    expect(page.getMenu().isPresent()).toBeFalsy();
+
     browser
       .actions()
       .click(page.getButton())
