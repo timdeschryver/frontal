@@ -145,9 +145,9 @@ export class FrontalItemDirective implements OnInit, OnDestroy {
     this.frontal.itemClick(this);
   }
 
-  @HostListener('mouseenter', ['$event'])
-  enter(event: MouseEvent) {
-    this.frontal.itemEnter(this);
+  @HostListener('mousemove', ['$event'])
+  mousemove(event: MouseEvent) {
+    this.frontal.itemMove(this);
   }
 
   @HostListener('mouseleave', ['$event'])
@@ -428,14 +428,19 @@ export class FrontalComponent implements ControlValueAccessor {
     }
   }
 
-  itemEnter(item: FrontalItemDirective) {
+  // MouseMove because we want a user interaction
+  // MouseEnter selects an item when the mouse is hovering over an item while typing
+  itemMove(item: FrontalItemDirective) {
     if (this.state.isOpen) {
-      this.handle({
-        type: StateChanges.ItemMouseEnter,
-        payload: {
-          highlightedIndex: this.frontalItems.toArray().indexOf(item),
-        },
-      });
+      const index = this.frontalItems.toArray().indexOf(item);
+      if (index !== -1 && index !== this.state.highlightedIndex) {
+        this.handle({
+          type: StateChanges.ItemMouseEnter,
+          payload: {
+            highlightedIndex: index,
+          },
+        });
+      }
     }
   }
 
@@ -499,12 +504,7 @@ export class FrontalComponent implements ControlValueAccessor {
       itemCount: this.state.itemCount + 1,
     };
 
-    // Might throw errors otherwise on *ngFor
-    setTimeout(() => {
-      if (!this.isDestroyed()) {
-        this._changeDetector.detectChanges();
-      }
-    });
+    this._changeDetector.detectChanges();
   }
 
   removeFrontalItem() {
@@ -514,14 +514,10 @@ export class FrontalComponent implements ControlValueAccessor {
     };
 
     setTimeout(() => {
-      if (!this.isDestroyed()) {
+      const viewRef = this._changeDetector as ViewRef;
+      if (viewRef && !viewRef.destroyed) {
         this._changeDetector.detectChanges();
       }
     });
-  }
-
-  isDestroyed() {
-    const viewRef = this._changeDetector as ViewRef;
-    return !viewRef || viewRef.destroyed;
   }
 }

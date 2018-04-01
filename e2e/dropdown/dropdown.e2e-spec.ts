@@ -10,6 +10,21 @@ describe('Frontal dropdown', () => {
     expect(page.getMenu().isPresent()).toBeTruthy();
   });
 
+  it('should highlight an item on move movement', () => {
+    browser
+      .actions()
+      .mouseMove(page.getSecondInMenu())
+      .perform();
+
+    // first mouse move has a problem with frontalItems not being updated
+    browser
+      .actions()
+      .mouseMove(page.getSecondInMenu())
+      .perform();
+    expect(page.getHighlightedItem().isPresent()).toBeTruthy();
+    expect(page.getHighlightedItem().getText()).toBe(heroes[1].name);
+  });
+
   it('should toggle the menu on click', () => {
     browser
       .actions()
