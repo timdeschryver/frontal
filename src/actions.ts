@@ -24,6 +24,7 @@ export interface MenuToggle {
 export interface InputChange {
   type: StateChanges.InputChange;
   payload: {
+    highlightedIndex: number | null;
     selectedItem: any;
     inputText: string;
     inputValue: string;

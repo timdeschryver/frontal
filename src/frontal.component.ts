@@ -19,11 +19,11 @@ import {
   Output,
   EventEmitter,
   ViewRef,
-  ComponentRef,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Action, StateChanges } from './actions';
 import { State, initialState, createState } from './state';
+import { generateId } from './utils';
 
 @Directive({
   selector: '[frontalInput]',
@@ -31,18 +31,29 @@ import { State, initialState, createState } from './state';
 })
 export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
   @HostBinding('attr.role') role = 'combobox';
+  @HostBinding('attr.aria-autocomplete') ariaAutocomplete = 'list';
   @HostBinding('attr.autocomplete') autocomplete = 'off';
-  @HostBinding('attr.aria-autocomplete') ariaAutocomplete = 'off';
   @HostBinding('attr.aria-expanded') ariaExpanded = false;
-  @HostBinding('attr.id') attrId = `frontal-input-${this.frontal.state.id}`;
+  @HostBinding('attr.aria-activedescendant') ariaActiveDescendant = '';
+  @HostBinding('attr.aria-labelledby') ariaLabeledBy = createFrontalLabelId(this.frontal.state.id);
+  @HostBinding('attr.id') attrId = createFrontalInputId(this.frontal.state.id);
 
   @Input()
   get id() {
     return this.attrId;
   }
 
-  set id(value: any) {
+  set id(value: string) {
     this.attrId = value;
+  }
+
+  @Input()
+  get 'aria-labelledby'() {
+    return this.ariaLabeledBy;
+  }
+
+  set 'aria-labelledby'(value: string) {
+    this.ariaLabeledBy = value;
   }
 
   constructor(
@@ -56,7 +67,7 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    this.setAriaExpanded(this.frontal.state.isOpen);
+    this.setAriaAttributes();
     this.setValue(this.frontal.state.inputText);
   }
 
@@ -65,9 +76,7 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
   }
 
   stateChange(state: State) {
-    if (this.ariaExpanded !== state.isOpen) {
-      this.setAriaExpanded(state.isOpen);
-    }
+    this.setAriaAttributes();
 
     if (this.element.nativeElement.value !== state.inputText) {
       this.setValue(state.inputText);
@@ -89,11 +98,14 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
     this.frontal.inputKeydown(event);
   }
 
-  setAriaExpanded(value: boolean) {
-    this.ariaExpanded = value;
+  private setAriaAttributes() {
+    this.ariaExpanded = this.frontal.state.isOpen;
+
+    const highlighted = this.frontal.getHighlightedItem();
+    this.ariaActiveDescendant = highlighted ? highlighted.attrId : '';
   }
 
-  setValue(value: string) {
+  private setValue(value: string) {
     this.element.nativeElement.value = value;
   }
 }
@@ -103,7 +115,7 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
   exportAs: 'frontalLabel',
 })
 export class FrontalLabelDirective {
-  @HostBinding('attr.for') attrFor = `frontal-input-${this.frontal.state.id}`;
+  @HostBinding('attr.for') attrFor = createFrontalInputId(this.frontal.state.id);
 
   @Input()
   get for() {
@@ -125,6 +137,8 @@ export class FrontalLabelDirective {
   exportAs: 'frontalItem',
 })
 export class FrontalItemDirective implements OnInit, OnDestroy {
+  @HostBinding('attr.id') attrId = createFrontalItemId(this.frontal.state.id, generateId());
+
   @Input() value: any;
 
   constructor(
@@ -163,9 +177,20 @@ export class FrontalItemDirective implements OnInit, OnDestroy {
 export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy {
   @HostBinding('attr.type') type = 'button';
   @HostBinding('attr.role') role = 'button';
-  @HostBinding('attr.aria-label') ariaLabel = 'close menu';
-  @HostBinding('attr.aria-expanded') ariaExpanded = false;
+  @HostBinding('attr.data-toggle') dataToggle = true;
   @HostBinding('attr.aria-haspopup') ariaHasPopup = true;
+  @HostBinding('attr.aria-expanded') ariaExpanded = false;
+  @HostBinding('attr.aria-label') ariaLabel = '';
+  @HostBinding('attr.id') attrId = createFrontalButtonId(this.frontal.state.id);
+
+  @Input()
+  get id() {
+    return this.attrId;
+  }
+
+  set id(value: string) {
+    this.attrId = value;
+  }
 
   constructor(
     // prettier-ignore
@@ -177,7 +202,7 @@ export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy 
   }
 
   ngAfterViewInit() {
-    this.setAriaExpanded(this.frontal.state.isOpen);
+    this.setAriaAttributes();
   }
 
   ngOnDestroy() {
@@ -185,9 +210,7 @@ export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy 
   }
 
   stateChange(state: State) {
-    if (this.ariaExpanded !== state.isOpen) {
-      this.setAriaExpanded(state.isOpen);
-    }
+    this.setAriaAttributes();
   }
 
   @HostListener('click', ['$event'])
@@ -197,9 +220,9 @@ export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy 
     }
   }
 
-  setAriaExpanded(value: boolean) {
-    this.ariaExpanded = value;
-    this.ariaLabel = value ? 'open menu' : 'close menu';
+  private setAriaAttributes() {
+    this.ariaExpanded = this.frontal.state.isOpen;
+    this.ariaLabel = this.frontal.state.isOpen ? 'close menu' : 'open menu';
   }
 }
 
@@ -255,6 +278,7 @@ export class FrontalComponent implements ControlValueAccessor {
       {
         type: StateChanges.InputChange,
         payload: {
+          highlightedIndex: null,
           selectedItem: value,
           inputText,
           inputValue: inputText,
@@ -341,6 +365,7 @@ export class FrontalComponent implements ControlValueAccessor {
         inputValue: inputText,
         isOpen: true,
         selectedItem: null,
+        highlightedIndex: null,
       },
     });
   }
@@ -520,4 +545,20 @@ export class FrontalComponent implements ControlValueAccessor {
       }
     });
   }
+}
+
+function createFrontalInputId(id: string) {
+  return `frontal-input-${id}`;
+}
+
+function createFrontalButtonId(id: string) {
+  return `frontal-button-${id}`;
+}
+
+function createFrontalLabelId(id: string) {
+  return `frontal-label-${id}`;
+}
+
+function createFrontalItemId(frontalId: string, id: string) {
+  return `frontal-item-${frontalId}-${id}`;
 }

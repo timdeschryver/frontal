@@ -1,5 +1,6 @@
 import { Action } from './actions';
 import { FrontalItemDirective } from './frontal.component';
+import { generateId } from './utils';
 
 export interface State {
   id: string;
@@ -27,5 +28,5 @@ export const initialState: State = {
 
 export const createState = (): State => ({
   ...initialState,
-  id: (+Date.now()).toString(),
+  id: generateId(),
 });
