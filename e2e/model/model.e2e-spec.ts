@@ -2,13 +2,14 @@ import { browser } from 'protractor';
 import { Key } from 'selenium-webdriver';
 import { heroes, toJson } from '../../example/data/hero';
 import { ModelPage } from './model.po';
+import { getSelectedItem } from '../utils';
 
 describe('Frontal model', () => {
   const page = new ModelPage();
 
   it('should initialize with the selected hero', () => {
     page.navigateTo();
-    expect(page.getSelectedItem().getAttribute('value')).toBe(toJson(heroes[3]));
+    expect(getSelectedItem()).toBe(toJson(heroes[3]));
   });
 
   it('should initialize with the hero name in the input field', () => {
@@ -16,23 +17,23 @@ describe('Frontal model', () => {
   });
 
   describe('clear the input', () => {
-    it('should also clear the model', () => {
-      Array.from({ length: 9 }, () => page.getInput().sendKeys(Key.BACK_SPACE)); // lets clear the input
-      expect(page.getSelectedItem().getAttribute('value')).toBe('');
+    it('should clear the model', () => {
+      Array.from({ length: 9 }, () => page.getInput().sendKeys(Key.BACK_SPACE));
+      expect(getSelectedItem()).toBe('');
     });
   });
 
   describe('selecting an item', () => {
-    it('should also set the model', () => {
+    it('should set the model value', () => {
       page.getSecondInMenu().click();
-      expect(page.getSelectedItem().getAttribute('value')).toBe(toJson(heroes[1]));
+      expect(getSelectedItem()).toBe(toJson(heroes[1]));
     });
   });
 
   describe('reset the model', () => {
-    it('should also set the model', () => {
+    it('should set the model value', () => {
       page.getResetButton().click();
-      expect(page.getSelectedItem().getAttribute('value')).toBe(toJson(heroes[3]));
+      expect(getSelectedItem()).toBe(toJson(heroes[3]));
     });
   });
 });

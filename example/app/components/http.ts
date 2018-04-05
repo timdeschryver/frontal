@@ -36,7 +36,7 @@ export class GitHubService {
         <label frontalLabel>Select a user:</label>
         <input type="text" frontalInput/>
 
-        <div *ngIf="isOpen" id="item-count">
+        <div *ngIf="isOpen">
           Users found: {{itemCount}}
         </div>
 
@@ -51,8 +51,7 @@ export class GitHubService {
         </ul>
 
         <h4>Selected user:</h4>
-        <input type="hidden" id="selected" [value]="userToJson(selectedItem)">
-        <pre>{{selectedItem | json}}</pre>
+        <pre data-test="selected-value">{{selectedItem | json}}</pre>
       </ng-template>
       </frontal>
   `,

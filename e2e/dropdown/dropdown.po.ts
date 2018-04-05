@@ -1,4 +1,4 @@
-import { browser, element, by, Key } from 'protractor';
+import { browser, element, by, Key, protractor } from 'protractor';
 
 export class DropdownPage {
   navigateTo() {
@@ -17,17 +17,5 @@ export class DropdownPage {
     return this.getMenu()
       .all(by.css('li'))
       .get(1);
-  }
-
-  getHighlightedItem() {
-    return element(by.css('li.highlight'));
-  }
-
-  getSelectedItem() {
-    return element(by.id('selected'));
-  }
-
-  getSelectedHeader() {
-    return element(by.css('h4'));
   }
 }

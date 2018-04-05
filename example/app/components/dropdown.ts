@@ -19,8 +19,7 @@ import { heroes, toString, toJson, Hero } from '../../data/hero';
         </ul>
 
         <h4>Selected hero:</h4>
-        <input type="hidden" id="selected" [value]="heroToJson(frontal.state.selectedItem)">
-        <pre>{{frontal.state.selectedItem | json}}</pre>
+        <pre data-test="selected-value">{{frontal.state.selectedItem | json}}</pre>
       </ng-template>
     </frontal>
   `,

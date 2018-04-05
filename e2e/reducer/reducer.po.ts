@@ -9,25 +9,9 @@ export class ReducerPage {
     return element(by.css('[frontalInput]'));
   }
 
-  getMenu() {
-    return element(by.css('ul.menu'));
-  }
-
   getSecondInMenu() {
-    return this.getMenu()
+    return element(by.css('ul.menu'))
       .all(by.css('li'))
       .get(1);
-  }
-
-  getHighlightedItem() {
-    return element(by.css('li.highlight'));
-  }
-
-  getSelectedItem() {
-    return element(by.id('selected'));
-  }
-
-  getSelectedHeader() {
-    return element(by.css('h4'));
   }
 }

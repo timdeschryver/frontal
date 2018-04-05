@@ -1,6 +1,6 @@
 import { browser } from 'protractor';
-import { Key } from 'selenium-webdriver';
 import { HttpPage } from './http.po';
+import { getElementByText } from '../utils';
 
 describe('Frontal http', () => {
   const page = new HttpPage();
@@ -16,6 +16,6 @@ describe('Frontal http', () => {
   });
 
   it('should show the number of items found', () => {
-    expect(page.getItemCount().getText()).toBe('Users found: 1');
+    expect(getElementByText('Users found: 1').isPresent()).toBeTruthy();
   });
 });

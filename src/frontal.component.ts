@@ -75,14 +75,6 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
     this.frontal.removeListener('input');
   }
 
-  stateChange(state: State) {
-    this.setAriaAttributes();
-
-    if (this.element.nativeElement.value !== state.inputText) {
-      this.setValue(state.inputText);
-    }
-  }
-
   @HostListener('blur', ['$event'])
   blur(event: Event) {
     this.frontal.inputBlur();
@@ -98,6 +90,14 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
     this.frontal.inputKeydown(event);
   }
 
+  private stateChange(state: State) {
+    this.setAriaAttributes();
+
+    if (this.element.nativeElement.value !== state.inputText) {
+      this.setValue(state.inputText);
+    }
+  }
+
   private setAriaAttributes() {
     this.ariaExpanded = this.frontal.state.isOpen;
 
@@ -111,11 +111,87 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
 }
 
 @Directive({
+  selector: '[frontalButton]',
+  exportAs: 'frontalButton',
+})
+export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy {
+  @HostBinding('attr.type') type = 'button';
+  @HostBinding('attr.role') role = 'button';
+  @HostBinding('attr.data-toggle') dataToggle = true;
+  @HostBinding('attr.aria-haspopup') ariaHasPopup = 'listbox';
+  @HostBinding('attr.aria-expanded') ariaExpanded = false;
+  @HostBinding('attr.aria-label') ariaLabel = '';
+  @HostBinding('attr.id') attrId = createFrontalButtonId(this.frontal.state.id);
+  @HostBinding('attr.aria-labelledby') ariaLabeledBy = createFrontalLabelId(this.frontal.state.id);
+
+  @Input()
+  get id() {
+    return this.attrId;
+  }
+
+  set id(value: string) {
+    this.attrId = value;
+  }
+
+  @Input()
+  get 'aria-labelledby'() {
+    return this.ariaLabeledBy;
+  }
+
+  set 'aria-labelledby'(value: string) {
+    this.ariaLabeledBy = value;
+  }
+
+  constructor(
+    // prettier-ignore
+    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent, // tslint:disable-line
+  ) {}
+
+  ngOnInit() {
+    this.frontal.addListener({ id: 'button', listener: this.stateChange.bind(this) });
+  }
+
+  ngAfterViewInit() {
+    this.setAriaAttributes();
+  }
+
+  ngOnDestroy() {
+    this.frontal.removeListener('button');
+  }
+
+  @HostListener('click', ['$event'])
+  click(event: MouseEvent) {
+    if (this.frontal.buttonClick) {
+      this.frontal.buttonClick();
+    }
+  }
+
+  private stateChange(state: State) {
+    this.setAriaAttributes();
+  }
+
+  private setAriaAttributes() {
+    this.ariaExpanded = this.frontal.state.isOpen;
+    this.ariaLabel = this.frontal.state.isOpen ? 'close menu' : 'open menu';
+  }
+}
+
+@Directive({
   selector: '[frontalLabel]',
   exportAs: 'frontalLabel',
 })
 export class FrontalLabelDirective {
+  @HostBinding('attr.id') attrId = createFrontalLabelId(this.frontal.state.id);
   @HostBinding('attr.for') attrFor = createFrontalInputId(this.frontal.state.id);
+
+  @Input()
+  get id() {
+    return this.attrFor;
+  }
+
+  set id(value: any) {
+    this.attrId = value;
+  }
 
   @Input()
   get for() {
@@ -136,7 +212,9 @@ export class FrontalLabelDirective {
   selector: '[frontalItem]',
   exportAs: 'frontalItem',
 })
-export class FrontalItemDirective implements OnInit, OnDestroy {
+export class FrontalItemDirective implements OnInit, AfterViewInit, OnDestroy {
+  @HostBinding('attr.role') role = 'option';
+  @HostBinding('attr.aria-selected') ariaSelected = false;
   @HostBinding('attr.id') attrId = createFrontalItemId(this.frontal.state.id, generateId());
 
   @Input() value: any;
@@ -148,10 +226,16 @@ export class FrontalItemDirective implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.frontal.addFrontalItem();
+    this.frontal.addListener({ id: this.attrId, listener: this.stateChange.bind(this) });
+  }
+
+  ngAfterViewInit() {
+    this.setAriaAttributes();
   }
 
   ngOnDestroy() {
     this.frontal.removeFrontalItem();
+    this.frontal.removeListener(this.attrId);
   }
 
   @HostListener('mousedown', ['$event'])
@@ -168,61 +252,14 @@ export class FrontalItemDirective implements OnInit, OnDestroy {
   mouseleave(event: MouseEvent) {
     this.frontal.itemLeave(this);
   }
-}
 
-@Directive({
-  selector: '[frontalButton]',
-  exportAs: 'frontalButton',
-})
-export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy {
-  @HostBinding('attr.type') type = 'button';
-  @HostBinding('attr.role') role = 'button';
-  @HostBinding('attr.data-toggle') dataToggle = true;
-  @HostBinding('attr.aria-haspopup') ariaHasPopup = true;
-  @HostBinding('attr.aria-expanded') ariaExpanded = false;
-  @HostBinding('attr.aria-label') ariaLabel = '';
-  @HostBinding('attr.id') attrId = createFrontalButtonId(this.frontal.state.id);
-
-  @Input()
-  get id() {
-    return this.attrId;
-  }
-
-  set id(value: string) {
-    this.attrId = value;
-  }
-
-  constructor(
-    // prettier-ignore
-    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent, // tslint:disable-line
-  ) {}
-
-  ngOnInit() {
-    this.frontal.addListener({ id: 'button', listener: this.stateChange.bind(this) });
-  }
-
-  ngAfterViewInit() {
+  private stateChange(state: State) {
     this.setAriaAttributes();
-  }
-
-  ngOnDestroy() {
-    this.frontal.removeListener('button');
-  }
-
-  stateChange(state: State) {
-    this.setAriaAttributes();
-  }
-
-  @HostListener('click', ['$event'])
-  click(event: MouseEvent) {
-    if (this.frontal.buttonClick) {
-      this.frontal.buttonClick();
-    }
   }
 
   private setAriaAttributes() {
-    this.ariaExpanded = this.frontal.state.isOpen;
-    this.ariaLabel = this.frontal.state.isOpen ? 'close menu' : 'open menu';
+    const highlighted = this.frontal.getHighlightedItem();
+    this.ariaSelected = (highlighted && highlighted.attrId === this.attrId) || false;
   }
 }
 

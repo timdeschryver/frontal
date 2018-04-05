@@ -13,15 +13,7 @@ export class HttpPage {
     return element(by.css('ul.menu'));
   }
 
-  getMenuItems() {
-    return this.getMenu().all(by.css('li'));
-  }
-
   getListItem() {
-    return element.all(by.cssContainingText('li', 'tdeschryver'));
-  }
-
-  getItemCount() {
-    return element(by.id('item-count'));
+    return element(by.cssContainingText('li', 'tdeschryver'));
   }
 }

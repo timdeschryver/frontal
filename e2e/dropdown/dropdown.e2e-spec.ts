@@ -1,6 +1,7 @@
 import { browser, protractor } from 'protractor';
 import { heroes, toJson } from '../../example/data/hero';
 import { DropdownPage } from './dropdown.po';
+import { getActiveDescendant, getSelectedOption, getSelectedItem, getAlert } from '../utils';
 
 describe('Frontal dropdown', () => {
   const page = new DropdownPage();
@@ -10,7 +11,7 @@ describe('Frontal dropdown', () => {
     expect(page.getMenu().isPresent()).toBeTruthy();
   });
 
-  it('should highlight an item on move movement', () => {
+  it('should highlight an item on mouse enter', () => {
     browser
       .actions()
       .mouseMove(page.getSecondInMenu())
@@ -21,8 +22,11 @@ describe('Frontal dropdown', () => {
       .actions()
       .mouseMove(page.getSecondInMenu())
       .perform();
-    expect(page.getHighlightedItem().isPresent()).toBeTruthy();
-    expect(page.getHighlightedItem().getText()).toBe(heroes[1].name);
+
+    getSelectedOption(
+      page.getMenu(),
+      item => expect(item.isPresent()).toBeTruthy() && expect(item.getText()).toBe(heroes[1].name),
+    );
   });
 
   it('should toggle the menu on click', () => {
@@ -45,30 +49,32 @@ describe('Frontal dropdown', () => {
         .actions()
         .mouseMove(page.getSecondInMenu())
         .perform();
-      expect(page.getHighlightedItem().isPresent()).toBeTruthy();
-      expect(page.getHighlightedItem().getText()).toBe(heroes[1].name);
+
+      getSelectedOption(
+        page.getMenu(),
+        item => expect(item.isPresent()).toBeTruthy() && expect(item.getText()).toBe(heroes[1].name),
+      );
     });
 
     it('should clear the highlighted item on leave', () => {
       browser
         .actions()
-        .mouseMove(page.getSelectedHeader())
+        .mouseMove(page.getButton())
         .perform();
-      expect(page.getHighlightedItem().isPresent()).toBeFalsy();
+      getSelectedOption(page.getMenu(), item => expect(item.isPresent()).toBeFalsy());
     });
   });
 
   describe('mouse click on item', () => {
     it('should show an alert', () => {
       page.getSecondInMenu().click();
-      browser.wait(protractor.ExpectedConditions.alertIsPresent(), 1000);
-      const alert = browser.switchTo().alert();
+      const alert = getAlert();
       expect(alert.getText()).toContain(heroes[1].name);
       alert.dismiss();
     });
 
     it('should select the item', () => {
-      expect(page.getSelectedItem().getAttribute('value')).toBe(toJson(heroes[1]));
+      expect(getSelectedItem()).toBe(toJson(heroes[1]));
     });
 
     it('should set the button text', () => {

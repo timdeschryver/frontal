@@ -2,6 +2,7 @@ import { browser } from 'protractor';
 import { Key } from 'selenium-webdriver';
 import { heroes, filter, toJson } from '../../example/data/hero';
 import { ReducerPage } from './reducer.po';
+import { getActiveDescendant, getSelectedItem } from '../utils';
 
 const query = 'm';
 const heroesFiltered = filter(query);
@@ -14,7 +15,8 @@ describe('Frontal reducer', () => {
       page.navigateTo();
       page.getInput().sendKeys(query);
       page.getInput().sendKeys(Key.DOWN);
-      expect(page.getHighlightedItem().isPresent()).toBeTruthy();
+
+      getActiveDescendant(page.getInput(), item => expect(item.isPresent()).toBeTruthy());
       expect(page.getInput().getAttribute('value')).toBe(heroesFiltered[0].name);
     });
   });
@@ -25,13 +27,13 @@ describe('Frontal reducer', () => {
         .actions()
         .mouseMove(page.getSecondInMenu())
         .perform();
-      expect(page.getHighlightedItem().getText()).toBe(heroesFiltered[0].name);
+      getActiveDescendant(page.getInput(), item => expect(item.getText()).toBe(heroesFiltered[0].name));
     });
 
     it('should not select an item on click', () => {
       page.getSecondInMenu().click();
       expect(page.getInput().getAttribute('value')).toBe(heroesFiltered[0].name);
-      expect(page.getSelectedItem().getAttribute('value')).toBe('');
+      expect(getSelectedItem()).toBe('');
     });
   });
 });

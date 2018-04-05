@@ -15,10 +15,6 @@ export class ReactivePage {
       .get(1);
   }
 
-  getSelectedItem() {
-    return element(by.id('selected'));
-  }
-
   getResetButton() {
     return element(by.css('#reset'));
   }

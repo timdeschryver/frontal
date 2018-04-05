@@ -18,14 +18,13 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
             </li>
           </ul>
 
-          <div *ngIf="isOpen && filteredHeroes(value).length === 0" class="no-match">
+          <div *ngIf="isOpen && filteredHeroes(value).length === 0">
             No heroes found...
           </div>
         </div>
 
         <h4>Selected hero:</h4>
-        <input type="hidden" id="selected" [value]="heroToJson(selectedItem)">
-        <pre [style.color]="'#fff'">{{selectedItem | json}}</pre>
+        <pre data-test="selected-value" [style.color]="'#fff'">{{selectedItem | json}}</pre>
       </ng-template>
     </frontal>
   `,

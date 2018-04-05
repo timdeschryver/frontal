@@ -19,13 +19,12 @@ import { FormBuilder, FormGroup } from '@angular/forms';
             </li>
           </ul>
 
-          <div *ngIf="isOpen && filteredHeroes(value).length === 0" class="no-match">
+          <div *ngIf="isOpen && filteredHeroes(value).length === 0">
             No heroes found...
           </div>
 
           <h4>Form value:</h4>
-          <input type="hidden" id="selected" [value]="heroToJson(form.get('hero').value)">
-          <pre>{{form.value | json}}</pre>
+          <pre data-test="selected-value">{{form.value?.hero | json}}</pre>
         </ng-template>
       </frontal>
     </form>
