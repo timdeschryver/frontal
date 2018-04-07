@@ -1,4 +1,6 @@
 {
+  "name": "frontal",
+  "version": "0.0.0-beta.6",
   "scripts": {
     "start": "ng serve",
     "e2e": "ng e2e",
@@ -7,7 +9,9 @@
     "transpile": "ngc -p ./src/tsconfig.build.json",
     "package": "rollup -c ./src/rollup.config.js",
     "minify": "uglifyjs ./dist/bundles/frontal.umd.js --screw-ie8 --compress --mangle --comments --output ./dist/bundles/frontal.umd.min.js",
-    "build": "rimraf ./dist/* && npm run transpile && npm run package && npm run minify && cp ./README.md ./dist && cp ./src/package.json ./dist"
+    "prebuild": "rm -rf ./dist/*",
+    "build": "npm run transpile && npm run package && npm run minify",
+    "postbuild": "cp ./README.md ./dist && cp ./src/package.json ./dist"
   },
   "lint-staged": {
     "*.{ts,json,md}": [
@@ -50,7 +54,6 @@
     "lint-staged": "^7.0.0",
     "prettier": "^1.10.2",
     "protractor": "~5.1.2",
-    "rimraf": "^2.6.2",
     "rollup": "^0.57.1",
     "ts-node": "~4.1.0",
     "tslint": "~5.9.1",

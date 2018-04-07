@@ -47,12 +47,12 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
     this.attrId = value;
   }
 
-  @Input()
-  get 'aria-labelledby'() {
+  @Input('aria-labelledby')
+  get ariaLabelledby() {
     return this.ariaLabeledBy;
   }
 
-  set 'aria-labelledby'(value: string) {
+  set ariaLabelledby(value: string) {
     this.ariaLabeledBy = value;
   }
 
@@ -133,12 +133,12 @@ export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy 
     this.attrId = value;
   }
 
-  @Input()
-  get 'aria-labelledby'() {
+  @Input('aria-labelledby')
+  get ariaLabelledby() {
     return this.ariaLabeledBy;
   }
 
-  set 'aria-labelledby'(value: string) {
+  set ariaLabelledby(value: string) {
     this.ariaLabeledBy = value;
   }
 
