@@ -8,10 +8,4 @@ export class ReducerPage {
   getInput() {
     return element(by.css('[frontalInput]'));
   }
-
-  getSecondInMenu() {
-    return element(by.css('ul.menu'))
-      .all(by.css('li'))
-      .get(1);
-  }
 }

@@ -1,14 +1,13 @@
 import { browser } from 'protractor';
 import { HttpPage } from './http.po';
-import { getElementByText } from '../utils';
+import { getElementByText, getControlledElement } from '../utils';
 
 describe('Frontal http', () => {
   const page = new HttpPage();
 
-  it('should show the menu on input', () => {
+  it('should show the list on input', () => {
     page.navigateTo();
     page.getInput().sendKeys('tdeschryver');
-    browser.wait(page.getMenu().isPresent(), 1000);
   });
 
   it('should show list items', () => {

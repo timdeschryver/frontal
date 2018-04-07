@@ -11,20 +11,22 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
           <label frontalLabel>Select your hero:</label>
           <input type="text" class="form-control form-control-lg" frontalInput/>
 
-          <ul *ngIf="isOpen" class="list-group menu">
-            <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;"
-              frontalItem [value]="hero" class="list-group-item" [class.active]="highlightedIndex === index">
-              {{hero.name}}
-            </li>
-          </ul>
+          <ng-container *ngIf="isOpen">
+            <ul class="list-group" frontalList>
+              <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;"
+                frontalItem [value]="hero" class="list-group-item" [class.active]="highlightedIndex === index">
+                {{hero.name}}
+              </li>
+            </ul>
 
-          <div *ngIf="isOpen && filteredHeroes(value).length === 0">
-            No heroes found...
-          </div>
+            <div *ngIf="filteredHeroes(value).length === 0">
+              No heroes found...
+            </div>
+          </ng-container>
         </div>
 
         <h4>Selected hero:</h4>
-        <pre data-test="selected-value" [style.color]="'#fff'">{{selectedItem | json}}</pre>
+        <pre data-test="selected-item" [style.color]="'#fff'">{{selectedItem | json}}</pre>
       </ng-template>
     </frontal>
   `,

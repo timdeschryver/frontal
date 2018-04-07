@@ -2,7 +2,15 @@ import { browser } from 'protractor';
 import { Key } from 'selenium-webdriver';
 import { heroes, filter, toJson } from '../../example/data/hero';
 import { SimplePage } from './simple.po';
-import { getActiveDescendant, getLabelForInput, getSelectedOption, getSelectedItem, getElementByText } from '../utils';
+import {
+  getActiveDescendant,
+  getLabelForInput,
+  getSelectedOption,
+  getSelectedItem,
+  getElementByText,
+  getControlledElement,
+  getNthInList,
+} from '../utils';
 
 const query = 'm';
 const heroesFiltered = filter(query);
@@ -10,9 +18,9 @@ const heroesFiltered = filter(query);
 describe('Frontal simple', () => {
   const page = new SimplePage();
 
-  it('should initialize with a closed menu', () => {
+  it('should initialize with a closed list', () => {
     page.navigateTo();
-    expect(page.getMenu().isPresent()).toBeFalsy();
+    getControlledElement(page.getInput(), list => expect(list.isPresent()).toBeFalsy());
   });
 
   it('should select the input on label click', () => {
@@ -26,9 +34,14 @@ describe('Frontal simple', () => {
   });
 
   describe('on input', () => {
-    it('should show the menu', () => {
+    it('should show the list', () => {
       page.getInput().sendKeys(query);
-      expect(page.getMenu().isPresent()).toBeTruthy();
+      getControlledElement(page.getInput(), list => {
+        expect(list.isPresent()).toBeTruthy();
+        getLabelForInput(page.getInput(), label => {
+          expect(list.getAttribute('aria-labelledby')).toBe(label.getAttribute('id'));
+        });
+      });
     });
 
     it("shouldn't show a message that no heroes are found", () => {
@@ -44,7 +57,10 @@ describe('Frontal simple', () => {
         getActiveDescendant(page.getInput(), item => {
           expect(item.isPresent()).toBeTruthy();
           expect(item.getText()).toBe(heroesFiltered[0].name);
-          getSelectedOption(page.getMenu(), option => expect(option.getId()).toBe(item.getId()));
+
+          getControlledElement(page.getInput(), list =>
+            getSelectedOption(list, option => expect(option.getId()).toBe(item.getId())),
+          );
         });
         page.getInput().sendKeys(Key.DOWN);
         page.getInput().sendKeys(Key.DOWN);
@@ -80,24 +96,24 @@ describe('Frontal simple', () => {
       expect(page.getInput().getAttribute('value')).toBe(heroesFiltered[1].name);
     });
 
-    it('should close the menu', () => {
-      expect(page.getMenu().isPresent()).toBeFalsy();
+    it('should close the list', () => {
+      getControlledElement(page.getInput(), list => expect(list.isPresent()).toBeFalsy());
     });
   });
 
   describe('press escape', () => {
-    describe('on a closed menu', () => {
+    describe('on a closed list', () => {
       it('should do nothing', () => {
         page.getInput().sendKeys(Key.ESCAPE);
-        expect(page.getMenu().isPresent()).toBeFalsy();
+        getControlledElement(page.getInput(), list => expect(list.isPresent()).toBeFalsy());
         expect(page.getInput().getAttribute('value')).toBe(
           heroesFiltered[1].name,
-          "because the menu is closed it shouldn't change its state",
+          "because the list is closed it shouldn't change its state",
         );
       });
     });
 
-    describe('on a open menu', () => {
+    describe('on a open list', () => {
       it('should clear the selected item', () => {
         page.getInput().clear();
         page.getInput().sendKeys(query);
@@ -109,13 +125,13 @@ describe('Frontal simple', () => {
         expect(page.getInput().getAttribute('value')).toBe('');
       });
 
-      it('should close the menu', () => {
-        expect(page.getMenu().isPresent()).toBeFalsy();
+      it('should close the list', () => {
+        getControlledElement(page.getInput(), list => expect(list.isPresent()).toBeFalsy());
       });
     });
   });
 
-  describe('mouse movements in an open menu', () => {
+  describe('mouse movements in an open list', () => {
     it('should highlight an item on enter', () => {
       page.getInput().clear();
       page.getInput().sendKeys(query);
@@ -123,10 +139,12 @@ describe('Frontal simple', () => {
       // Wait for the animations to complete
       browser.driver.sleep(200);
 
-      browser
-        .actions()
-        .mouseMove(page.getSecondInMenu())
-        .perform();
+      getControlledElement(page.getInput(), list =>
+        browser
+          .actions()
+          .mouseMove(getNthInList(list, 1))
+          .perform(),
+      );
 
       getActiveDescendant(
         page.getInput(),
@@ -143,10 +161,12 @@ describe('Frontal simple', () => {
     });
 
     it('should select the highlighted item on click', () => {
-      page.getSecondInMenu().click();
-      expect(getSelectedItem()).toBe(toJson(heroesFiltered[1]));
-      expect(page.getInput().getAttribute('value')).toBe(heroesFiltered[1].name);
-      expect(page.getMenu().isPresent()).toBeFalsy();
+      getControlledElement(page.getInput(), list => {
+        getNthInList(list, 1).click();
+        expect(getSelectedItem()).toBe(toJson(heroesFiltered[1]));
+        expect(page.getInput().getAttribute('value')).toBe(heroesFiltered[1].name);
+        expect(list.isPresent()).toBeFalsy();
+      });
     });
   });
 

@@ -12,19 +12,21 @@ import { FormBuilder, FormGroup } from '@angular/forms';
           <label frontalLabel>Select your hero:</label>
           <input type="text" frontalInput/>
 
-          <ul *ngIf="isOpen" class="menu">
-            <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;" frontalItem [value]="hero"
-              [class.highlight]="highlightedIndex === index">
-              {{hero.name}}
-            </li>
-          </ul>
+          <ng-container *ngIf="isOpen">
+            <ul frontalList>
+              <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;" frontalItem [value]="hero"
+                [class.highlight]="highlightedIndex === index">
+                {{hero.name}}
+              </li>
+            </ul>
 
-          <div *ngIf="isOpen && filteredHeroes(value).length === 0">
-            No heroes found...
-          </div>
+            <div *ngIf="filteredHeroes(value).length === 0">
+              No heroes found...
+            </div>
+          </ng-container>
 
           <h4>Form value:</h4>
-          <pre data-test="selected-value">{{form.value?.hero | json}}</pre>
+          <pre data-test="selected-item">{{form.value?.hero | json}}</pre>
         </ng-template>
       </frontal>
     </form>

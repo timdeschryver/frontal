@@ -9,10 +9,6 @@ export class HttpPage {
     return element(by.css('[frontalInput]'));
   }
 
-  getMenu() {
-    return element(by.css('ul.menu'));
-  }
-
   getListItem() {
     return element(by.cssContainingText('li', 'tdeschryver'));
   }

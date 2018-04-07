@@ -2,7 +2,7 @@ import { browser } from 'protractor';
 import { Key } from 'selenium-webdriver';
 import { heroes, filter, toJson } from '../../example/data/hero';
 import { ReducerPage } from './reducer.po';
-import { getActiveDescendant, getSelectedItem } from '../utils';
+import { getActiveDescendant, getSelectedItem, getControlledElement, getNthInList } from '../utils';
 
 const query = 'm';
 const heroesFiltered = filter(query);
@@ -21,17 +21,19 @@ describe('Frontal reducer', () => {
     });
   });
 
-  describe('mouse movements in an open menu', () => {
+  describe('mouse movements in an open list', () => {
     it('should not highlight an item on enter', () => {
-      browser
-        .actions()
-        .mouseMove(page.getSecondInMenu())
-        .perform();
+      getControlledElement(page.getInput(), list =>
+        browser
+          .actions()
+          .mouseMove(getNthInList(list, 1))
+          .perform(),
+      );
       getActiveDescendant(page.getInput(), item => expect(item.getText()).toBe(heroesFiltered[0].name));
     });
 
     it('should not select an item on click', () => {
-      page.getSecondInMenu().click();
+      getControlledElement(page.getInput(), list => getNthInList(list, 1).click());
       expect(page.getInput().getAttribute('value')).toBe(heroesFiltered[0].name);
       expect(getSelectedItem()).toBe('');
     });

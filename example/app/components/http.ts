@@ -36,22 +36,24 @@ export class GitHubService {
         <label frontalLabel>Select a user:</label>
         <input type="text" frontalInput/>
 
-        <div *ngIf="isOpen">
-          Users found: {{itemCount}}
-        </div>
+        <ng-container *ngIf="isOpen">
+          <div>
+            Users found: {{itemCount}}
+          </div>
 
-        <ul *ngIf="isOpen" class="menu">
-          <li *ngFor="let user of users | async; trackBy:trackUserById; let index=index;"
-            [class.highlight]="highlightedIndex === index">
-            <div frontalItem [value]="user">
-              <img [src]="user.avatar_url" width="32"  [style.verticalAlign]="'middle'">
-              {{user.login}}
-            </div>
-          </li>
-        </ul>
+          <ul frontalList>
+            <li *ngFor="let user of users | async; trackBy:trackUserById; let index=index;"
+              [class.highlight]="highlightedIndex === index">
+              <div frontalItem [value]="user">
+                <img [src]="user.avatar_url" width="32"  [style.verticalAlign]="'middle'">
+                {{user.login}}
+              </div>
+            </li>
+          </ul>
+        </ng-container>
 
         <h4>Selected user:</h4>
-        <pre data-test="selected-value">{{selectedItem | json}}</pre>
+        <pre data-test="selected-item">{{selectedItem | json}}</pre>
       </ng-template>
       </frontal>
   `,

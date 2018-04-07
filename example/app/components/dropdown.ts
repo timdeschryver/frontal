@@ -11,7 +11,7 @@ import { heroes, toString, toJson, Hero } from '../../data/hero';
           {{frontal.state.selectedItem ? frontal.state.selectedItem.name : 'Select your hero'}}
         </button>
 
-        <ul *ngIf="frontal.state.isOpen" class="menu">
+        <ul *ngIf="frontal.state.isOpen" frontalList>
           <li *ngFor="let hero of heroes; trackBy:trackById; let index=index;" frontalItem [value]="hero"
             [class.highlight]="frontal.state.highlightedIndex === index">
             {{hero.name}}
@@ -19,7 +19,7 @@ import { heroes, toString, toJson, Hero } from '../../data/hero';
         </ul>
 
         <h4>Selected hero:</h4>
-        <pre data-test="selected-value">{{frontal.state.selectedItem | json}}</pre>
+        <pre data-test="selected-item">{{frontal.state.selectedItem | json}}</pre>
       </ng-template>
     </frontal>
   `,

@@ -8,22 +8,24 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
   template: `
     <frontal [itemToString]="heroToString">
       <ng-template let-value="inputValue" let-isOpen="isOpen" let-highlightedIndex="highlightedIndex" let-selectedItem="selectedItem">
-        <label frontalLabel>Select your hero:</label>
-        <input type="text" frontalInput/>
+          <label frontalLabel>Select your hero:</label>
+          <input type="text" frontalInput/>
 
-        <ul *ngIf="isOpen" class="menu" [@listAnimation]="filteredHeroes(value).length">
-          <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;" frontalItem [value]="hero"
-            [class.highlight]="highlightedIndex === index">
-            {{hero.name}}
-          </li>
-        </ul>
+          <ng-container *ngIf="isOpen">
+            <ul frontalList [@listAnimation]="filteredHeroes(value).length">
+              <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;" frontalItem [value]="hero"
+                [class.highlight]="highlightedIndex === index">
+                {{hero.name}}
+              </li>
+            </ul>
 
-        <div *ngIf="isOpen && filteredHeroes(value).length === 0">
-          No heroes found...
-        </div>
+            <div *ngIf="filteredHeroes(value).length === 0">
+              No heroes found...
+            </div>
+        </ng-container>
 
         <h4>Selected hero:</h4>
-        <pre data-test="selected-value">{{selectedItem | json}}</pre>
+        <pre data-test="selected-item">{{selectedItem | json}}</pre>
       </ng-template>
     </frontal>
   `,

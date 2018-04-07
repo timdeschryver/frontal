@@ -23,5 +23,6 @@ export {
   FrontalInputDirective,
   FrontalLabelDirective,
   FrontalItemDirective,
+  FrontalListDirective,
   FRONTAL_VALUE_ACCESSOR,
 } from './frontal.component';

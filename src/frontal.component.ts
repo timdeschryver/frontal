@@ -14,7 +14,6 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   OnInit,
-  AfterViewInit,
   OnDestroy,
   Output,
   EventEmitter,
@@ -29,13 +28,14 @@ import { generateId } from './utils';
   selector: '[frontalInput]',
   exportAs: 'frontalInput',
 })
-export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
+export class FrontalInputDirective implements OnInit, OnDestroy {
   @HostBinding('attr.role') role = 'combobox';
   @HostBinding('attr.aria-autocomplete') ariaAutocomplete = 'list';
   @HostBinding('attr.autocomplete') autocomplete = 'off';
   @HostBinding('attr.aria-expanded') ariaExpanded = false;
   @HostBinding('attr.aria-activedescendant') ariaActiveDescendant = '';
   @HostBinding('attr.aria-labelledby') ariaLabeledBy = createFrontalLabelId(this.frontal.state.id);
+  @HostBinding('attr.aria-controls') ariaControls = createFrontalListId(this.frontal.state.id);
   @HostBinding('attr.id') attrId = createFrontalInputId(this.frontal.state.id);
 
   @Input()
@@ -48,12 +48,21 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
   }
 
   @Input('aria-labelledby')
-  get ariaLabelledby() {
+  get labelledby() {
     return this.ariaLabeledBy;
   }
 
-  set ariaLabelledby(value: string) {
+  set labelledby(value: string) {
     this.ariaLabeledBy = value;
+  }
+
+  @Input('aria-controls')
+  get controls() {
+    return this.ariaControls;
+  }
+
+  set controls(value: string) {
+    this.ariaControls = value;
   }
 
   constructor(
@@ -64,9 +73,6 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit() {
     this.frontal.addListener({ id: 'input', listener: this.stateChange.bind(this) });
-  }
-
-  ngAfterViewInit() {
     this.setAriaAttributes();
     this.setValue(this.frontal.state.inputText);
   }
@@ -114,7 +120,7 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
   selector: '[frontalButton]',
   exportAs: 'frontalButton',
 })
-export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy {
+export class FrontalButtonDirective implements OnInit, OnDestroy {
   @HostBinding('attr.type') type = 'button';
   @HostBinding('attr.role') role = 'button';
   @HostBinding('attr.data-toggle') dataToggle = true;
@@ -134,11 +140,11 @@ export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy 
   }
 
   @Input('aria-labelledby')
-  get ariaLabelledby() {
+  get labelledby() {
     return this.ariaLabeledBy;
   }
 
-  set ariaLabelledby(value: string) {
+  set labelledby(value: string) {
     this.ariaLabeledBy = value;
   }
 
@@ -149,9 +155,6 @@ export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy 
 
   ngOnInit() {
     this.frontal.addListener({ id: 'button', listener: this.stateChange.bind(this) });
-  }
-
-  ngAfterViewInit() {
     this.setAriaAttributes();
   }
 
@@ -209,10 +212,43 @@ export class FrontalLabelDirective {
 }
 
 @Directive({
+  selector: '[frontalList]',
+  exportAs: 'frontalList',
+})
+export class FrontalListDirective {
+  @HostBinding('attr.role') role = 'listbox';
+  @HostBinding('attr.id') attrId = createFrontalListId(this.frontal.state.id);
+  @HostBinding('attr.aria-labelledby') ariaLabeledBy = createFrontalLabelId(this.frontal.state.id);
+
+  @Input()
+  get id() {
+    return this.attrId;
+  }
+
+  set id(value: string) {
+    this.attrId = value;
+  }
+
+  @Input('aria-labelledby')
+  get labelledby() {
+    return this.ariaLabeledBy;
+  }
+
+  set labelledby(value: string) {
+    this.ariaLabeledBy = value;
+  }
+
+  constructor(
+    // prettier-ignore
+    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent, // tslint:disable-line
+  ) {}
+}
+
+@Directive({
   selector: '[frontalItem]',
   exportAs: 'frontalItem',
 })
-export class FrontalItemDirective implements OnInit, AfterViewInit, OnDestroy {
+export class FrontalItemDirective implements OnInit, OnDestroy {
   @HostBinding('attr.role') role = 'option';
   @HostBinding('attr.aria-selected') ariaSelected = false;
   @HostBinding('attr.id') attrId = createFrontalItemId(this.frontal.state.id, generateId());
@@ -227,9 +263,6 @@ export class FrontalItemDirective implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit() {
     this.frontal.addFrontalItem();
     this.frontal.addListener({ id: this.attrId, listener: this.stateChange.bind(this) });
-  }
-
-  ngAfterViewInit() {
     this.setAriaAttributes();
   }
 
@@ -301,7 +334,8 @@ export class FrontalComponent implements ControlValueAccessor {
 
   @ContentChild(TemplateRef) template: TemplateRef<any>;
   @ContentChild(FrontalInputDirective) frontalInput: FrontalInputDirective;
-  @ContentChildren(FrontalItemDirective) frontalItems: QueryList<FrontalItemDirective>;
+  @ContentChildren(FrontalItemDirective, { descendants: true })
+  frontalItems: QueryList<FrontalItemDirective>;
 
   private _stateListeners: { id: string; listener: ((state: State) => void) }[] = [];
   private _onChange = (value: any) => {};
@@ -343,7 +377,7 @@ export class FrontalComponent implements ControlValueAccessor {
 
   toggleMenu() {
     this.handle({
-      type: StateChanges.MenuToggle,
+      type: StateChanges.ListToggle,
       payload: {
         isOpen: !this.state.isOpen,
       },
@@ -352,7 +386,7 @@ export class FrontalComponent implements ControlValueAccessor {
 
   openMenu() {
     this.handle({
-      type: StateChanges.MenuOpen,
+      type: StateChanges.ListOpen,
       payload: {
         isOpen: true,
       },
@@ -361,7 +395,7 @@ export class FrontalComponent implements ControlValueAccessor {
 
   closeMenu() {
     this.handle({
-      type: StateChanges.MenuClose,
+      type: StateChanges.ListClose,
       payload: {
         isOpen: false,
       },
@@ -525,7 +559,6 @@ export class FrontalComponent implements ControlValueAccessor {
 
   handle(action: Action, detactChanges: boolean = true) {
     const { payload } = this.state.reducer(this.state, action);
-
     const newState = {
       ...this.state,
       ...payload,
@@ -594,6 +627,10 @@ function createFrontalButtonId(id: string) {
 
 function createFrontalLabelId(id: string) {
   return `frontal-label-${id}`;
+}
+
+function createFrontalListId(id: string) {
+  return `frontal-list-${id}`;
 }
 
 function createFrontalItemId(frontalId: string, id: string) {

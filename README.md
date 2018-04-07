@@ -34,7 +34,7 @@ Use the frontal component and directives:
     <label frontalLabel>Select your hero:</label>
     <input type="text" frontalInput/>
 
-    <ul *ngIf="isOpen">
+    <ul *ngIf="isOpen" frontalList>
       <li *ngFor="let hero of filteredHeroes(value); let index=index;" frontalItem [value]="hero"
        [class.highlight]="highlightedIndex === index">
         {{hero.name}}

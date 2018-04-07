@@ -6,7 +6,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 
 import { FrontalModule } from 'frontal';
-
 import { AppComponent } from './app.component';
 import { SimpleComponent } from './components/simple';
 import { DropdownComponent } from './components/dropdown';

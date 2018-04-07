@@ -9,13 +9,7 @@ export class DropdownPage {
     return element(by.css('[frontalButton]'));
   }
 
-  getMenu() {
-    return element(by.css('ul.menu'));
-  }
-
-  getSecondInMenu() {
-    return this.getMenu()
-      .all(by.css('li'))
-      .get(1);
+  getList() {
+    return element(by.css('[frontalList]'));
   }
 }

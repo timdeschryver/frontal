@@ -8,14 +8,4 @@ export class SimplePage {
   getInput() {
     return element(by.css('[frontalInput]'));
   }
-
-  getMenu() {
-    return element(by.css('ul.menu'));
-  }
-
-  getSecondInMenu() {
-    return this.getMenu()
-      .all(by.css('li'))
-      .get(1);
-  }
 }

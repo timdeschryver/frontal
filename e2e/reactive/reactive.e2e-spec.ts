@@ -2,7 +2,7 @@ import { browser } from 'protractor';
 import { Key } from 'selenium-webdriver';
 import { heroes, toJson } from '../../example/data/hero';
 import { ReactivePage } from './reactive.po';
-import { getSelectedItem } from '../utils';
+import { getSelectedItem, getControlledElement, getNthInList } from '../utils';
 
 describe('Frontal reactive', () => {
   const page = new ReactivePage();
@@ -22,7 +22,7 @@ describe('Frontal reactive', () => {
 
   describe('selecting an item', () => {
     it('should set the model value', () => {
-      page.getSecondInMenu().click();
+      getControlledElement(page.getInput(), list => getNthInList(list, 1).click());
       expect(getSelectedItem()).toBe(toJson(heroes[1]));
     });
   });

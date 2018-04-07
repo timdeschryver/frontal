@@ -1,11 +1,15 @@
 import { browser, element, by, Key, ElementFinder, protractor } from 'protractor';
 
 export function getLabelForInput(elem: ElementFinder, fun: (label: ElementFinder) => void) {
-  elem.getAttribute('aria-labelledby').then(id => fun(element(by.id(id))));
+  getAttributesElement('aria-labelledby', elem, fun);
 }
 
 export function getActiveDescendant(elem: ElementFinder, fun: (item: ElementFinder) => void) {
-  elem.getAttribute('aria-activedescendant').then(id => fun(element(by.id(id))));
+  getAttributesElement('aria-activedescendant', elem, fun);
+}
+
+export function getControlledElement(elem: ElementFinder, fun: (item: ElementFinder) => void) {
+  getAttributesElement('aria-controls', elem, fun);
 }
 
 export function getSelectedOption(elem: ElementFinder, fun: (item: ElementFinder) => void) {
@@ -13,9 +17,13 @@ export function getSelectedOption(elem: ElementFinder, fun: (item: ElementFinder
 }
 
 export function getSelectedItem() {
-  return element(by.css('[data-test="selected-value"]'))
+  return element(by.css('[data-test="selected-item"]'))
     .getText()
     .then(value => (value === 'null' ? '' : JSON.stringify(JSON.parse(value))));
+}
+
+export function getNthInList(list: ElementFinder, nth: number, selector = 'li') {
+  return list.all(by.css(selector)).get(nth);
 }
 
 export function getElementByText(text: string) {
@@ -25,4 +33,8 @@ export function getElementByText(text: string) {
 export function getAlert() {
   browser.wait(protractor.ExpectedConditions.alertIsPresent(), 200);
   return browser.switchTo().alert();
+}
+
+function getAttributesElement(attribute: string, elem: ElementFinder, fun: (label: ElementFinder) => void) {
+  elem.getAttribute(attribute).then(id => fun(element(by.id(id))));
 }

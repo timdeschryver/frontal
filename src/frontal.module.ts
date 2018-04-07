@@ -6,6 +6,7 @@ import {
   FrontalLabelDirective,
   FrontalItemDirective,
   FrontalButtonDirective,
+  FrontalListDirective,
 } from './frontal.component';
 
 const components = [
@@ -14,6 +15,7 @@ const components = [
   FrontalLabelDirective,
   FrontalItemDirective,
   FrontalButtonDirective,
+  FrontalListDirective,
 ];
 
 @NgModule({
