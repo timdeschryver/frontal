@@ -38,33 +38,6 @@ export class FrontalInputDirective implements OnInit, OnDestroy {
   @HostBinding('attr.aria-controls') ariaControls = createFrontalListId(this.frontal.state.id);
   @HostBinding('attr.id') attrId = createFrontalInputId(this.frontal.state.id);
 
-  @Input()
-  get id() {
-    return this.attrId;
-  }
-
-  set id(value: string) {
-    this.attrId = value;
-  }
-
-  @Input('aria-labelledby')
-  get labelledby() {
-    return this.ariaLabeledBy;
-  }
-
-  set labelledby(value: string) {
-    this.ariaLabeledBy = value;
-  }
-
-  @Input('aria-controls')
-  get controls() {
-    return this.ariaControls;
-  }
-
-  set controls(value: string) {
-    this.ariaControls = value;
-  }
-
   constructor(
     @Inject(ElementRef) private element: ElementRef,
     // prettier-ignore
@@ -130,24 +103,6 @@ export class FrontalButtonDirective implements OnInit, OnDestroy {
   @HostBinding('attr.id') attrId = createFrontalButtonId(this.frontal.state.id);
   @HostBinding('attr.aria-labelledby') ariaLabeledBy = createFrontalLabelId(this.frontal.state.id);
 
-  @Input()
-  get id() {
-    return this.attrId;
-  }
-
-  set id(value: string) {
-    this.attrId = value;
-  }
-
-  @Input('aria-labelledby')
-  get labelledby() {
-    return this.ariaLabeledBy;
-  }
-
-  set labelledby(value: string) {
-    this.ariaLabeledBy = value;
-  }
-
   constructor(
     // prettier-ignore
     @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent, // tslint:disable-line
@@ -187,24 +142,6 @@ export class FrontalLabelDirective {
   @HostBinding('attr.id') attrId = createFrontalLabelId(this.frontal.state.id);
   @HostBinding('attr.for') attrFor = createFrontalInputId(this.frontal.state.id);
 
-  @Input()
-  get id() {
-    return this.attrFor;
-  }
-
-  set id(value: any) {
-    this.attrId = value;
-  }
-
-  @Input()
-  get for() {
-    return this.attrFor;
-  }
-
-  set for(value: any) {
-    this.attrFor = value;
-  }
-
   constructor(
     // prettier-ignore
     @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent, // tslint:disable-line
@@ -219,24 +156,6 @@ export class FrontalListDirective {
   @HostBinding('attr.role') role = 'listbox';
   @HostBinding('attr.id') attrId = createFrontalListId(this.frontal.state.id);
   @HostBinding('attr.aria-labelledby') ariaLabeledBy = createFrontalLabelId(this.frontal.state.id);
-
-  @Input()
-  get id() {
-    return this.attrId;
-  }
-
-  set id(value: string) {
-    this.attrId = value;
-  }
-
-  @Input('aria-labelledby')
-  get labelledby() {
-    return this.ariaLabeledBy;
-  }
-
-  set labelledby(value: string) {
-    this.ariaLabeledBy = value;
-  }
 
   constructor(
     // prettier-ignore
