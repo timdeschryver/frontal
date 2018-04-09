@@ -119,9 +119,7 @@ export class FrontalButtonDirective implements OnInit, OnDestroy {
 
   @HostListener('click', ['$event'])
   click(event: MouseEvent) {
-    if (this.frontal.buttonClick) {
-      this.frontal.buttonClick();
-    }
+    this.frontal.buttonClick();
   }
 
   private stateChange(state: State) {
@@ -161,6 +159,11 @@ export class FrontalListDirective {
     // prettier-ignore
     @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent, // tslint:disable-line
   ) {}
+
+  @HostListener('mousedown', ['$event'])
+  mousedown(event: MouseEvent) {
+    event.preventDefault();
+  }
 }
 
 @Directive({

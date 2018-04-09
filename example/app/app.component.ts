@@ -17,6 +17,7 @@ import { Component } from '@angular/core';
             <li><a routerLink="/bootstrap" routerLinkActive="active">Bootstrap</a></li>
             <li><a routerLink="/reducer" routerLinkActive="active">Reducer</a></li>
             <li><a routerLink="/http" routerLinkActive="active">Http</a></li>
+            <li><a routerLink="/disabled-items" routerLinkActive="active">Disabled items</a></li>
           </ul>
         </nav>
       </aside>

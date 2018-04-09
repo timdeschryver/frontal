@@ -113,13 +113,13 @@ article * + * {
     padding: 1em 1em;
     transition: 300ms ease-in-out;
 
-    &.highlight {
-      font-weight: 900;
-      transform: scale(1.05);
-    }
-
     &:not(:last-child) {
       border-bottom: 1px solid #666;
     }
   }
+}
+
+.highlight {
+  font-weight: 900;
+  transform: scale(1.05);
 }

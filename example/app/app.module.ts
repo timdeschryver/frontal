@@ -14,6 +14,7 @@ import { ReactiveComponent } from './components/reactive';
 import { BootstrapComponent } from './components/bootstrap';
 import { ReducerComponent } from './components/reducer';
 import { HttpComponent, GitHubService } from './components/http';
+import { DisabledItemsComponent } from './components/disabled-items';
 
 const routes: Routes = [
   {
@@ -45,6 +46,10 @@ const routes: Routes = [
     component: HttpComponent,
   },
   {
+    path: 'disabled-items',
+    component: DisabledItemsComponent,
+  },
+  {
     path: '**',
     redirectTo: 'simple',
   },
@@ -60,6 +65,7 @@ const routes: Routes = [
     BootstrapComponent,
     ReducerComponent,
     HttpComponent,
+    DisabledItemsComponent,
   ],
   imports: [
     BrowserModule,
