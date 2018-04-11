@@ -27,6 +27,5 @@
     "strictMetadataEmit": true,
     "flatModuleOutFile": "frontal.js",
     "flatModuleId": "frontal"
-
   }
 }
