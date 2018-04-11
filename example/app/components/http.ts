@@ -1,28 +1,15 @@
-import { Component, Injectable, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Injectable, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
+import { Observable, Subject, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, catchError, switchMap } from 'rxjs/operators';
-import { empty } from 'rxjs/observable/empty';
 import { State, Action, StateChanges } from 'frontal';
 
 @Injectable()
 export class GitHubService {
   getUsers(user: string): Observable<User[]> {
-    return this.http.get<UserResponse>(`https://api.github.com/search/users?q=${user}`).pipe(
-      map(f =>
-        f.items.sort((a, b) => {
-          if (a.score < b.score) {
-            return -1;
-          }
-          if (a.score > b.score) {
-            return 1;
-          }
-          return 0;
-        }),
-      ),
-      catchError(_ => empty<User[]>()),
-    );
+    return this.http
+      .get<UserResponse>(`https://api.github.com/search/users?q=${user}`)
+      .pipe(map(u => u.items), catchError(_ => of<User[]>()));
   }
   constructor(private http: HttpClient) {}
 }
@@ -58,20 +45,16 @@ export class GitHubService {
       </frontal>
   `,
 })
-export class HttpComponent implements OnInit {
-  users: Observable<User[]>;
+export class HttpComponent {
   query = new Subject<string>();
+  users: Observable<User[]> = this.query.pipe(
+    debounceTime(321),
+    distinctUntilChanged(),
+    switchMap(query => (query ? this.github.getUsers(query) : of<User[]>())),
+    catchError(_ => of<User[]>()),
+  );
 
   constructor(private github: GitHubService) {}
-
-  ngOnInit() {
-    this.users = this.query.pipe(
-      debounceTime(321),
-      distinctUntilChanged(),
-      switchMap(query => (query ? this.github.getUsers(query) : empty<User[]>())),
-      catchError(_ => empty<User[]>()),
-    );
-  }
 
   trackUserById(index: number, user: User) {
     return user.id;

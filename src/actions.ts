@@ -28,6 +28,7 @@ export interface InputChange {
     selectedItem: any;
     inputText: string;
     inputValue: string;
+    isOpen: boolean;
   };
 }
 

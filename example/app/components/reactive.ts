@@ -34,7 +34,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
   `,
 })
 export class ReactiveComponent implements OnInit {
-  form: FormGroup;
+  form!: FormGroup;
   heroes = heroes;
 
   constructor(private fb: FormBuilder) {}

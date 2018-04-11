@@ -111,7 +111,6 @@ article * + * {
   li {
     margin-top: 0;
     padding: 1em 1em;
-    transition: 300ms ease-in-out;
 
     &:not(:last-child) {
       border-bottom: 1px solid #666;
@@ -122,4 +121,5 @@ article * + * {
 .highlight {
   font-weight: 900;
   transform: scale(1.05);
+  transition: 300ms ease-in-out;
 }

@@ -254,10 +254,10 @@ export class FrontalComponent implements ControlValueAccessor {
   @Output() change = new EventEmitter<string>();
   @Output() select = new EventEmitter<any>();
 
-  @ContentChild(TemplateRef) template: TemplateRef<any>;
-  @ContentChild(FrontalInputDirective) frontalInput: FrontalInputDirective;
+  @ContentChild(TemplateRef) template!: TemplateRef<any>;
+  @ContentChild(FrontalInputDirective) frontalInput!: FrontalInputDirective;
   @ContentChildren(FrontalItemDirective, { descendants: true })
-  frontalItems: QueryList<FrontalItemDirective>;
+  frontalItems!: QueryList<FrontalItemDirective>;
 
   private _stateListeners: { id: string; listener: ((state: State) => void) }[] = [];
   private _onChange = (value: any) => {};
@@ -275,6 +275,7 @@ export class FrontalComponent implements ControlValueAccessor {
           selectedItem: value,
           inputText,
           inputValue: inputText,
+          isOpen: false,
         },
       },
       false,
