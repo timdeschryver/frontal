@@ -8,6 +8,7 @@ import {
   FrontalButtonDirective,
   FrontalListDirective,
 } from './frontal.component';
+import { StatusMessagePipe } from './status.pipe';
 
 const components = [
   FrontalComponent,
@@ -16,6 +17,7 @@ const components = [
   FrontalItemDirective,
   FrontalButtonDirective,
   FrontalListDirective,
+  StatusMessagePipe,
 ];
 
 @NgModule({

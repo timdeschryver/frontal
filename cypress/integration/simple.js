@@ -21,6 +21,10 @@ describe('Frontal simple', () => {
         .getActiveDescendant()
         .should('not.exist');
     });
+
+    it('should have an empty status', () => {
+      cy.getStatus().should('be.empty');
+    });
   });
 
   describe('text input', () => {
@@ -45,6 +49,10 @@ describe('Frontal simple', () => {
         .focused()
         .getActiveDescendant()
         .should('not.exist');
+    });
+
+    it('should have a item-count status', () => {
+      cy.getStatus().contains('3 results are available, use up and down arrow keys to navigate.');
     });
 
     it("shouldn't show a message that no heroes are found", () => {
@@ -178,6 +186,10 @@ describe('Frontal simple', () => {
           .getActiveDescendant()
           .should('not.exist');
       });
+
+      it('should have a item-count status', () => {
+        cy.getStatus().contains('3 results are available, use up and down arrow keys to navigate.');
+      });
     });
 
     describe('mouse click', () => {
@@ -208,6 +220,24 @@ describe('Frontal simple', () => {
     });
   });
 
+  describe('no items found', () => {
+    before(() => {
+      cy
+        .getInputByLabelText('Select your hero')
+        .focus()
+        .clear()
+        .type('foobar');
+    });
+
+    it('should have a no-results status', () => {
+      cy.getStatus().contains('No results.');
+    });
+
+    it('should a message that no heroes are found', () => {
+      cy.contains('No heroes found...').should('exist');
+    });
+  });
+
   function testActive(name) {
     it('should have an activated item', () => {
       cy
@@ -222,6 +252,10 @@ describe('Frontal simple', () => {
         .getControlled()
         .getSelected()
         .contains(name);
+    });
+
+    it('should have a selected-item status', () => {
+      cy.getStatus().contains(name);
     });
   }
 
@@ -270,6 +304,10 @@ describe('Frontal simple', () => {
         .getInputByLabelText('Select your hero')
         .getActiveDescendant()
         .should('not.exist');
+    });
+
+    it('should have an empty status', () => {
+      cy.getStatus().should('be.empty');
     });
   }
 });

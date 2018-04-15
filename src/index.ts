@@ -26,3 +26,4 @@ export {
   FrontalListDirective,
   FRONTAL_VALUE_ACCESSOR,
 } from './frontal.component';
+export { StatusMessagePipe } from './status.pipe';

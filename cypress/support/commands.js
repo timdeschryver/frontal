@@ -23,8 +23,13 @@ function getSelected(subject) {
   return subject.get('[role=option][aria-selected=true]');
 }
 
+function getStatus() {
+  return cy.get('[role="status"]');
+}
+
 Cypress.Commands.add('getByTestId', getByTestId);
 Cypress.Commands.add('getInputByLabelText', getInputByLabelText);
+Cypress.Commands.add('getStatus', getStatus);
 Cypress.Commands.add('getControlled', { prevSubject: 'element' }, getControlled);
 Cypress.Commands.add('getActiveDescendant', { prevSubject: 'element' }, getActiveDescendant);
 Cypress.Commands.add('getSelected', { prevSubject: 'element' }, getSelected);

@@ -4,8 +4,9 @@ import { generateId } from './utils';
 
 export interface State {
   id: string;
-  selectedItem: any;
+  selectedItem: any | null;
   highlightedIndex: number | null;
+  highlightedItem: any | null;
   inputValue: string;
   inputText: string;
   isOpen: boolean;
@@ -18,6 +19,7 @@ export const initialState: State = {
   id: '',
   selectedItem: null,
   highlightedIndex: null,
+  highlightedItem: null,
   inputValue: '',
   inputText: '',
   isOpen: false,

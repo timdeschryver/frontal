@@ -11,6 +11,10 @@ describe('Frontal model', () => {
     it('should have a text value', () => {
       cy.getInputByLabelText('Select your hero').should('have.value', 'Celeritas');
     });
+
+    it('should have a selected-item status', () => {
+      cy.getStatus().contains('Celeritas');
+    });
   });
 
   describe('clear the input', () => {
@@ -20,6 +24,10 @@ describe('Frontal model', () => {
 
     it('should clear the selected hero', () => {
       cy.getByTestId('selected-item').contains('null');
+    });
+
+    it('should have a item-count status', () => {
+      cy.getStatus().contains('10 results are available, use up and down arrow keys to navigate.');
     });
   });
 
@@ -31,6 +39,10 @@ describe('Frontal model', () => {
     it('should set the model value', () => {
       cy.getByTestId('selected-item').contains(`"name": "Mr. Nice"`);
     });
+
+    it('should have a selected-item status', () => {
+      cy.getStatus().contains('Mr. Nice');
+    });
   });
 
   describe('reset the form', () => {
@@ -40,6 +52,10 @@ describe('Frontal model', () => {
 
     it('should set the model', () => {
       cy.getByTestId('selected-item').contains(`"name": "Celeritas"`);
+    });
+
+    it('should have a selected-item status', () => {
+      cy.getStatus().contains('Celeritas');
     });
   });
 });
