@@ -54,6 +54,11 @@ export class FrontalInputDirective implements OnInit, OnDestroy {
     this.frontal.removeListener('input');
   }
 
+  @HostListener('focus', ['$event'])
+  focus(event: Event) {
+    this.frontal.inputFocus();
+  }
+
   @HostListener('blur', ['$event'])
   blur(event: Event) {
     this.frontal.inputBlur();
@@ -331,6 +336,13 @@ export class FrontalComponent implements ControlValueAccessor {
       payload: {
         isOpen: !this.state.isOpen,
       },
+    });
+  }
+
+  inputFocus() {
+    this.handle({
+      type: StateChanges.InputFocus,
+      payload: {},
     });
   }
 

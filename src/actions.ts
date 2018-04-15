@@ -2,6 +2,7 @@ export enum StateChanges {
   ListToggle = 'frontal_list_toggle',
   ListOpen = 'frontal_list_open',
   ListClose = 'frontal_list_close',
+  InputFocus = 'frontal_input_focus',
   InputBlur = 'frontal_input_blur',
   InputChange = 'frontal_input_change',
   InputKeydownArrowDown = 'frontal_input_keydown_arrow_down',
@@ -19,6 +20,11 @@ export interface MenuToggle {
   payload: {
     isOpen: boolean;
   };
+}
+
+export interface InputFocus {
+  type: StateChanges.InputFocus;
+  payload: {};
 }
 
 export interface InputChange {
@@ -133,6 +139,7 @@ export type Action =
   | MenuOpen
   | MenuClose
   | ButtonClick
+  | InputFocus
   | InputBlur
   | ItemMouseClick
   | ItemMouseEnter

@@ -53,6 +53,14 @@ export class ReducerComponent {
     console.log(action);
 
     switch (action.type) {
+      case StateChanges.InputFocus:
+        return {
+          ...action,
+          payload: {
+            ...action.payload,
+            isOpen: true,
+          },
+        };
       case StateChanges.InputKeydownArrowDown:
       case StateChanges.InputKeydownArrowUp:
         return {

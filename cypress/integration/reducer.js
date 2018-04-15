@@ -3,13 +3,29 @@ describe('Frontal reducer', () => {
     cy.visit('/reducer');
   });
 
+  describe('input focus', () => () => {
+    before(() => {
+      cy
+        .getInputByLabelText('Select your hero')
+        .focus()
+        .clear();
+    });
+
+    it('should open the list', () => {
+      cy
+        .focused()
+        .getControlled()
+        .should('exist');
+    });
+  });
+
   describe('arrow usage', () => {
     before(() => {
       cy
         .getInputByLabelText('Select your hero')
         .focus()
         .clear()
-        .type('m{downarrow}');
+        .type('{downarrow}');
     });
 
     it('should set the input value when an item is active', () => {
@@ -22,8 +38,7 @@ describe('Frontal reducer', () => {
       cy
         .getInputByLabelText('Select your hero')
         .focus()
-        .clear()
-        .type('m');
+        .clear();
     });
 
     it("shouldn't highlight an item on mouse enter", () => {
@@ -36,7 +51,7 @@ describe('Frontal reducer', () => {
 
     it("shouldn't select an item on mouse click", () => {
       cy.contains('Magneta').click();
-      cy.getInputByLabelText('Select your hero').should('have.value', 'm');
+      cy.getInputByLabelText('Select your hero').should('have.value', '');
     });
   });
 });
