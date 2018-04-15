@@ -30,7 +30,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
         </ng-template>
       </frontal>
     </form>
-    <button id="reset" (click)="reset()">Reset hero</button>
+    <button data-test="reset" (click)="reset()">Reset hero</button>
   `,
 })
 export class ReactiveComponent implements OnInit {
