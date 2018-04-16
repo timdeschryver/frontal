@@ -70,32 +70,6 @@
             "browserTarget": "example:build"
           }
         },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "example/undefined",
-            "karmaConfig": "./karma.conf.js",
-            "polyfills": "example/polyfills.ts",
-            "scripts": [],
-            "styles": [
-              {
-                "input": "example/styles.scss"
-              }
-            ],
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "example/assets",
-                "output": "/assets"
-              },
-              {
-                "glob": "favicon.ico",
-                "input": "example",
-                "output": "/"
-              }
-            ]
-          }
-        },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {

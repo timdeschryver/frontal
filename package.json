@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "start": "ng serve",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "e2e": "npm-run-all --parallel --race start cypress:open",
     "lint": "ng lint --type-check",
     "precommit": "lint-staged",
@@ -20,6 +22,10 @@
       "prettier --write",
       "git add"
     ]
+  },
+  "jest": {
+    "preset": "jest-preset-angular",
+    "setupTestFrameworkScriptFile": "<rootDir>/src/test.ts"
   },
   "dependencies": {
     "@angular/animations": "^6.0.0-rc.3",
@@ -42,19 +48,12 @@
     "@angular/cli": "~6.0.0-rc.2",
     "@angular/compiler-cli": "^6.0.0-rc.3",
     "@angular/language-service": "^6.0.0-rc.3",
-    "@types/jasmine": "~2.8.3",
-    "@types/jasminewd2": "~2.0.2",
     "@types/node": "~6.0.60",
     "codelyzer": "^4.0.1",
     "cypress": "^2.1.0",
     "husky": "^0.14.3",
-    "jasmine-core": "~2.8.0",
-    "jasmine-spec-reporter": "~4.2.1",
-    "karma": "~2.0.0",
-    "karma-chrome-launcher": "~2.2.0",
-    "karma-coverage-istanbul-reporter": "^1.2.1",
-    "karma-jasmine": "~1.1.0",
-    "karma-jasmine-html-reporter": "^0.2.2",
+    "jest": "^22.4.3",
+    "jest-preset-angular": "^5.2.1",
     "lint-staged": "^7.0.0",
     "npm-run-all": "^4.1.2",
     "prettier": "^1.11.1",
