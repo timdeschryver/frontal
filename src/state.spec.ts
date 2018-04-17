@@ -1,7 +1,7 @@
 import { createState } from './state';
 
 describe('createState', () => {
-  test('should generate an id', () => {
+  test('generates an id', () => {
     expect(createState().id).toBeDefined();
   });
 });
