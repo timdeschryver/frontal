@@ -1,5 +1,9 @@
-let _frontalId = 0;
+let frontalId = 0;
 
 export function generateId() {
-  return `${_frontalId++}`;
+  return `${frontalId++}`;
+}
+
+export function resetId() {
+  frontalId = 0;
 }

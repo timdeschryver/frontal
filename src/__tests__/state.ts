@@ -1,4 +1,4 @@
-import { createState } from './state';
+import { createState } from '../state';
 
 describe('createState', () => {
   test('generates an id', () => {

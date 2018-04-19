@@ -1,17 +1,18 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { FrontalComponent, FrontalButtonDirective } from './frontal.component';
-import { StatusMessagePipe } from './status.pipe';
+import { FrontalComponent, FrontalButtonDirective } from '../frontal.component';
+import { StatusMessagePipe } from '../status.pipe';
+import { resetId } from '../utils';
 
 test('generates an id', () => {
   const { button } = setup();
-  expect(button.nativeElement.id).toContain('frontal-button');
+  expect(button.attributes['id']).toBe('frontal-button-0');
 });
 
 test('generates an aria labelledby', () => {
   const { button } = setup();
-  expect(button.attributes['aria-labelledby']).toContain('frontal-label');
+  expect(button.attributes['aria-labelledby']).toBe('frontal-label-0');
 });
 
 test('clicking on the button toggles the list', () => {
@@ -39,6 +40,8 @@ test('clicking on the button toggles the aria label', () => {
 });
 
 function setup() {
+  resetId();
+
   TestBed.configureTestingModule({
     declarations: [TestComponent, FrontalComponent, FrontalButtonDirective, StatusMessagePipe],
   });
