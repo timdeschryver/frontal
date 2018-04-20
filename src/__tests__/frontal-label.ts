@@ -5,14 +5,9 @@ import { FrontalComponent, FrontalLabelDirective } from '../frontal.component';
 import { StatusMessagePipe } from '../status.pipe';
 import { resetId } from '../utils';
 
-test('generates an id', () => {
+test('sanity check for attributes', () => {
   const { label } = setup();
-  expect(label.attributes['id']).toBe('frontal-label-0');
-});
-
-test('generates a for', () => {
-  const { label } = setup();
-  expect(label.attributes['for']).toBe('frontal-input-0');
+  expect(label.nativeElement).toMatchSnapshot();
 });
 
 function setup() {

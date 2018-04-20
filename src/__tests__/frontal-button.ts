@@ -5,14 +5,9 @@ import { FrontalComponent, FrontalButtonDirective } from '../frontal.component';
 import { StatusMessagePipe } from '../status.pipe';
 import { resetId } from '../utils';
 
-test('generates an id', () => {
+test('sanity check for attributes', () => {
   const { button } = setup();
-  expect(button.attributes['id']).toBe('frontal-button-0');
-});
-
-test('generates an aria labelledby', () => {
-  const { button } = setup();
-  expect(button.attributes['aria-labelledby']).toBe('frontal-label-0');
+  expect(button.nativeElement).toMatchSnapshot();
 });
 
 test('clicking on the button toggles the list', () => {
@@ -20,22 +15,20 @@ test('clicking on the button toggles the list', () => {
 
   expect(state).toMatchObject(expect.objectContaining({ isOpen: false }));
 
-  button.triggerEventHandler('click', {});
+  button.nativeElement.dispatchEvent(new Event('click'));
   expect(state).toMatchObject(expect.objectContaining({ isOpen: true }));
 
-  button.triggerEventHandler('click', {});
+  button.nativeElement.dispatchEvent(new Event('click'));
   expect(state).toMatchObject(expect.objectContaining({ isOpen: false }));
 });
 
-test('clicking on the button toggles the aria label', () => {
+test('isOpen toggles the aria label', () => {
   const { button } = setup();
 
-  expect(button.attributes['aria-label']).toBe('open menu');
-
-  button.triggerEventHandler('click', {});
+  button.nativeElement.dispatchEvent(new Event('click'));
   expect(button.attributes['aria-label']).toBe('close menu');
 
-  button.triggerEventHandler('click', {});
+  button.nativeElement.dispatchEvent(new Event('click'));
   expect(button.attributes['aria-label']).toBe('open menu');
 });
 

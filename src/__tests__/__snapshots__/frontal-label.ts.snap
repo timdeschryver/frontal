@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`sanity check for attributes 1`] = `
+<label
+  for="frontal-input-0"
+  frontallabel=""
+  id="frontal-label-0"
+/>
+`;

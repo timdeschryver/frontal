@@ -84,7 +84,6 @@ export class FrontalInputDirective implements OnInit, OnDestroy {
 
   private setAriaAttributes() {
     this.ariaExpanded = this.frontal.state.isOpen;
-
     const highlighted = this.frontal.getHighlightedItem(this.frontal.state.highlightedIndex);
     this.ariaActiveDescendant = highlighted ? highlighted.attrId : '';
   }
@@ -358,8 +357,8 @@ export class FrontalComponent implements ControlValueAccessor {
   }
 
   inputBlur() {
-    const { selectedItem, inputValue } = this.getSelected();
     if (this.state.isOpen) {
+      const { selectedItem, inputValue } = this.getSelected();
       this.handle({
         type: StateChanges.InputBlur,
         payload: {
@@ -394,6 +393,7 @@ export class FrontalComponent implements ControlValueAccessor {
 
     const handlers: { [key: string]: () => Action } = {
       ArrowDown: () => {
+        // prevent cursor to change its place
         event.preventDefault();
         return {
           type: StateChanges.InputKeydownArrowDown,
@@ -408,6 +408,7 @@ export class FrontalComponent implements ControlValueAccessor {
         };
       },
       ArrowUp: () => {
+        // prevent cursor to change its place
         event.preventDefault();
         return {
           type: StateChanges.InputKeydownArrowUp,
@@ -502,10 +503,8 @@ export class FrontalComponent implements ControlValueAccessor {
   }
 
   getSelected() {
-    const highlighted = this.getHighlightedItem(this.state.highlightedIndex);
-    const selectedItem = highlighted ? highlighted.value : null;
-    const inputValue = highlighted ? this.state.itemToString(highlighted.value) : '';
-    return { selectedItem, inputValue };
+    const inputValue = this.state.highlightedItem ? this.state.itemToString(this.state.highlightedItem) : '';
+    return { selectedItem: this.state.highlightedItem, inputValue };
   }
 
   handle(action: Action) {

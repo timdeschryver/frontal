@@ -5,6 +5,7 @@
     "start": "ng serve",
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
     "e2e": "npm-run-all --parallel --race start cypress:open",
     "lint": "ng lint --type-check",
     "precommit": "lint-staged",

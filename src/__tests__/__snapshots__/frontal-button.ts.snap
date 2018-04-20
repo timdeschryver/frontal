@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`sanity check for attributes 1`] = `
+<button
+  aria-expanded="false"
+  aria-haspopup="listbox"
+  aria-label="open menu"
+  aria-labelledby="frontal-label-0"
+  data-toggle="true"
+  frontalbutton=""
+  id="frontal-button-0"
+  role="button"
+  type="button"
+/>
+`;

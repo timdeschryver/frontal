@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`sanity check for attributes 1`] = `
+<input
+  aria-activedescendant=""
+  aria-autocomplete="list"
+  aria-controls="frontal-list-0"
+  aria-expanded="false"
+  aria-labelledby="frontal-label-0"
+  autocomplete="off"
+  frontalinput=""
+  id="frontal-input-0"
+  role="combobox"
+/>
+`;
