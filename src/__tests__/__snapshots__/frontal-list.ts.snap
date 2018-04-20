@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`sanity check for attributes 1`] = `
+<div
+  aria-labelledby="frontal-label-0"
+  frontallist=""
+  id="frontal-list-0"
+  role="listbox"
+/>
+`;

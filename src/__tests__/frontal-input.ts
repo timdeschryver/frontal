@@ -4,7 +4,6 @@ import { By } from '@angular/platform-browser';
 import { FrontalComponent, FrontalInputDirective, FrontalItemDirective } from '../frontal.component';
 import { StatusMessagePipe } from '../status.pipe';
 import { resetId } from '../utils';
-import { tick } from '@angular/core/testing';
 
 test('sanity check for attributes', () => {
   const { input } = setup();

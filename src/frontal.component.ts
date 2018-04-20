@@ -41,7 +41,7 @@ export class FrontalInputDirective implements OnInit, OnDestroy {
   constructor(
     @Inject(ElementRef) private element: ElementRef,
     // prettier-ignore
-    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent, // tslint:disable-line
+    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent,
   ) {}
 
   ngOnInit() {
@@ -109,7 +109,7 @@ export class FrontalButtonDirective implements OnInit, OnDestroy {
 
   constructor(
     // prettier-ignore
-    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent, // tslint:disable-line
+    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent,
   ) {}
 
   ngOnInit() {
@@ -146,7 +146,7 @@ export class FrontalLabelDirective {
 
   constructor(
     // prettier-ignore
-    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent, // tslint:disable-line
+    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent,
   ) {}
 }
 
@@ -161,12 +161,12 @@ export class FrontalListDirective {
 
   constructor(
     // prettier-ignore
-    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent, // tslint:disable-line
+    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent,
   ) {}
 
   @HostListener('mousedown', ['$event'])
   mousedown(event: MouseEvent) {
-    event.preventDefault();
+    // event.preventDefault();
   }
 }
 
@@ -183,7 +183,7 @@ export class FrontalItemDirective implements OnInit, OnDestroy {
 
   constructor(
     // prettier-ignore
-    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent, // tslint:disable-line
+    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent,
   ) {}
 
   ngOnInit() {
@@ -224,7 +224,7 @@ export class FrontalItemDirective implements OnInit, OnDestroy {
 
 export const FRONTAL_VALUE_ACCESSOR: any = {
   provide: NG_VALUE_ACCESSOR,
-  useExisting: forwardRef(() => FrontalComponent), // tslint:disable-line
+  useExisting: forwardRef(() => FrontalComponent),
   multi: true,
 };
 
