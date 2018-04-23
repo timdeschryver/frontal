@@ -456,8 +456,8 @@ export class FrontalComponent implements ControlValueAccessor {
   }
 
   itemClick(item: FrontalItemDirective) {
-    const inputText = this.state.itemToString(item.value);
     if (this.state.isOpen) {
+      const inputText = this.state.itemToString(item.value);
       this.handle({
         type: StateChanges.ItemMouseClick,
         payload: {

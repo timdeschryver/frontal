@@ -92,6 +92,7 @@ test('isOpen toggles aria expanded', () => {
 test('highlighted item sets aria activedescendant to the highlighted id', () => {
   const { fixture, input, frontal } = setup();
   frontal.state.highlightedIndex = 1;
+  fixture.detectChanges();
 
   // we want to trigger a change
   input.nativeElement.dispatchEvent(new Event('focus'));
@@ -267,7 +268,6 @@ function setup() {
   });
 
   const fixture = TestBed.createComponent(TestComponent);
-  fixture.detectChanges();
   fixture.detectChanges();
 
   return {

@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`sanity check for attributes 1`] = `
+Array [
+  <div
+    aria-selected="false"
+    frontalitem=""
+    id="frontal-item-0-1"
+    ng-reflect-value="uno"
+    role="option"
+  />,
+  <div
+    aria-selected="false"
+    frontalitem=""
+    id="frontal-item-0-2"
+    ng-reflect-value="dos"
+    role="option"
+  />,
+  <div
+    aria-selected="false"
+    frontalitem=""
+    id="frontal-item-0-3"
+    ng-reflect-value="tres"
+    role="option"
+  />,
+]
+`;
