@@ -55,7 +55,7 @@ test('inputText sets the input value', () => {
 test('blur does nothing on a closed list', () => {
   const { input, frontal } = setup();
 
-  spyOn(frontal, 'handle');
+  frontal.handle = jest.fn();
   input.nativeElement.dispatchEvent(new Event('blur'));
   expect(frontal.handle).not.toHaveBeenCalled();
 });
@@ -99,18 +99,10 @@ test('highlighted item sets aria activedescendant to the highlighted id', () => 
   expect(input.attributes['aria-activedescendant']).toBe('frontal-item-0-2');
 });
 
-test('highlighted item sets aria activedescendant to an empty string when there is no highlighted item', () => {
-  const { input, frontal } = setup();
-
-  spyOn(frontal, 'getHighlightedItem').and.returnValue(null);
-  input.nativeElement.dispatchEvent(new Event('focus'));
-  expect(input.attributes['aria-activedescendant']).toBe('');
-});
-
 test('arrow down does nothing on a closed list', () => {
   const { input, frontal } = setup();
 
-  spyOn(frontal, 'handle');
+  frontal.handle = jest.fn();
   input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
   expect(frontal.handle).not.toHaveBeenCalled();
 });
@@ -145,7 +137,7 @@ test('arrow down sets the highlighted index', () => {
 test('arrow up does nothing on a closed list', () => {
   const { input, frontal } = setup();
 
-  spyOn(frontal, 'handle');
+  frontal.handle = jest.fn();
   input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
   expect(frontal.handle).not.toHaveBeenCalled();
 });
@@ -179,7 +171,7 @@ test('arrow up sets the highlighted index', () => {
 test('enter does nothing on a closed list', () => {
   const { input, frontal } = setup();
 
-  spyOn(frontal, 'handle');
+  frontal.handle = jest.fn();
   input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
   expect(frontal.handle).not.toHaveBeenCalled();
 });
@@ -210,7 +202,7 @@ test('enter sets the value to the highlighted item', () => {
 test('escape does nothing on a closed list', () => {
   const { input, frontal } = setup();
 
-  spyOn(frontal, 'handle');
+  frontal.handle = jest.fn();
   input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
   expect(frontal.handle).not.toHaveBeenCalled();
 });
@@ -241,7 +233,7 @@ test('unhandled key does nothing', () => {
   const { input, frontal } = setup();
   frontal.state.isOpen = true;
 
-  spyOn(frontal, 'handle');
+  frontal.handle = jest.fn();
   input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Command' }));
   expect(frontal.handle).not.toHaveBeenCalled();
 });

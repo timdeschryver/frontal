@@ -166,7 +166,7 @@ export class FrontalListDirective {
 
   @HostListener('mousedown', ['$event'])
   mousedown(event: MouseEvent) {
-    // event.preventDefault();
+    event.preventDefault();
   }
 }
 
@@ -456,46 +456,40 @@ export class FrontalComponent implements ControlValueAccessor {
   }
 
   itemClick(item: FrontalItemDirective) {
-    if (this.state.isOpen) {
-      const inputText = this.state.itemToString(item.value);
-      this.handle({
-        type: StateChanges.ItemMouseClick,
-        payload: {
-          isOpen: false,
-          highlightedIndex: null,
-          selectedItem: item.value,
-          inputText,
-          inputValue: inputText,
-        },
-      });
-    }
+    const inputText = this.state.itemToString(item.value);
+    this.handle({
+      type: StateChanges.ItemMouseClick,
+      payload: {
+        isOpen: false,
+        highlightedIndex: null,
+        selectedItem: item.value,
+        inputText,
+        inputValue: inputText,
+      },
+    });
   }
 
   // MouseMove because we want a user interaction
   // MouseEnter selects an item when the mouse is hovering over an item while typing
   itemMove(item: FrontalItemDirective) {
-    if (this.state.isOpen) {
-      const index = this.frontalItems.toArray().indexOf(item);
-      if (index !== -1 && index !== this.state.highlightedIndex) {
-        this.handle({
-          type: StateChanges.ItemMouseEnter,
-          payload: {
-            highlightedIndex: index,
-          },
-        });
-      }
+    const index = this.frontalItems.toArray().indexOf(item);
+    if (index !== -1 && index !== this.state.highlightedIndex) {
+      this.handle({
+        type: StateChanges.ItemMouseEnter,
+        payload: {
+          highlightedIndex: index,
+        },
+      });
     }
   }
 
   itemLeave(item: FrontalItemDirective) {
-    if (this.state.isOpen) {
-      this.handle({
-        type: StateChanges.ItemMouseLeave,
-        payload: {
-          highlightedIndex: null,
-        },
-      });
-    }
+    this.handle({
+      type: StateChanges.ItemMouseLeave,
+      payload: {
+        highlightedIndex: null,
+      },
+    });
   }
 
   getHighlightedItem(index: number | null) {

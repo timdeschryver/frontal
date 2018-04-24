@@ -10,22 +10,6 @@ test('sanity check for attributes', () => {
   expect(items.map(item => item.nativeElement)).toMatchSnapshot();
 });
 
-test('mouse down does nothing on a closed list', () => {
-  const { item, frontal } = setup();
-
-  spyOn(frontal, 'handle');
-  item.nativeElement.dispatchEvent(new MouseEvent('mousedown'));
-  expect(frontal.handle).not.toHaveBeenCalled();
-});
-
-test('mouse down closes the list', () => {
-  const { item, frontal } = setup();
-  frontal.state.isOpen = true;
-
-  item.nativeElement.dispatchEvent(new MouseEvent('mousedown'));
-  expect(frontal.state).toMatchObject(expect.objectContaining({ isOpen: false }));
-});
-
 test('mouse down selects the item', () => {
   const { item, frontal } = setup();
   frontal.state.isOpen = true;
@@ -44,12 +28,12 @@ test('mouse down selects the item', () => {
   );
 });
 
-test('mouse move does nothing on a closed list', () => {
+test('mouse down closes the list', () => {
   const { item, frontal } = setup();
+  frontal.state.isOpen = true;
 
-  spyOn(frontal, 'handle');
-  item.nativeElement.dispatchEvent(new MouseEvent('mousemove'));
-  expect(frontal.handle).not.toHaveBeenCalled();
+  item.nativeElement.dispatchEvent(new MouseEvent('mousedown'));
+  expect(frontal.state).toMatchObject(expect.objectContaining({ isOpen: false }));
 });
 
 test('mouse move sets the highlighted index', () => {
