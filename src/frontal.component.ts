@@ -493,7 +493,9 @@ export class FrontalComponent implements ControlValueAccessor {
   }
 
   getHighlightedItem(index: number | null) {
-    return index === null ? null : this.frontalItems.find((_: FrontalItemDirective, idx: number) => index === idx);
+    return index === null || !this.frontalItems
+      ? null
+      : this.frontalItems.find((_: FrontalItemDirective, idx: number) => index === idx);
   }
 
   getSelected() {
