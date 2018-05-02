@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { FrontalComponent, FrontalInputDirective, FrontalItemDirective } from '../frontal.component';
@@ -14,14 +14,14 @@ test("focusing the input doesn't change the state", () => {
   const { input, frontal: { state } } = setup();
 
   const stateCopy = { ...state };
-  input.nativeElement.dispatchEvent(new Event('focus'));
+  input.nativeElement.dispatchEvent(new FocusEvent('focus'));
   expect(state).toEqual(stateCopy);
 });
 
 test('input opens the list', () => {
   const { fixture, input, frontal } = setup();
 
-  input.nativeElement.dispatchEvent(new Event('input'));
+  input.nativeElement.dispatchEvent(new CustomEvent('input'));
   expect(frontal.state).toMatchObject(expect.objectContaining({ isOpen: true }));
 });
 
@@ -29,7 +29,7 @@ test('input sets the value and text', () => {
   const { input, frontal } = setup();
 
   input.nativeElement.value = 'foo';
-  input.nativeElement.dispatchEvent(new Event('input'));
+  input.nativeElement.dispatchEvent(new CustomEvent('input'));
   expect(frontal.state).toMatchObject(expect.objectContaining({ inputText: 'foo', inputValue: 'foo' }));
 });
 
@@ -39,7 +39,7 @@ test('input resets the selected and highlighted item', () => {
   frontal.state.highlightedItem = 'bar';
   frontal.state.highlightedIndex = 1;
 
-  input.nativeElement.dispatchEvent(new Event('input'));
+  input.nativeElement.dispatchEvent(new CustomEvent('input'));
   expect(frontal.state).toMatchObject(
     expect.objectContaining({ selectedItem: null, highlightedItem: null, highlightedIndex: null }),
   );
@@ -48,7 +48,7 @@ test('input resets the selected and highlighted item', () => {
 test('inputText sets the input value', () => {
   const { input, frontal } = setup();
   frontal.state.inputText = 'foo';
-  input.nativeElement.dispatchEvent(new Event('focus'));
+  input.nativeElement.dispatchEvent(new FocusEvent('focus'));
   expect(input.nativeElement.value).toBe('foo');
 });
 
@@ -56,7 +56,7 @@ test('blur does nothing on a closed list', () => {
   const { input, frontal } = setup();
 
   frontal.handle = jest.fn();
-  input.nativeElement.dispatchEvent(new Event('blur'));
+  input.nativeElement.dispatchEvent(new FocusEvent('blur'));
   expect(frontal.handle).not.toHaveBeenCalled();
 });
 
@@ -64,7 +64,7 @@ test('blur closes the list', () => {
   const { input, frontal } = setup();
   frontal.state.isOpen = true;
 
-  input.nativeElement.dispatchEvent(new Event('blur'));
+  input.nativeElement.dispatchEvent(new FocusEvent('blur'));
   expect(frontal.state).toMatchObject(expect.objectContaining({ isOpen: false }));
 });
 
@@ -73,7 +73,7 @@ test('blur sets the value to the highlighted item', () => {
   frontal.state.isOpen = true;
   frontal.state.highlightedItem = 'foo';
 
-  input.nativeElement.dispatchEvent(new Event('blur'));
+  input.nativeElement.dispatchEvent(new FocusEvent('blur'));
   expect(frontal.state).toMatchObject(
     expect.objectContaining({ inputValue: 'foo', inputText: 'foo', selectedItem: 'foo' }),
   );
@@ -82,10 +82,10 @@ test('blur sets the value to the highlighted item', () => {
 test('isOpen toggles aria expanded', () => {
   const { input } = setup();
 
-  input.nativeElement.dispatchEvent(new Event('input'));
+  input.nativeElement.dispatchEvent(new CustomEvent('input'));
   expect(input.attributes['aria-expanded']).toBe('true');
 
-  input.nativeElement.dispatchEvent(new Event('blur'));
+  input.nativeElement.dispatchEvent(new FocusEvent('blur'));
   expect(input.attributes['aria-expanded']).toBe('false');
 });
 
@@ -95,7 +95,7 @@ test('highlighted item sets aria activedescendant to the highlighted id', () => 
   fixture.detectChanges();
 
   // we want to trigger a change
-  input.nativeElement.dispatchEvent(new Event('focus'));
+  input.nativeElement.dispatchEvent(new FocusEvent('focus'));
   expect(input.attributes['aria-activedescendant']).toBe('frontal-item-0-2');
 });
 

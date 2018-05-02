@@ -15,20 +15,20 @@ test('clicking on the button toggles the list', () => {
 
   expect(state).toMatchObject(expect.objectContaining({ isOpen: false }));
 
-  button.nativeElement.dispatchEvent(new Event('click'));
+  button.nativeElement.dispatchEvent(new MouseEvent('click'));
   expect(state).toMatchObject(expect.objectContaining({ isOpen: true }));
 
-  button.nativeElement.dispatchEvent(new Event('click'));
+  button.nativeElement.dispatchEvent(new MouseEvent('click'));
   expect(state).toMatchObject(expect.objectContaining({ isOpen: false }));
 });
 
 test('isOpen toggles the aria label', () => {
   const { button } = setup();
 
-  button.nativeElement.dispatchEvent(new Event('click'));
+  button.nativeElement.dispatchEvent(new MouseEvent('click'));
   expect(button.attributes['aria-label']).toBe('close menu');
 
-  button.nativeElement.dispatchEvent(new Event('click'));
+  button.nativeElement.dispatchEvent(new MouseEvent('click'));
   expect(button.attributes['aria-label']).toBe('open menu');
 });
 
