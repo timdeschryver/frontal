@@ -16,7 +16,7 @@ import { ReducerComponent } from './components/reducer';
 import { HttpComponent, GitHubService } from './components/http';
 import { DisabledItemsComponent } from './components/disabled-items';
 
-const routes: Routes = [
+export const routes: Routes = [
   {
     path: 'simple',
     component: SimpleComponent,
@@ -68,6 +68,7 @@ const routes: Routes = [
     DisabledItemsComponent,
   ],
   imports: [
+    BrowserModule.withServerTransition({ appId: 'frontal-example-app' }),
     BrowserModule,
     BrowserAnimationsModule,
     FormsModule,
