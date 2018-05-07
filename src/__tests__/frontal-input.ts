@@ -92,10 +92,9 @@ test('isOpen toggles aria expanded', () => {
 test('highlighted item sets aria activedescendant to the highlighted id', () => {
   const { fixture, input, frontal } = setup();
   frontal.state.highlightedIndex = 1;
-  fixture.detectChanges();
-
   // we want to trigger a change
   input.nativeElement.dispatchEvent(new FocusEvent('focus'));
+
   expect(input.attributes['aria-activedescendant']).toBe('frontal-item-0-2');
 });
 
@@ -208,7 +207,7 @@ test('escape does nothing on a closed list', () => {
 });
 
 test('escape resets the state', () => {
-  const { input, frontal } = setup();
+  const { fixture, input, frontal } = setup();
   frontal.state.isOpen = true;
   frontal.state.inputText = 'foo';
   frontal.state.inputValue = 'foo';
@@ -251,9 +250,9 @@ function setup() {
         <frontal>
           <ng-template>
             <input frontalInput/>
-            <div frontalItem></div>
-            <div frontalItem></div>
-            <div frontalItem></div>
+            <div frontalItem [index]="0"></div>
+            <div frontalItem [index]="1"></div>
+            <div frontalItem [index]="2"></div>
           </ng-template>
         </frontal>`,
     },

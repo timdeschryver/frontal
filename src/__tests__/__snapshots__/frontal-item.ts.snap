@@ -6,6 +6,7 @@ Array [
     aria-selected="false"
     frontalitem=""
     id="frontal-item-0-1"
+    ng-reflect-index="0"
     ng-reflect-value="uno"
     role="option"
   />,
@@ -13,6 +14,7 @@ Array [
     aria-selected="false"
     frontalitem=""
     id="frontal-item-0-2"
+    ng-reflect-index="1"
     ng-reflect-value="dos"
     role="option"
   />,
@@ -20,6 +22,7 @@ Array [
     aria-selected="false"
     frontalitem=""
     id="frontal-item-0-3"
+    ng-reflect-index="2"
     ng-reflect-value="tres"
     role="option"
   />,

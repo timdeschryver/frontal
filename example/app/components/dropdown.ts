@@ -12,7 +12,7 @@ import { heroes, toString, toJson, Hero } from '../../data/hero';
         </button>
 
         <ul *ngIf="frontal.state.isOpen" frontalList>
-          <li *ngFor="let hero of heroes; trackBy:trackById; let index=index;" frontalItem [value]="hero"
+          <li *ngFor="let hero of heroes; trackBy:trackById; let index=index;" frontalItem [value]="hero" [index]="index"
             [class.highlight]="frontal.state.highlightedIndex === index">
             {{hero.name}}
           </li>

@@ -41,8 +41,8 @@ Use the `frontal` component and directives:
     <input type="text" frontalInput/>
 
     <ul *ngIf="isOpen" frontalList>
-      <li *ngFor="let hero of filteredHeroes(value); let index=index;" frontalItem [value]="hero"
-       [class.highlight]="highlightedIndex === index">
+      <li *ngFor="let hero of filteredHeroes(value); let index=index;" frontalItem
+       [value]="hero" [index]="index" [class.highlight]="highlightedIndex === index">
         {{hero.name}}
       </li>
     </ul>
@@ -52,7 +52,7 @@ Use the `frontal` component and directives:
     </div>
 
     <h4>Selected hero:</h4>
-    <pre>{{selectedItem | json}}</pre>
+    <pre>{{ selectedItem | json }}</pre>
   </ng-template>
 </frontal>
 ```
@@ -168,7 +168,13 @@ The number of `frontalItems` in the list.
 
 The value of the list item.
 
-> Required.
+> Required. Any.
+
+##### `index`
+
+The index of the list item.
+
+> Required. Number.
 
 ## Example
 

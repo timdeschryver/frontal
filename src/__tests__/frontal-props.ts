@@ -25,7 +25,6 @@ test('reducer can change the state', () => {
   };
 
   const { frontal } = setup({ reducer });
-
   frontal.openMenu();
   expect(frontal.state).toMatchObject(expect.objectContaining({ isOpen: true, highlightedIndex: 3 }));
 
@@ -35,10 +34,65 @@ test('reducer can change the state', () => {
 
 test('itemToString should be used when provided', () => {
   const itemToString = ({ name }: { name: string }) => name;
-
   const { frontal } = setup({ itemToString });
   frontal.itemClick({ value: { name: 'Tim' } } as FrontalItemDirective);
+
   expect(frontal.state).toMatchObject(expect.objectContaining({ inputText: 'Tim' }));
+});
+
+test('defaultHighlightedIndex sets the initial highlighted index', () => {
+  const { frontal } = setup({ defaultHighlightedIndex: 0 });
+  expect(frontal.state.highlightedIndex).toBe(0);
+});
+
+test('defaultHighlightedIndex is used to set the highlighted index on change', () => {
+  const { frontal } = setup({ defaultHighlightedIndex: 0 });
+  frontal.handle = jest.fn();
+  frontal.inputChange({ target: { value: 'abc' } } as any);
+
+  expect(frontal.handle).toHaveBeenCalledWith(
+    expect.objectContaining({ payload: expect.objectContaining({ highlightedIndex: 0 }) }),
+  );
+});
+
+test('defaultHighlightedIndex is used to set the highlighted index on menu open', () => {
+  const { frontal } = setup({ defaultHighlightedIndex: 0 });
+  frontal.handle = jest.fn();
+  frontal.openMenu();
+
+  expect(frontal.handle).toHaveBeenCalledWith(
+    expect.objectContaining({ payload: expect.objectContaining({ highlightedIndex: 0 }) }),
+  );
+});
+
+test('defaultHighlightedIndex is used to set the highlighted index on menu toggle', () => {
+  const { frontal } = setup({ defaultHighlightedIndex: 0 });
+  frontal.handle = jest.fn();
+  frontal.toggleMenu();
+
+  expect(frontal.handle).toHaveBeenCalledWith(
+    expect.objectContaining({ payload: expect.objectContaining({ highlightedIndex: 0 }) }),
+  );
+});
+
+test('toggleMenu resets the highlighted index', () => {
+  const { frontal } = setup({ defaultHighlightedIndex: 0, isOpen: true });
+  frontal.handle = jest.fn();
+  frontal.toggleMenu();
+
+  expect(frontal.handle).toHaveBeenCalledWith(
+    expect.objectContaining({ payload: expect.objectContaining({ highlightedIndex: null }) }),
+  );
+});
+
+test('closeMenu resets the highlighted index', () => {
+  const { frontal } = setup({ defaultHighlightedIndex: 0, isOpen: true });
+  frontal.handle = jest.fn();
+  frontal.closeMenu();
+
+  expect(frontal.handle).toHaveBeenCalledWith(
+    expect.objectContaining({ payload: expect.objectContaining({ highlightedIndex: null }) }),
+  );
 });
 
 test('change is getting called when input is changed', () => {
@@ -59,8 +113,8 @@ test('change is getting called when input is changed', () => {
 test('select is getting called with the item value', () => {
   const { frontal } = setup();
   frontal.select.emit = jest.fn();
-
   frontal.itemClick({ value: { name: 'Tim' } } as FrontalItemDirective);
+
   expect(frontal.select.emit).toHaveBeenCalledWith({ name: 'Tim' });
 });
 

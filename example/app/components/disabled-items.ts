@@ -17,7 +17,7 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
                 </ng-container>
 
                 <ng-template #enabled>
-                  <div *ngIf="!hero.disabled; else disabled" frontalItem [value]="hero" [class.highlight]="highlightedIndex === findIndex(hero, filteredHeroes(value))">
+                  <div *ngIf="!hero.disabled; else disabled" frontalItem [value]="hero" [index]="index" [class.highlight]="highlightedIndex === findIndex(hero, filteredHeroes(value))">
                   {{hero.name}}
                 </div>
                 </ng-template>
@@ -36,7 +36,7 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
         </ng-container>
 
         <h4>Selected hero:</h4>
-        <pre data-test="selected-item">{{selectedItem | json}}</pre>
+        <pre data-test="selected-item">{{ selectedItem | json }}</pre>
       </ng-template>
     </frontal>
   `,

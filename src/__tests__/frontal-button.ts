@@ -13,13 +13,11 @@ test('sanity check for attributes', () => {
 test('clicking on the button toggles the list', () => {
   const { button, frontal: { state } } = setup();
 
-  expect(state).toMatchObject(expect.objectContaining({ isOpen: false }));
+  button.nativeElement.dispatchEvent(new MouseEvent('click'));
+  expect(state).toMatchObject(expect.objectContaining({ isOpen: true, highlightedIndex: 0 }));
 
   button.nativeElement.dispatchEvent(new MouseEvent('click'));
-  expect(state).toMatchObject(expect.objectContaining({ isOpen: true }));
-
-  button.nativeElement.dispatchEvent(new MouseEvent('click'));
-  expect(state).toMatchObject(expect.objectContaining({ isOpen: false }));
+  expect(state).toMatchObject(expect.objectContaining({ isOpen: false, highlightedIndex: null }));
 });
 
 test('isOpen toggles the aria label', () => {
@@ -42,7 +40,7 @@ function setup() {
   TestBed.overrideComponent(TestComponent, {
     set: {
       template: `
-        <frontal>
+        <frontal [defaultHighlightedIndex]="0">
           <ng-template>
             <button frontalButton></button>
           </ng-template>

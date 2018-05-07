@@ -13,8 +13,8 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
 
           <ng-container *ngIf="isOpen">
             <ul frontalList [@listAnimation]="filteredHeroes(value).length">
-              <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;" frontalItem [value]="hero"
-                [class.highlight]="highlightedIndex === index">
+              <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;" frontalItem
+                [value]="hero" [index]="index" [class.highlight]="highlightedIndex === index">
                 {{hero.name}}
               </li>
             </ul>
@@ -25,7 +25,7 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
         </ng-container>
 
         <h4>Selected hero:</h4>
-        <pre data-test="selected-item">{{selectedItem | json}}</pre>
+        <pre data-test="selected-item">{{ selectedItem | json }}</pre>
       </ng-template>
     </frontal>
   `,

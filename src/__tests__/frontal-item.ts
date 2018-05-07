@@ -39,8 +39,8 @@ test('mouse down closes the list', () => {
 test('mouse move sets the highlighted index', () => {
   const { fixture, item, frontal } = setup();
   frontal.state.isOpen = true;
-  fixture.detectChanges();
   item.nativeElement.dispatchEvent(new MouseEvent('mousemove'));
+
   expect(frontal.state).toMatchObject(
     expect.objectContaining({
       highlightedItem: 'uno',
@@ -66,7 +66,6 @@ test('mouse leave resets the highlighted index', () => {
 test('highlighted index sets aria selected', () => {
   const { fixture, items, frontal } = setup();
   frontal.isOpen = true;
-  fixture.detectChanges();
 
   items[1].nativeElement.dispatchEvent(new MouseEvent('mousemove'));
   expect(items[0].attributes['aria-selected']).toBe('false');
@@ -89,9 +88,9 @@ function setup() {
       template: `
         <frontal>
           <ng-template>
-            <div frontalItem [value]="'uno'"></div>
-            <div frontalItem [value]="'dos'"></div>
-            <div frontalItem [value]="'tres'"></div>
+            <div frontalItem [value]="'uno'" [index]="0"></div>
+            <div frontalItem [value]="'dos'" [index]="1"></div>
+            <div frontalItem [value]="'tres'" [index]="2"></div>
           </ng-template>
         </frontal>`,
     },

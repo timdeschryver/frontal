@@ -84,7 +84,7 @@ export class FrontalInputDirective implements OnInit, OnDestroy {
 
   private setAriaAttributes() {
     this.ariaExpanded = this.frontal.state.isOpen;
-    const highlighted = this.frontal.getHighlightedItem(this.frontal.state.highlightedIndex);
+    const highlighted = this.frontal.getItemAtIndex(this.frontal.state.highlightedIndex);
     this.ariaActiveDescendant = highlighted ? highlighted.attrId : '';
   }
 
@@ -175,11 +175,25 @@ export class FrontalListDirective {
   exportAs: 'frontalItem',
 })
 export class FrontalItemDirective implements OnInit, OnDestroy {
+  private _index!: number;
+
   @HostBinding('attr.role') role = 'option';
   @HostBinding('attr.aria-selected') ariaSelected = false;
   @HostBinding('attr.id') attrId = createFrontalItemId(this.frontal.state.id, generateId());
-
   @Input() value: any;
+  @Input()
+  set index(value: any) {
+    const previousIndex = this._index;
+    this._index = value;
+
+    if (previousIndex !== undefined) {
+      this.frontal.updateFrontalItem(this, previousIndex);
+    }
+  }
+
+  get index() {
+    return this._index;
+  }
 
   constructor(
     // prettier-ignore
@@ -187,13 +201,13 @@ export class FrontalItemDirective implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.frontal.addFrontalItem();
+    this.frontal.addFrontalItem(this);
     this.frontal.addListener({ id: this.attrId, listener: this.stateChange.bind(this) });
     this.setAriaAttributes();
   }
 
   ngOnDestroy() {
-    this.frontal.removeFrontalItem();
+    this.frontal.removeFrontalItem(this);
     this.frontal.removeListener(this.attrId);
   }
 
@@ -217,7 +231,7 @@ export class FrontalItemDirective implements OnInit, OnDestroy {
   }
 
   private setAriaAttributes() {
-    const highlighted = this.frontal.getHighlightedItem(this.frontal.state.highlightedIndex);
+    const highlighted = this.frontal.getItemAtIndex(this.frontal.state.highlightedIndex);
     this.ariaSelected = (highlighted && highlighted.attrId === this.attrId) || false;
   }
 }
@@ -266,13 +280,21 @@ export class FrontalComponent implements ControlValueAccessor {
     this.state.isOpen = value;
   }
 
+  @Input()
+  set defaultHighlightedIndex(value: number | null) {
+    this.state.defaultHighlightedIndex = value;
+    this.state.highlightedIndex = value;
+  }
+
   @Output() change = new EventEmitter<string>();
   @Output() select = new EventEmitter<any>();
 
   @ContentChild(TemplateRef) template!: TemplateRef<any>;
   @ContentChild(FrontalInputDirective) frontalInput!: FrontalInputDirective;
-  @ContentChildren(FrontalItemDirective, { descendants: true })
-  frontalItems!: QueryList<FrontalItemDirective>;
+  // We're not using ContentChildren because even when the change detection is fired,
+  // the content won't update 'in time'.
+  // That's why we're taking this in our own hands, with the con that an index is required...
+  frontalItems: FrontalItemDirective[] = [];
 
   private _stateListeners: { id: string; listener: ((state: State) => void) }[] = [];
   private _onChange = (value: any) => {};
@@ -281,7 +303,7 @@ export class FrontalComponent implements ControlValueAccessor {
   constructor(private _changeDetector: ChangeDetectorRef) {}
 
   writeValue(value: any) {
-    // otherwise the reactive form doesn't render
+    // Otherwise the reactive form doesn't render
     setTimeout(() => {
       const inputText = value ? this.state.itemToString(value) : '';
       this.handle({
@@ -318,6 +340,7 @@ export class FrontalComponent implements ControlValueAccessor {
       type: StateChanges.ListToggle,
       payload: {
         isOpen: !this.state.isOpen,
+        highlightedIndex: this.state.isOpen ? null : this.state.defaultHighlightedIndex,
       },
     });
   }
@@ -327,6 +350,7 @@ export class FrontalComponent implements ControlValueAccessor {
       type: StateChanges.ListOpen,
       payload: {
         isOpen: true,
+        highlightedIndex: this.state.defaultHighlightedIndex,
       },
     });
   }
@@ -336,6 +360,7 @@ export class FrontalComponent implements ControlValueAccessor {
       type: StateChanges.ListClose,
       payload: {
         isOpen: false,
+        highlightedIndex: null,
       },
     });
   }
@@ -345,6 +370,7 @@ export class FrontalComponent implements ControlValueAccessor {
       type: StateChanges.ButtonClick,
       payload: {
         isOpen: !this.state.isOpen,
+        highlightedIndex: this.state.isOpen ? null : this.state.defaultHighlightedIndex,
       },
     });
   }
@@ -358,15 +384,15 @@ export class FrontalComponent implements ControlValueAccessor {
 
   inputBlur() {
     if (this.state.isOpen) {
-      const { selectedItem, inputValue } = this.getSelected();
+      const value = this.state.highlightedItem ? this.state.itemToString(this.state.highlightedItem) : '';
       this.handle({
         type: StateChanges.InputBlur,
         payload: {
           isOpen: false,
           highlightedIndex: null,
-          selectedItem,
-          inputText: inputValue,
-          inputValue,
+          selectedItem: this.state.highlightedItem,
+          inputText: value,
+          inputValue: value,
         },
       });
     }
@@ -381,7 +407,7 @@ export class FrontalComponent implements ControlValueAccessor {
         inputValue: inputText,
         isOpen: true,
         selectedItem: null,
-        highlightedIndex: null,
+        highlightedIndex: this.state.defaultHighlightedIndex,
       },
     });
   }
@@ -393,7 +419,7 @@ export class FrontalComponent implements ControlValueAccessor {
 
     const handlers: { [key: string]: () => Action } = {
       ArrowDown: () => {
-        // prevent cursor to change its place
+        // Prevent cursor to change its place
         event.preventDefault();
         return {
           type: StateChanges.InputKeydownArrowDown,
@@ -408,7 +434,7 @@ export class FrontalComponent implements ControlValueAccessor {
         };
       },
       ArrowUp: () => {
-        // prevent cursor to change its place
+        // Prevent cursor to change its place
         event.preventDefault();
         return {
           type: StateChanges.InputKeydownArrowUp,
@@ -425,15 +451,15 @@ export class FrontalComponent implements ControlValueAccessor {
         };
       },
       Enter: () => {
-        const { selectedItem, inputValue } = this.getSelected();
+        const value = this.state.highlightedItem ? this.state.itemToString(this.state.highlightedItem) : '';
         return {
           type: StateChanges.InputKeydownEnter,
           payload: {
             isOpen: false,
             highlightedIndex: null,
-            selectedItem,
-            inputText: inputValue,
-            inputValue,
+            selectedItem: this.state.highlightedItem,
+            inputText: value,
+            inputValue: value,
           },
         };
       },
@@ -472,12 +498,11 @@ export class FrontalComponent implements ControlValueAccessor {
   // MouseMove because we want a user interaction
   // MouseEnter selects an item when the mouse is hovering over an item while typing
   itemMove(item: FrontalItemDirective) {
-    const index = this.frontalItems.toArray().indexOf(item);
-    if (index !== -1 && index !== this.state.highlightedIndex) {
+    if (item.index !== this.state.highlightedIndex) {
       this.handle({
         type: StateChanges.ItemMouseEnter,
         payload: {
-          highlightedIndex: index,
+          highlightedIndex: item.index,
         },
       });
     }
@@ -492,15 +517,8 @@ export class FrontalComponent implements ControlValueAccessor {
     });
   }
 
-  getHighlightedItem(index: number | null) {
-    return index === null || !this.frontalItems
-      ? null
-      : this.frontalItems.find((_: FrontalItemDirective, idx: number) => index === idx);
-  }
-
-  getSelected() {
-    const inputValue = this.state.highlightedItem ? this.state.itemToString(this.state.highlightedItem) : '';
-    return { selectedItem: this.state.highlightedItem, inputValue };
+  getItemAtIndex(index: number | null) {
+    return index === null || !this.frontalItems ? null : this.frontalItems.filter(Boolean)[index];
   }
 
   handle(action: Action) {
@@ -511,8 +529,7 @@ export class FrontalComponent implements ControlValueAccessor {
     };
 
     if (newState.highlightedIndex !== this.state.highlightedIndex) {
-      const highlighted =
-        newState.highlightedIndex === null ? null : this.getHighlightedItem(newState.highlightedIndex);
+      const highlighted = newState.highlightedIndex === null ? null : this.getItemAtIndex(newState.highlightedIndex);
       newState.highlightedItem = highlighted ? highlighted.value : null;
     }
 
@@ -528,32 +545,48 @@ export class FrontalComponent implements ControlValueAccessor {
     }
 
     this.state = newState;
-    this._stateListeners.forEach(({ listener }) => listener(this.state));
 
+    this.dispatchState();
     this._changeDetector.detectChanges();
   }
 
-  addFrontalItem() {
-    this.state = {
-      ...this.state,
-      itemCount: this.state.itemCount + 1,
-    };
-
+  addFrontalItem(item: FrontalItemDirective) {
+    this.frontalItems[item.index] = item;
+    this.patchFrontalItemsBasedState();
     this._changeDetector.detectChanges();
   }
 
-  removeFrontalItem() {
-    this.state = {
-      ...this.state,
-      itemCount: this.state.itemCount - 1,
-    };
+  updateFrontalItem(item: FrontalItemDirective, previousIndex: number) {
+    if (this.frontalItems[previousIndex] === item) {
+      delete this.frontalItems[previousIndex];
+    }
+    this.frontalItems[item.index] = item;
+    this.patchFrontalItemsBasedState();
+  }
 
+  removeFrontalItem(item: FrontalItemDirective) {
+    delete this.frontalItems[item.index];
+    this.patchFrontalItemsBasedState();
     setTimeout(() => {
       const viewRef = this._changeDetector as ViewRef;
       if (viewRef && !viewRef.destroyed) {
         this._changeDetector.detectChanges();
       }
     });
+  }
+
+  private patchFrontalItemsBasedState() {
+    const highlighted = this.getItemAtIndex(this.state.highlightedIndex);
+    this.state = {
+      ...this.state,
+      itemCount: this.frontalItems.filter(Boolean).length,
+      highlightedItem: highlighted ? highlighted.value : null,
+    };
+    this.dispatchState();
+  }
+
+  private dispatchState() {
+    this._stateListeners.forEach(({ listener }) => listener(this.state));
   }
 }
 

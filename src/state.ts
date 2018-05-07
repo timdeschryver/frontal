@@ -6,6 +6,7 @@ export interface State {
   id: string;
   selectedItem: any | null;
   highlightedIndex: number | null;
+  defaultHighlightedIndex: number | null;
   highlightedItem: any | null;
   inputValue: string;
   inputText: string;
@@ -19,6 +20,7 @@ export const initialState: State = {
   id: '',
   selectedItem: null,
   highlightedIndex: null,
+  defaultHighlightedIndex: null,
   highlightedItem: null,
   inputValue: '',
   inputText: '',

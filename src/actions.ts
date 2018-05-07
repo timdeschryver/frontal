@@ -19,6 +19,7 @@ export interface MenuToggle {
   type: StateChanges.ListToggle;
   payload: {
     isOpen: boolean;
+    highlightedIndex: number | null;
   };
 }
 
@@ -42,6 +43,7 @@ export interface MenuOpen {
   type: StateChanges.ListOpen;
   payload: {
     isOpen: boolean;
+    highlightedIndex: number | null;
   };
 }
 
@@ -49,6 +51,7 @@ export interface MenuClose {
   type: StateChanges.ListClose;
   payload: {
     isOpen: boolean;
+    highlightedIndex: number | null;
   };
 }
 
@@ -56,6 +59,7 @@ export interface ButtonClick {
   type: StateChanges.ButtonClick;
   payload: {
     isOpen: boolean;
+    highlightedIndex: number | null;
   };
 }
 

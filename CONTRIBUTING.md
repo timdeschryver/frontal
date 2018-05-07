@@ -13,6 +13,7 @@ Hi there, thanks for being willing to contribute!
 * Run lint via `npm run lint`
 * Run unit tests via `npm run test` or `npm run test:watch`
 * Run integration tests via `npm run cypress:run` or `npm run cypress:open`
+* Run `npm run start:server` for a complete server build and e2e test
 
 ## Push changes
 

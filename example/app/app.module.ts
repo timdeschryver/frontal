@@ -5,7 +5,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 
-import { FrontalModule } from 'frontal';
+import { FrontalModule } from '../../src/frontal.module';
 import { AppComponent } from './app.component';
 import { SimpleComponent } from './components/simple';
 import { DropdownComponent } from './components/dropdown';
