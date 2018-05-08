@@ -1,50 +1,54 @@
 version: 2
 
+job_defaults: &job_defaults
+  docker:
+    - image: circleci/node:latest-browsers
+  working_directory: ~/project/repo
+
+cache_key: &cache_key
+  key: frontal-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
+
 jobs:
   build:
-    docker:
-      - image: circleci/node:latest-browsers
+    <<: *job_defaults
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
+          <<: *cache_key
       - run:
           name: install-dependencies
           command: npm install
       - save_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
+          <<: *cache_key
           paths:
             - node_modules
 
   lint:
-    docker:
-      - image: circleci/node:latest-browsers
+    <<: *job_defaults
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
+          <<: *cache_key
       - run:
           name: lint
           command: npm run lint
 
   test:
-    docker:
-      - image: circleci/node:latest-browsers
+    <<: *job_defaults
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
+          <<: *cache_key
       - run:
           name: test
           command: npm test
 
   e2e:
-    docker:
-      - image: circleci/node:latest-browsers
+    <<: *job_defaults
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
+          <<: *cache_key
       - run:
           name: e2e
           command: npm run e2e
