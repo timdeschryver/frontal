@@ -50,6 +50,8 @@ jobs:
       - restore_cache:
           <<: *cache_key
       - run:
+          command: sudo apt install libgconf-2-4
+      - run:
           name: e2e
           command: npm run e2e
 
