@@ -1,6 +1,6 @@
 {
   "name": "frontal",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0-beta.2",
   "scripts": {
     "start": "ng serve",
     "test": "jest",
@@ -22,7 +22,7 @@
     "minify": "uglifyjs ./dist/bundles/frontal.umd.js --screw-ie8 --compress --mangle --comments --output ./dist/bundles/frontal.umd.min.js",
     "prebuild": "rm -rf ./dist/*",
     "build": "npm run transpile && npm run package && npm run minify",
-    "postbuild": "cp ./README.md ./dist && cp ./src/package.json ./dist",
+    "postbuild": "cp ./README.md ./dist && cp ./src/package.json ./dist && cp -r ./migrations ./dist",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run"
   },
