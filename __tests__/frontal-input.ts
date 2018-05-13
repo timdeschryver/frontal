@@ -1,9 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { FrontalComponent, FrontalInputDirective, FrontalItemDirective } from '../frontal.component';
-import { StatusMessagePipe } from '../status.pipe';
-import { resetId } from '../utils';
+import { FrontalComponent, FrontalInputDirective, FrontalItemDirective, StatusMessagePipe, resetId } from '../src';
 
 test('sanity check for attributes', () => {
   const { input } = setup();

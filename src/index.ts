@@ -27,3 +27,4 @@ export {
   FRONTAL_VALUE_ACCESSOR,
 } from './frontal.component';
 export { StatusMessagePipe } from './status.pipe';
+export { generateId, resetId } from './utils';

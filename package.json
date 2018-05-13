@@ -33,8 +33,13 @@
     ]
   },
   "jest": {
+    "globals": {
+      "ts-jest": {
+        "tsConfigFile": "./__tests__/tsconfig.test.json"
+      }
+    },
     "preset": "jest-preset-angular",
-    "setupTestFrameworkScriptFile": "<rootDir>/src/test.ts"
+    "setupTestFrameworkScriptFile": "<rootDir>/test.ts"
   },
   "dependencies": {
     "@angular/animations": "^6.0.1",

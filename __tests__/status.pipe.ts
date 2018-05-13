@@ -1,5 +1,4 @@
-import { State, createState } from '../state';
-import { StatusMessagePipe } from '../status.pipe';
+import { State, createState, StatusMessagePipe } from '../src';
 
 const fixtures: { input: Partial<State>; output: string }[] = [
   {

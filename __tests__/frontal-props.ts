@@ -1,10 +1,14 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { FrontalComponent, FrontalItemDirective } from '../frontal.component';
-import { State } from '../state';
-import { Action, StateChanges } from '../actions';
-import { StatusMessagePipe } from '../status.pipe';
-import { resetId } from '../utils';
+import {
+  FrontalComponent,
+  FrontalItemDirective,
+  StatusMessagePipe,
+  resetId,
+  State,
+  Action,
+  StateChanges,
+} from '../src';
 
 test('reducer can change the state', () => {
   const reducer = (state: State, action: Action) => {
