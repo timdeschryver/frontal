@@ -1,6 +1,6 @@
 {
   "name": "frontal",
-  "version": "2.0.0-beta.2",
+  "version": "2.0.0-beta.4",
   "scripts": {
     "start": "ng serve",
     "test": "jest",
@@ -20,9 +20,10 @@
     "transpile": "ngc -p ./src/tsconfig.build.json",
     "package": "rollup -c ./src/rollup.config.js",
     "minify": "uglifyjs ./dist/bundles/frontal.umd.js --screw-ie8 --compress --mangle --comments --output ./dist/bundles/frontal.umd.min.js",
+    "transpile-migrations": "tsc -p ./migrations/tsconfig.migrations.json",
     "prebuild": "rm -rf ./dist/*",
-    "build": "npm run transpile && npm run package && npm run minify",
-    "postbuild": "cp ./README.md ./dist && cp ./src/package.json ./dist && cp -r ./migrations ./dist",
+    "build": "npm run transpile && npm run package && npm run minify && npm run transpile-migrations",
+    "postbuild": "cp ./README.md ./dist && cp ./src/package.json ./dist && cp ./migrations/migration.json ./dist/migrations",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run"
   },

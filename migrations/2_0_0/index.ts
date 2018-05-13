@@ -24,7 +24,7 @@ export default function(): Rule {
       const suffix = match(firstChar, '^') || match(firstChar, '~');
 
       // TODO: remove beta
-      pkg.dependencies['frontal'] = `${suffix}2.0.0-beta.2`;
+      pkg.dependencies['frontal'] = `${suffix}2.0.0-beta.4`;
       tree.overwrite(pkgPath, JSON.stringify(pkg, null, 2));
       context.addTask(new NodePackageInstallTask());
     }

@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "removeComments": false,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "strictFunctionTypes": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "moduleResolution": "node",
+    "stripInternal": false,
+    "target": "es5",
+    "noEmit": false,
+    "skipLibCheck": true,
+    "module": "commonjs",
+    "strict": true,
+    "outDir": "../dist/migrations/2_0_0",
+    "lib": [
+      "es5"
+    ]
+  },
+  "files": [
+    "./2_0_0/index.ts"
+  ]
+}

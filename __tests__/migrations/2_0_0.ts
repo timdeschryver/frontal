@@ -28,6 +28,6 @@ prefixes.forEach(prefix => {
     const { runner, tree } = setup(prefix);
     const updatedTree = runner.runSchematic('frontal-migration-01', {}, tree);
     const pkg = JSON.parse(updatedTree.readContent(packagePath));
-    expect(pkg.dependencies['frontal']).toBe(`${prefix}2.0.0-beta.2`);
+    expect(pkg.dependencies['frontal']).toBe(`${prefix}2.0.0-beta.4`);
   });
 });
