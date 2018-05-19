@@ -1,5 +1,4 @@
 import { Rule, SchematicContext, Tree, SchematicsException } from '@angular-devkit/schematics';
-import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 
 export default function(): Rule {
   return (tree: Tree, context: SchematicContext) => {
@@ -24,9 +23,8 @@ export default function(): Rule {
       const suffix = match(firstChar, '^') || match(firstChar, '~');
 
       // TODO: remove beta
-      pkg.dependencies['frontal'] = `${suffix}2.0.0-beta.5`;
+      pkg.dependencies['frontal'] = `${suffix}2.0.0-beta.6`;
       tree.overwrite(pkgPath, JSON.stringify(pkg, null, 2));
-      context.addTask(new NodePackageInstallTask());
     }
 
     return tree;
