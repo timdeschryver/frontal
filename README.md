@@ -1,6 +1,6 @@
 # Frontal
 
-> An Angular select/dropdown component
+> An Angular select/dropdown accessible component
 
 [![Build status][build-badge]][build]
 [![Styled with prettier][prettier-badge]][prettier]
