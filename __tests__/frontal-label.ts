@@ -1,40 +1,26 @@
 import { Component } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
+import { createComponent } from 'ngx-testing-library';
 import { FrontalComponent, FrontalLabelDirective, StatusMessagePipe, resetId } from '../src';
 
-test('sanity check for attributes', () => {
-  const { label } = setup();
-  expect(label.nativeElement).toMatchSnapshot();
+test('sanity check for attributes', async () => {
+  const { label } = await setup();
+  expect(label).toMatchSnapshot();
 });
 
-function setup() {
+async function setup() {
+  const template = `
+    <frontal>
+      <ng-template>
+        <label frontalLabel></label>
+      </ng-template>
+    </frontal>`;
+
   resetId();
-
-  TestBed.configureTestingModule({
-    declarations: [TestComponent, FrontalComponent, FrontalLabelDirective, StatusMessagePipe],
+  const { container } = await createComponent(template, {
+    declarations: [FrontalComponent, FrontalLabelDirective, StatusMessagePipe],
   });
-
-  TestBed.overrideComponent(TestComponent, {
-    set: {
-      template: `
-        <frontal>
-          <ng-template>
-            <label frontalLabel></label>
-          </ng-template>
-        </frontal>`,
-    },
-  });
-
-  const fixture = TestBed.createComponent(TestComponent);
-  fixture.detectChanges();
 
   return {
-    fixture,
-    frontal: fixture.debugElement.query(By.css('frontal')).componentInstance as FrontalComponent,
-    label: fixture.debugElement.query(By.css('[frontalLabel]')),
+    label: container.querySelector('label'),
   };
 }
-
-@Component({ selector: 'test', template: '' })
-class TestComponent {}

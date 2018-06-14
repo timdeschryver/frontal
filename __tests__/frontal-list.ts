@@ -1,40 +1,26 @@
 import { Component } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
+import { createComponent } from 'ngx-testing-library';
 import { FrontalComponent, FrontalListDirective, StatusMessagePipe, resetId } from '../src';
 
-test('sanity check for attributes', () => {
-  const { list } = setup();
-  expect(list.nativeElement).toMatchSnapshot();
+test('sanity check for attributes', async () => {
+  const { list } = await setup();
+  expect(list).toMatchSnapshot();
 });
 
-function setup() {
+async function setup() {
+  const template = `
+    <frontal>
+      <ng-template>
+        <div frontalList></div>
+      </ng-template>
+    </frontal>`;
+
   resetId();
-
-  TestBed.configureTestingModule({
-    declarations: [TestComponent, FrontalComponent, FrontalListDirective, StatusMessagePipe],
+  const { container } = await createComponent(template, {
+    declarations: [FrontalComponent, FrontalListDirective, StatusMessagePipe],
   });
-
-  TestBed.overrideComponent(TestComponent, {
-    set: {
-      template: `
-        <frontal>
-          <ng-template>
-            <div frontalList></div>
-          </ng-template>
-        </frontal>`,
-    },
-  });
-
-  const fixture = TestBed.createComponent(TestComponent);
-  fixture.detectChanges();
 
   return {
-    fixture,
-    frontal: fixture.debugElement.query(By.css('frontal')).componentInstance as FrontalComponent,
-    list: fixture.debugElement.query(By.css('[frontalList]')),
+    list: container.querySelector('[frontalList]'),
   };
 }
-
-@Component({ selector: 'test', template: '' })
-class TestComponent {}

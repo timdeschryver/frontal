@@ -1,211 +1,210 @@
 import { Component, Input } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
+import { createComponent, fireEvent } from 'ngx-testing-library';
 import { FrontalComponent, FrontalInputDirective, FrontalItemDirective, StatusMessagePipe, resetId } from '../src';
 
-test('sanity check for attributes', () => {
-  const { input } = setup();
-  expect(input.nativeElement).toMatchSnapshot();
+test('sanity check for attributes', async () => {
+  const { input } = await setup();
+  expect(input).toMatchSnapshot();
 });
 
-test("focusing the input doesn't change the state", () => {
-  const { input, frontal: { state } } = setup();
+test("focusing the input doesn't change the state", async () => {
+  const { input, frontal: { state } } = await setup();
 
   const stateCopy = { ...state };
-  input.nativeElement.dispatchEvent(new FocusEvent('focus'));
+  fireEvent.focus(input);
   expect(state).toEqual(stateCopy);
 });
 
-test('input opens the list', () => {
-  const { fixture, input, frontal } = setup();
+test('input opens the list', async () => {
+  const { fixture, input, frontal } = await setup();
 
-  input.nativeElement.dispatchEvent(new CustomEvent('input'));
+  fireEvent.input(input);
   expect(frontal.state).toMatchObject(expect.objectContaining({ isOpen: true }));
 });
 
-test('input sets the value and text', () => {
-  const { input, frontal } = setup();
+test('input sets the value and text', async () => {
+  const { input, frontal } = await setup();
 
-  input.nativeElement.value = 'foo';
-  input.nativeElement.dispatchEvent(new CustomEvent('input'));
+  input.value = 'foo';
+  fireEvent.input(input);
   expect(frontal.state).toMatchObject(expect.objectContaining({ inputText: 'foo', inputValue: 'foo' }));
 });
 
-test('input resets the selected and highlighted item', () => {
-  const { input, frontal } = setup();
+test('input resets the selected and highlighted item', async () => {
+  const { input, frontal } = await setup();
   frontal.state.selectedItem = 'foo';
   frontal.state.highlightedItem = 'bar';
   frontal.state.highlightedIndex = 1;
 
-  input.nativeElement.dispatchEvent(new CustomEvent('input'));
+  fireEvent.input(input);
   expect(frontal.state).toMatchObject(
     expect.objectContaining({ selectedItem: null, highlightedItem: null, highlightedIndex: null }),
   );
 });
 
-test('inputText sets the input value', () => {
-  const { input, frontal } = setup();
+test('inputText sets the input value', async () => {
+  const { input, frontal } = await setup();
   frontal.state.inputText = 'foo';
-  input.nativeElement.dispatchEvent(new FocusEvent('focus'));
-  expect(input.nativeElement.value).toBe('foo');
+  fireEvent.focus(input);
+  expect(input.value).toBe('foo');
 });
 
-test('blur does nothing on a closed list', () => {
-  const { input, frontal } = setup();
+test('blur does nothing on a closed list', async () => {
+  const { input, frontal } = await setup();
 
   frontal.handle = jest.fn();
-  input.nativeElement.dispatchEvent(new FocusEvent('blur'));
+  fireEvent.blur(input);
   expect(frontal.handle).not.toHaveBeenCalled();
 });
 
-test('blur closes the list', () => {
-  const { input, frontal } = setup();
+test('blur closes the list', async () => {
+  const { input, frontal } = await setup();
   frontal.state.isOpen = true;
 
-  input.nativeElement.dispatchEvent(new FocusEvent('blur'));
+  fireEvent.blur(input);
   expect(frontal.state).toMatchObject(expect.objectContaining({ isOpen: false }));
 });
 
-test('blur sets the value to the highlighted item', () => {
-  const { input, frontal } = setup();
+test('blur sets the value to the highlighted item', async () => {
+  const { input, frontal } = await setup();
   frontal.state.isOpen = true;
   frontal.state.highlightedItem = 'foo';
 
-  input.nativeElement.dispatchEvent(new FocusEvent('blur'));
+  fireEvent.blur(input);
   expect(frontal.state).toMatchObject(
     expect.objectContaining({ inputValue: 'foo', inputText: 'foo', selectedItem: 'foo' }),
   );
 });
 
-test('isOpen toggles aria expanded', () => {
-  const { input } = setup();
+test('isOpen toggles aria expanded', async () => {
+  const { input } = await setup();
 
-  input.nativeElement.dispatchEvent(new CustomEvent('input'));
-  expect(input.attributes['aria-expanded']).toBe('true');
+  fireEvent.input(input);
+  expect(input.getAttribute('aria-expanded')).toBe('true');
 
-  input.nativeElement.dispatchEvent(new FocusEvent('blur'));
-  expect(input.attributes['aria-expanded']).toBe('false');
+  fireEvent.blur(input);
+  expect(input.getAttribute('aria-expanded')).toBe('false');
 });
 
-test('highlighted item sets aria activedescendant to the highlighted id', () => {
-  const { fixture, input, frontal } = setup();
+test('highlighted item sets aria activedescendant to the highlighted id', async () => {
+  const { fixture, input, frontal } = await setup();
   frontal.state.highlightedIndex = 1;
-  // we want to trigger a change
-  input.nativeElement.dispatchEvent(new FocusEvent('focus'));
 
-  expect(input.attributes['aria-activedescendant']).toBe('frontal-item-0-2');
+  // we want to trigger a change
+  fireEvent.focus(input);
+  expect(input.getAttribute('aria-activedescendant')).toBe('frontal-item-0-2');
 });
 
-test('arrow down does nothing on a closed list', () => {
-  const { input, frontal } = setup();
+test('arrow down does nothing on a closed list', async () => {
+  const { input, frontal } = await setup();
 
   frontal.handle = jest.fn();
-  input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+  fireEvent.keyDown(input, { key: 'ArrowDown' });
   expect(frontal.handle).not.toHaveBeenCalled();
 });
 
-test('arrow down resets the selected item', () => {
-  const { input, frontal } = setup();
+test('arrow down resets the selected item', async () => {
+  const { input, frontal } = await setup();
   frontal.state.isOpen = true;
   frontal.state.selectedItem = 'foo';
 
-  input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+  fireEvent.keyDown(input, { key: 'ArrowDown' });
   expect(frontal.state).toMatchObject(expect.objectContaining({ selectedItem: null }));
 });
 
-test('arrow down sets the highlighted index', () => {
-  const { input, frontal } = setup();
+test('arrow down sets the highlighted index', async () => {
+  const { input, frontal } = await setup();
   frontal.state.isOpen = true;
 
-  input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+  fireEvent.keyDown(input, { key: 'ArrowDown' });
   expect(frontal.state).toMatchObject(expect.objectContaining({ highlightedIndex: 0 }));
 
-  input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+  fireEvent.keyDown(input, { key: 'ArrowDown' });
   expect(frontal.state).toMatchObject(expect.objectContaining({ highlightedIndex: 1 }));
 
-  input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+  fireEvent.keyDown(input, { key: 'ArrowDown' });
   expect(frontal.state).toMatchObject(expect.objectContaining({ highlightedIndex: 2 }));
 
   // there are only 3 items, so move back to the top
-  input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+  fireEvent.keyDown(input, { key: 'ArrowDown' });
   expect(frontal.state).toMatchObject(expect.objectContaining({ highlightedIndex: 0 }));
 });
 
-test('arrow up does nothing on a closed list', () => {
-  const { input, frontal } = setup();
+test('arrow up does nothing on a closed list', async () => {
+  const { input, frontal } = await setup();
 
   frontal.handle = jest.fn();
-  input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+  fireEvent.keyDown(input, { key: 'ArrowUp' });
   expect(frontal.handle).not.toHaveBeenCalled();
 });
 
-test('arrow up resets the selected item', () => {
-  const { input, frontal } = setup();
+test('arrow up resets the selected item', async () => {
+  const { input, frontal } = await setup();
   frontal.state.isOpen = true;
   frontal.state.selectedItem = 'foo';
 
-  input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+  fireEvent.keyDown(input, { key: 'ArrowUp' });
   expect(frontal.state).toMatchObject(expect.objectContaining({ selectedItem: null }));
 });
 
-test('arrow up sets the highlighted index', () => {
-  const { input, frontal } = setup();
+test('arrow up sets the highlighted index', async () => {
+  const { input, frontal } = await setup();
   frontal.state.isOpen = true;
 
-  input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+  fireEvent.keyDown(input, { key: 'ArrowUp' });
   expect(frontal.state).toMatchObject(expect.objectContaining({ highlightedIndex: 0 }));
 
-  input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+  fireEvent.keyDown(input, { key: 'ArrowUp' });
   expect(frontal.state).toMatchObject(expect.objectContaining({ highlightedIndex: 2 }));
 
-  input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+  fireEvent.keyDown(input, { key: 'ArrowUp' });
   expect(frontal.state).toMatchObject(expect.objectContaining({ highlightedIndex: 1 }));
 
-  input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+  fireEvent.keyDown(input, { key: 'ArrowUp' });
   expect(frontal.state).toMatchObject(expect.objectContaining({ highlightedIndex: 0 }));
 });
 
-test('enter does nothing on a closed list', () => {
-  const { input, frontal } = setup();
+test('enter does nothing on a closed list', async () => {
+  const { input, frontal } = await setup();
 
   frontal.handle = jest.fn();
-  input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+  fireEvent.keyDown(input, { key: 'Enter' });
   expect(frontal.handle).not.toHaveBeenCalled();
 });
 
-test('enter closes the list', () => {
-  const { input, frontal } = setup();
+test('enter closes the list', async () => {
+  const { input, frontal } = await setup();
   frontal.state.isOpen = true;
   frontal.state.highlightedItem = 'foo';
   frontal.state.highlightedIndex = 1;
 
-  input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+  fireEvent.keyDown(input, { key: 'Enter' });
   expect(frontal.state).toMatchObject(
     expect.objectContaining({ isOpen: false, highlightedItem: null, highlightedIndex: null }),
   );
 });
 
-test('enter sets the value to the highlighted item', () => {
-  const { input, frontal } = setup();
+test('enter sets the value to the highlighted item', async () => {
+  const { input, frontal } = await setup();
   frontal.state.isOpen = true;
   frontal.state.highlightedItem = 'foo';
 
-  input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+  fireEvent.keyDown(input, { key: 'Enter' });
   expect(frontal.state).toMatchObject(
     expect.objectContaining({ inputText: 'foo', inputValue: 'foo', selectedItem: 'foo' }),
   );
 });
 
-test('escape does nothing on a closed list', () => {
-  const { input, frontal } = setup();
+test('escape does nothing on a closed list', async () => {
+  const { input, frontal } = await setup();
 
   frontal.handle = jest.fn();
-  input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+  fireEvent.keyDown(input, { key: 'Escape' });
   expect(frontal.handle).not.toHaveBeenCalled();
 });
 
-test('escape resets the state', () => {
-  const { fixture, input, frontal } = setup();
+test('escape resets the state', async () => {
+  const { fixture, input, frontal } = await setup();
   frontal.state.isOpen = true;
   frontal.state.inputText = 'foo';
   frontal.state.inputValue = 'foo';
@@ -213,7 +212,7 @@ test('escape resets the state', () => {
   frontal.state.highlightedItem = 'bar';
   frontal.state.highlightedIndex = 1;
 
-  input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+  fireEvent.keyDown(input, { key: 'Escape' });
   expect(frontal.state).toMatchObject(
     expect.objectContaining({
       isOpen: false,
@@ -226,45 +225,34 @@ test('escape resets the state', () => {
   );
 });
 
-test('unhandled key does nothing', () => {
-  const { input, frontal } = setup();
+test('unhandled key does nothing', async () => {
+  const { input, frontal } = await setup();
   frontal.state.isOpen = true;
 
   frontal.handle = jest.fn();
-  input.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Command' }));
+  fireEvent.keyDown(input, { key: 'Command' });
   expect(frontal.handle).not.toHaveBeenCalled();
 });
 
-function setup() {
+async function setup() {
+  const template = `
+    <frontal>
+      <ng-template>
+        <input frontalInput/>
+        <div frontalItem [index]="0"></div>
+        <div frontalItem [index]="1"></div>
+        <div frontalItem [index]="2"></div>
+      </ng-template>
+    </frontal>`;
+
   resetId();
-
-  TestBed.configureTestingModule({
-    declarations: [TestComponent, FrontalComponent, FrontalInputDirective, FrontalItemDirective, StatusMessagePipe],
+  const { fixture, getComponentInstance, container } = await createComponent(template, {
+    declarations: [FrontalComponent, FrontalInputDirective, FrontalItemDirective, StatusMessagePipe],
   });
-
-  TestBed.overrideComponent(TestComponent, {
-    set: {
-      template: `
-        <frontal>
-          <ng-template>
-            <input frontalInput/>
-            <div frontalItem [index]="0"></div>
-            <div frontalItem [index]="1"></div>
-            <div frontalItem [index]="2"></div>
-          </ng-template>
-        </frontal>`,
-    },
-  });
-
-  const fixture = TestBed.createComponent(TestComponent);
-  fixture.detectChanges();
 
   return {
     fixture,
-    frontal: fixture.debugElement.query(By.css('frontal')).componentInstance as FrontalComponent,
-    input: fixture.debugElement.query(By.css('[frontalInput]')),
+    frontal: getComponentInstance<FrontalComponent>('frontal'),
+    input: container.querySelector('input'),
   };
 }
-
-@Component({ selector: 'test', template: '' })
-class TestComponent {}
