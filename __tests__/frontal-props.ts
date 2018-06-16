@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
 import {
   FrontalComponent,
   FrontalItemDirective,
@@ -9,8 +8,9 @@ import {
   Action,
   StateChanges,
 } from '../src';
+import { createComponent } from 'ngx-testing-library';
 
-test('reducer can change the state', () => {
+test('reducer can change the state', async () => {
   const reducer = (state: State, action: Action) => {
     switch (action.type) {
       case StateChanges.ListOpen:
@@ -28,7 +28,7 @@ test('reducer can change the state', () => {
     }
   };
 
-  const { frontal } = setup({ reducer });
+  const { frontal } = await setup({ reducer });
   frontal.openMenu();
   expect(frontal.state).toMatchObject(expect.objectContaining({ isOpen: true, highlightedIndex: 3 }));
 
@@ -36,21 +36,21 @@ test('reducer can change the state', () => {
   expect(frontal.state).toMatchObject(expect.objectContaining({ isOpen: false }));
 });
 
-test('itemToString should be used when provided', () => {
+test('itemToString should be used when provided', async () => {
   const itemToString = ({ name }: { name: string }) => name;
-  const { frontal } = setup({ itemToString });
+  const { frontal } = await setup({ itemToString });
   frontal.itemClick({ value: { name: 'Tim' } } as FrontalItemDirective);
 
   expect(frontal.state).toMatchObject(expect.objectContaining({ inputText: 'Tim' }));
 });
 
-test('defaultHighlightedIndex sets the initial highlighted index', () => {
-  const { frontal } = setup({ defaultHighlightedIndex: 0 });
+test('defaultHighlightedIndex sets the initial highlighted index', async () => {
+  const { frontal } = await setup({ defaultHighlightedIndex: 0 });
   expect(frontal.state.highlightedIndex).toBe(0);
 });
 
-test('defaultHighlightedIndex is used to set the highlighted index on change', () => {
-  const { frontal } = setup({ defaultHighlightedIndex: 0 });
+test('defaultHighlightedIndex is used to set the highlighted index on change', async () => {
+  const { frontal } = await setup({ defaultHighlightedIndex: 0 });
   frontal.handle = jest.fn();
   frontal.inputChange({ target: { value: 'abc' } } as any);
 
@@ -59,8 +59,8 @@ test('defaultHighlightedIndex is used to set the highlighted index on change', (
   );
 });
 
-test('defaultHighlightedIndex is used to set the highlighted index on menu open', () => {
-  const { frontal } = setup({ defaultHighlightedIndex: 0 });
+test('defaultHighlightedIndex is used to set the highlighted index on menu open', async () => {
+  const { frontal } = await setup({ defaultHighlightedIndex: 0 });
   frontal.handle = jest.fn();
   frontal.openMenu();
 
@@ -69,8 +69,8 @@ test('defaultHighlightedIndex is used to set the highlighted index on menu open'
   );
 });
 
-test('defaultHighlightedIndex is used to set the highlighted index on menu toggle', () => {
-  const { frontal } = setup({ defaultHighlightedIndex: 0 });
+test('defaultHighlightedIndex is used to set the highlighted index on menu toggle', async () => {
+  const { frontal } = await setup({ defaultHighlightedIndex: 0 });
   frontal.handle = jest.fn();
   frontal.toggleMenu();
 
@@ -79,8 +79,8 @@ test('defaultHighlightedIndex is used to set the highlighted index on menu toggl
   );
 });
 
-test('toggleMenu resets the highlighted index', () => {
-  const { frontal } = setup({ defaultHighlightedIndex: 0, isOpen: true });
+test('toggleMenu resets the highlighted index', async () => {
+  const { frontal } = await setup({ defaultHighlightedIndex: 0, isOpen: true });
   frontal.handle = jest.fn();
   frontal.toggleMenu();
 
@@ -89,8 +89,8 @@ test('toggleMenu resets the highlighted index', () => {
   );
 });
 
-test('closeMenu resets the highlighted index', () => {
-  const { frontal } = setup({ defaultHighlightedIndex: 0, isOpen: true });
+test('closeMenu resets the highlighted index', async () => {
+  const { frontal } = await setup({ defaultHighlightedIndex: 0, isOpen: true });
   frontal.handle = jest.fn();
   frontal.closeMenu();
 
@@ -99,8 +99,8 @@ test('closeMenu resets the highlighted index', () => {
   );
 });
 
-test('change is getting called when input is changed', () => {
-  const { frontal } = setup();
+test('change is getting called when input is changed', async () => {
+  const { frontal } = await setup();
   frontal.change.emit = jest.fn();
 
   frontal.inputChange({ target: { value: 'abc' } } as any);
@@ -114,28 +114,28 @@ test('change is getting called when input is changed', () => {
   expect(frontal.change.emit).toHaveBeenCalledTimes(2);
 });
 
-test('select is getting called with the item value', () => {
-  const { frontal } = setup();
+test('select is getting called with the item value', async () => {
+  const { frontal } = await setup();
   frontal.select.emit = jest.fn();
   frontal.itemClick({ value: { name: 'Tim' } } as FrontalItemDirective);
 
   expect(frontal.select.emit).toHaveBeenCalledWith({ name: 'Tim' });
 });
 
-function setup(parameters: Partial<FrontalComponent> = {}) {
+async function setup(parameters: Partial<FrontalComponent> = {}) {
   resetId();
 
-  TestBed.configureTestingModule({
-    declarations: [FrontalComponent, StatusMessagePipe],
-  });
-
-  const fixture = TestBed.createComponent(FrontalComponent);
-  for (const [key, value] of Object.entries(parameters)) {
-    (<any>fixture.componentInstance)[key] = value;
-  }
+  const { getComponentInstance } = await createComponent(
+    {
+      component: FrontalComponent,
+      parameters,
+    },
+    {
+      declarations: [FrontalComponent, StatusMessagePipe],
+    },
+  );
 
   return {
-    fixture,
-    frontal: fixture.componentInstance,
+    frontal: getComponentInstance(FrontalComponent),
   };
 }
