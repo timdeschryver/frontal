@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { createComponent } from 'ngx-testing-library';
 import {
   FrontalComponent,
   FrontalItemDirective,
@@ -8,7 +8,6 @@ import {
   Action,
   StateChanges,
 } from '../src';
-import { createComponent } from 'ngx-testing-library';
 
 test('reducer can change the state', async () => {
   const reducer = (state: State, action: Action) => {
@@ -125,7 +124,7 @@ test('select is getting called with the item value', async () => {
 async function setup(parameters: Partial<FrontalComponent> = {}) {
   resetId();
 
-  const { getComponentInstance } = await createComponent(
+  const { fixture } = await createComponent(
     {
       component: FrontalComponent,
       parameters,
@@ -136,6 +135,6 @@ async function setup(parameters: Partial<FrontalComponent> = {}) {
   );
 
   return {
-    frontal: getComponentInstance(FrontalComponent),
+    frontal: fixture.componentInstance as FrontalComponent,
   };
 }

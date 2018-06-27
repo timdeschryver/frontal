@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { createComponent, fireEvent } from 'ngx-testing-library';
+import { By } from '@angular/platform-browser';
+import { createComponent } from 'ngx-testing-library';
 import { FrontalComponent, FrontalButtonDirective, StatusMessagePipe, resetId } from '../src';
 
 test('sanity check for attributes', async () => {
@@ -8,22 +8,25 @@ test('sanity check for attributes', async () => {
 });
 
 test('clicking on the button toggles the list', async () => {
-  const { button, frontal: { state } } = await setup();
+  const {
+    click,
+    frontal: { state },
+  } = await setup();
 
-  fireEvent.click(button);
+  click();
   expect(state).toMatchObject(expect.objectContaining({ isOpen: true, highlightedIndex: 0 }));
 
-  fireEvent.click(button);
+  click();
   expect(state).toMatchObject(expect.objectContaining({ isOpen: false, highlightedIndex: null }));
 });
 
 test('isOpen toggles the aria label', async () => {
-  const { button } = await setup();
+  const { button, click } = await setup();
 
-  fireEvent.click(button);
+  click();
   expect(button.getAttribute('aria-label')).toBe('close menu');
 
-  fireEvent.click(button);
+  click();
   expect(button.getAttribute('aria-label')).toBe('open menu');
 });
 
@@ -36,12 +39,14 @@ async function setup() {
     </frontal>`;
 
   resetId();
-  const { getComponentInstance, container } = await createComponent(template, {
+  const { click, container, fixture } = await createComponent(template, {
     declarations: [FrontalComponent, FrontalButtonDirective, StatusMessagePipe],
   });
 
+  const button = container.querySelector('button') as HTMLElement;
   return {
-    frontal: getComponentInstance<FrontalComponent>('frontal'),
-    button: container.querySelector('button'),
+    frontal: fixture.debugElement.query(By.css('frontal')).componentInstance,
+    button,
+    click: () => click(button),
   };
 }
