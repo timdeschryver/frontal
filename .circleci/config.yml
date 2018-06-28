@@ -5,8 +5,7 @@ job_defaults: &job_defaults
     - image: circleci/node:latest-browsers
   working_directory: ~/project/repo
 
-cache_key: &cache_key
-  key: frontal-dependency-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
+cache_key: &cache_key frontal-deps-cache-{{ .Branch }}-{{ checksum "package-lock.json" }}
 
 jobs:
   build:
@@ -14,12 +13,12 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          <<: *cache_key
+          key: *cache_key
       - run:
           name: install-dependencies
           command: npm install
       - save_cache:
-          <<: *cache_key
+          key: *cache_key
           paths:
             - node_modules
 
@@ -28,7 +27,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          <<: *cache_key
+          key: *cache_key
       - run:
           name: lint
           command: npm run lint
@@ -38,7 +37,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          <<: *cache_key
+          key: *cache_key
       - run:
           name: test
           command: npm test
@@ -48,7 +47,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          <<: *cache_key
+          key: *cache_key
       - run:
           command: sudo apt install libgconf-2-4
       - run:
