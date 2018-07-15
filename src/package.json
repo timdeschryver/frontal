@@ -7,7 +7,7 @@
   "typings": "frontal.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tdeschryver/frontal.git"
+    "url": "git+https://github.com/timdeschryver/frontal.git"
   },
   "keywords": [
     "Angular",
@@ -18,12 +18,12 @@
     "autocomplete",
     "dropdown"
   ],
-  "author": "tdeschryver",
+  "author": "Tim Deschryver",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/tdeschryver/frontal/issues"
+    "url": "https://github.com/timdeschryver/frontal/issues"
   },
-  "homepage": "https://github.com/tdeschryver/frontal#readme",
+  "homepage": "https://github.com/timdeschryver/frontal#readme",
   "peerDependencies": {
     "@angular/common": "^6.0.0",
     "@angular/core": "^6.0.0",

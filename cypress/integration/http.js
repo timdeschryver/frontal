@@ -1,14 +1,13 @@
 describe('Frontal http', () => {
   before(() => {
     cy.visit('/http');
-    cy.getInputByLabelText('Select a user').type('tdeschryver');
+    cy.getInputByLabelText('Select a user').type('timdeschryver');
   });
 
   it('should render users', () => {
-    cy
-      .focused()
+    cy.focused()
       .getControlled()
-      .contains('tdeschryver');
+      .contains('timdeschryver');
   });
 
   it('should render the number of users found', () => {
@@ -16,33 +15,29 @@ describe('Frontal http', () => {
   });
 
   it('should activate the first item', () => {
-    cy
-      .focused()
+    cy.focused()
       .getActiveDescendant()
-      .contains('tdeschryver');
+      .contains('timdeschryver');
   });
 
   it('should select the first item', () => {
-    cy
-      .focused()
+    cy.focused()
       .getControlled()
       .getSelected()
-      .contains('tdeschryver');
+      .contains('timdeschryver');
   });
 
   it('should set the selected-item status', () => {
-    cy.getStatus().contains('tdeschryver');
+    cy.getStatus().contains('timdeschryver');
   });
 
   it('pressing enter should select the highlighted item', () => {
     cy.getInputByLabelText('Select a user').type('{enter}');
-    cy.focused().should('have.value', 'tdeschryver');
-    cy
-      .focused()
+    cy.focused().should('have.value', 'timdeschryver');
+    cy.focused()
       .getControlled()
       .should('not.exist');
-    cy
-      .focused()
+    cy.focused()
       .getActiveDescendant()
       .should('not.exist');
   });

@@ -182,8 +182,8 @@ A couple of implementations can be found on [StackBlitz][stackblitz-example].
 
 ## Inspiration
 
-* [This talk][compound-components] about compound components by [Ryan Florence][ryan-florence]
-* The [Downshift][downshift] library
+- [This talk][compound-components] about compound components by [Ryan Florence][ryan-florence]
+- The [Downshift][downshift] library
 
 By taking in all this information, I wondered how this would look like in Angular.
 
@@ -191,17 +191,17 @@ By taking in all this information, I wondered how this would look like in Angula
 
 MIT
 
-[build-badge]: https://circleci.com/gh/tdeschryver/frontal/tree/master.svg?style=shield
-[build]: https://circleci.com/gh/tdeschryver/frontal/tree/master
+[build-badge]: https://circleci.com/gh/timdeschryver/frontal/tree/master.svg?style=shield
+[build]: https://circleci.com/gh/timdeschryver/frontal/tree/master
 [prettier-badge]: https://img.shields.io/badge/styled_with-prettier-ff69b4.svg
 [prettier]: https://github.com/prettier/prettier
 [npm-badge]: https://img.shields.io/npm/v/frontal.svg
 [npm]: https://www.npmjs.com/package/frontal
 [license-badge]: https://img.shields.io/npm/l/frontal.svg?style=flat-square
-[license]: https://github.com/tdeschryver/frontal/blob/master/LICENSE
+[license]: https://github.com/timdeschryver/frontal/blob/master/LICENSE
 [coc-badge]: https://img.shields.io/badge/code%20of-conduct-ff69b4.svg?style=flat-square
-[coc]: https://github.com/tdeschryver/frontal/blob/master/CODE_OF_CONDUCT.md
-[stackblitz-example]: https://stackblitz.com/github/tdeschryver/frontal
+[coc]: https://github.com/timdeschryver/frontal/blob/master/CODE_OF_CONDUCT.md
+[stackblitz-example]: https://stackblitz.com/github/timdeschryver/frontal
 [ryan-florence]: https://github.com/ryanflorence
 [downshift]: https://github.com/paypal/downshift
 [compound-components]: https://www.youtube.com/watch?v=hEGg-3pIHlE
