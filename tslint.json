@@ -50,6 +50,7 @@
       "ignore-params"
     ],
     "no-misused-new": true,
+    "no-unused-variable": true,
     "no-non-null-assertion": true,
     "no-shadowed-variable": true,
     "no-string-literal": false,

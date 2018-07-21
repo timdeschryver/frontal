@@ -15,7 +15,7 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
             <ul class="list-group" frontalList>
               <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;"
                 frontalItem [value]="hero" [index]="index" class="list-group-item" [class.active]="highlightedIndex === index">
-                {{hero.name}}
+                {{ hero.name }}
               </li>
             </ul>
 

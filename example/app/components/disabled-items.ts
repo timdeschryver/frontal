@@ -11,20 +11,20 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
           <input type="text" frontalInput/>
 
           <ng-container *ngIf="isOpen">
-            <ul frontalList>
-              <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;">
+            <ul frontalList *ngIf="filteredHeroes(value) as heroes">
+              <li *ngFor="let hero of heroes; trackBy:trackHeroById; let index=index;">
                 <ng-container *ngIf="hero.disabled; then disabled; else enabled">
                 </ng-container>
 
                 <ng-template #enabled>
-                  <div *ngIf="!hero.disabled; else disabled" frontalItem [value]="hero" [index]="index" [class.highlight]="highlightedIndex === findIndex(hero, filteredHeroes(value))">
-                  {{hero.name}}
+                  <div frontalItem [value]="hero" [index]="index" [class.highlight]="highlightedIndex === findIndex(hero, heroes)">
+                  {{ hero.name }}
                 </div>
                 </ng-template>
 
                 <ng-template #disabled>
                   <div [style.color]="'#ccc'">
-                    {{hero.name}}
+                    {{ hero.name }}
                   </div>
                 </ng-template>
               </li>

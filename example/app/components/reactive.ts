@@ -16,7 +16,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
             <ul frontalList>
               <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;" frontalItem
                 [value]="hero" [index]="index" [class.highlight]="highlightedIndex === index">
-                {{hero.name}}
+                {{ hero.name }}
               </li>
             </ul>
 
@@ -26,7 +26,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
           </ng-container>
 
           <h4>Form value:</h4>
-          <pre data-test="selected-item">{{form.value?.hero | json}}</pre>
+          <pre data-test="selected-item">{{ form.value?.hero | json }}</pre>
         </ng-template>
       </frontal>
     </form>

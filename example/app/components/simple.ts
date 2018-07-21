@@ -12,10 +12,10 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
           <input type="text" frontalInput/>
 
           <ng-container *ngIf="isOpen">
-            <ul frontalList [@listAnimation]="filteredHeroes(value).length">
-              <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;" frontalItem
+            <ul frontalList *ngIf="filteredHeroes(value) as heroes" [@listAnimation]="heroes.length">
+              <li *ngFor="let hero of heroes; trackBy:trackHeroById; let index=index;" frontalItem
                 [value]="hero" [index]="index" [class.highlight]="highlightedIndex === index">
-                {{hero.name}}
+                {{ hero.name }}
               </li>
             </ul>
 
