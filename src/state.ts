@@ -12,7 +12,7 @@ export interface State {
   inputText: string;
   isOpen: boolean;
   itemCount: number;
-  reducer: (state: State, action: Action) => Action;
+  reducer: ({ state, action, changes }: { state: State; action: Action; changes: Partial<State> }) => Partial<State>;
   itemToString: (value: any) => string;
 }
 
@@ -26,11 +26,11 @@ export const initialState: State = {
   inputText: '',
   isOpen: false,
   itemCount: 0,
-  reducer: (state: State, action: Action) => action,
-  itemToString: (value: any) => value,
+  reducer: ({ state, action, changes }) => changes,
+  itemToString: value => value,
 };
 
-export const createState = (): State => ({
+export const createState = (id: string): State => ({
   ...initialState,
-  id: generateId(),
+  id,
 });

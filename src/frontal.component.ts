@@ -1,14 +1,12 @@
+import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
   ContentChild,
   TemplateRef,
   Directive,
-  HostListener,
   HostBinding,
   ElementRef,
   Input,
-  ContentChildren,
-  QueryList,
   Inject,
   forwardRef,
   ChangeDetectionStrategy,
@@ -18,78 +16,136 @@ import {
   Output,
   EventEmitter,
   ViewRef,
+  AfterViewInit,
+  PLATFORM_ID,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { Action, StateChanges } from './actions';
-import { State, initialState, createState } from './state';
-import { generateId } from './utils';
+import { fromEvent, Subject, BehaviorSubject, animationFrameScheduler } from 'rxjs';
+import { takeUntil, tap, scan, withLatestFrom, filter, auditTime } from 'rxjs/operators';
+import {
+  Action,
+  StateChanges,
+  updateState,
+  listToggle,
+  listOpen,
+  listClose,
+  buttonClick,
+  inputBlur,
+  inputFocus,
+  inputChange,
+  itemMouseLeave,
+  itemMouseClick,
+  itemMouseEnter,
+  inputKeydownArrowDown,
+  inputKeydownArrowUp,
+  inputKeydownEnter,
+  inputKeydownEsc,
+  updateItems,
+  setItem,
+} from './actions';
+import { State, createState } from './state';
+import {
+  generateId,
+  createFrontalLabelId,
+  createFrontalListId,
+  createFrontalInputId,
+  createFrontalButtonId,
+  createFrontalItemId,
+} from './utils';
 
 @Directive({
   selector: '[frontalInput]',
   exportAs: 'frontalInput',
 })
-export class FrontalInputDirective implements OnInit, OnDestroy {
+export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
   @HostBinding('attr.role') role = 'combobox';
   @HostBinding('attr.aria-autocomplete') ariaAutocomplete = 'list';
   @HostBinding('attr.autocomplete') autocomplete = 'off';
   @HostBinding('attr.aria-expanded') ariaExpanded = false;
   @HostBinding('attr.aria-activedescendant') ariaActiveDescendant = '';
-  @HostBinding('attr.aria-labelledby') ariaLabeledBy = createFrontalLabelId(this.frontal.state.id);
-  @HostBinding('attr.aria-controls') ariaControls = createFrontalListId(this.frontal.state.id);
-  @HostBinding('attr.id') attrId = createFrontalInputId(this.frontal.state.id);
+  @HostBinding('attr.aria-labelledby') ariaLabeledBy = '';
+  @HostBinding('attr.aria-controls') ariaControls = '';
+  @HostBinding('attr.id') attrId = '';
+  private destroy = new Subject<void>();
 
   constructor(
-    @Inject(ElementRef) private element: ElementRef,
-    // prettier-ignore
-    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent,
+    private element: ElementRef,
+    @Inject(forwardRef(() => FrontalComponent))
+    private frontal: FrontalComponent,
   ) {}
 
   ngOnInit() {
-    this.frontal.addListener({ id: 'input', listener: this.stateChange.bind(this) });
-    this.setAriaAttributes();
-    this.setValue(this.frontal.state.inputText);
+    this.ariaLabeledBy = createFrontalLabelId(this.frontal.id);
+    this.ariaControls = createFrontalListId(this.frontal.id);
+    this.attrId = createFrontalInputId(this.frontal.id);
+
+    this.frontal.state.pipe(takeUntil(this.destroy)).subscribe(state => {
+      this.setValue(state.inputText);
+      this.setAriaAttributes(state);
+    });
+  }
+
+  ngAfterViewInit() {
+    fromEvent(this.element.nativeElement, 'focus')
+      .pipe(takeUntil(this.destroy))
+      .subscribe(_ => this.frontal.inputFocus());
+
+    fromEvent(this.element.nativeElement, 'blur')
+      .pipe(
+        withLatestFrom(this.frontal.state),
+        filter(([_, state]) => state.isOpen),
+        takeUntil(this.destroy),
+      )
+      .subscribe(_ => this.frontal.inputBlur());
+
+    fromEvent<KeyboardEvent>(this.element.nativeElement, 'input')
+      .pipe(takeUntil(this.destroy))
+      .subscribe(event => this.frontal.inputChange((<HTMLInputElement>event.target).value));
+
+    fromEvent<KeyboardEvent>(this.element.nativeElement, 'keydown')
+      .pipe(
+        withLatestFrom(this.frontal.state),
+        filter(([_, state]) => state.isOpen),
+        takeUntil(this.destroy),
+      )
+      .subscribe(([event]) => {
+        const handlers: { [key: string]: () => any } = {
+          ArrowDown: () => {
+            // Prevent cursor to change its place
+            event.preventDefault();
+            return this.frontal.inputArrowDown();
+          },
+          ArrowUp: () => {
+            // Prevent cursor to change its place
+            event.preventDefault();
+            return this.frontal.inputArrowUp();
+          },
+          Enter: () => this.frontal.inputEnter(),
+          Escape: () => this.frontal.inputEscape(),
+        };
+
+        const handler = handlers[event.key];
+        if (handler) {
+          handler();
+        }
+      });
   }
 
   ngOnDestroy() {
-    this.frontal.removeListener('input');
-  }
-
-  @HostListener('focus', ['$event'])
-  focus(event: Event) {
-    this.frontal.inputFocus();
-  }
-
-  @HostListener('blur', ['$event'])
-  blur(event: Event) {
-    this.frontal.inputBlur();
-  }
-
-  @HostListener('input', ['$event'])
-  input(event: KeyboardEvent) {
-    this.frontal.inputChange(event);
-  }
-
-  @HostListener('keydown', ['$event'])
-  keydown(event: KeyboardEvent) {
-    this.frontal.inputKeydown(event);
-  }
-
-  private stateChange(state: State) {
-    this.setAriaAttributes();
-
-    if (this.element.nativeElement.value !== state.inputText) {
-      this.setValue(state.inputText);
-    }
-  }
-
-  private setAriaAttributes() {
-    this.ariaExpanded = this.frontal.state.isOpen;
-    const highlighted = this.frontal.getItemAtIndex(this.frontal.state.highlightedIndex);
-    this.ariaActiveDescendant = highlighted ? highlighted.attrId : '';
+    this.destroy.next();
+    this.destroy.complete();
   }
 
   private setValue(value: string) {
-    this.element.nativeElement.value = value;
+    if (this.element.nativeElement.value !== value) {
+      this.element.nativeElement.value = value;
+    }
+  }
+
+  private setAriaAttributes({ isOpen, highlightedIndex }: State) {
+    this.ariaExpanded = isOpen;
+    const highlighted = this.frontal.getItemAtIndex(highlightedIndex);
+    this.ariaActiveDescendant = highlighted ? highlighted.attrId : '';
   }
 }
 
@@ -97,42 +153,41 @@ export class FrontalInputDirective implements OnInit, OnDestroy {
   selector: '[frontalButton]',
   exportAs: 'frontalButton',
 })
-export class FrontalButtonDirective implements OnInit, OnDestroy {
+export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy {
   @HostBinding('attr.type') type = 'button';
   @HostBinding('attr.role') role = 'button';
   @HostBinding('attr.data-toggle') dataToggle = true;
   @HostBinding('attr.aria-haspopup') ariaHasPopup = 'listbox';
   @HostBinding('attr.aria-expanded') ariaExpanded = false;
   @HostBinding('attr.aria-label') ariaLabel = '';
-  @HostBinding('attr.id') attrId = createFrontalButtonId(this.frontal.state.id);
-  @HostBinding('attr.aria-labelledby') ariaLabeledBy = createFrontalLabelId(this.frontal.state.id);
+  @HostBinding('attr.id') attrId = createFrontalButtonId(this.frontal.id);
+  @HostBinding('attr.aria-labelledby') ariaLabeledBy = createFrontalLabelId(this.frontal.id);
+  private destroy = new Subject<void>();
 
   constructor(
-    // prettier-ignore
-    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent,
+    private element: ElementRef,
+    @Inject(forwardRef(() => FrontalComponent))
+    private frontal: FrontalComponent,
   ) {}
 
   ngOnInit() {
-    this.frontal.addListener({ id: 'button', listener: this.stateChange.bind(this) });
-    this.setAriaAttributes();
+    this.frontal.state.pipe(takeUntil(this.destroy)).subscribe(state => this.setAriaAttributes(state));
+  }
+
+  ngAfterViewInit() {
+    fromEvent(this.element.nativeElement, 'click')
+      .pipe(takeUntil(this.destroy))
+      .subscribe(_ => this.frontal.buttonClick());
   }
 
   ngOnDestroy() {
-    this.frontal.removeListener('button');
+    this.destroy.next();
+    this.destroy.complete();
   }
 
-  @HostListener('click', ['$event'])
-  click(event: MouseEvent) {
-    this.frontal.buttonClick();
-  }
-
-  private stateChange(state: State) {
-    this.setAriaAttributes();
-  }
-
-  private setAriaAttributes() {
-    this.ariaExpanded = this.frontal.state.isOpen;
-    this.ariaLabel = this.frontal.state.isOpen ? 'close menu' : 'open menu';
+  private setAriaAttributes({ isOpen }: State) {
+    this.ariaExpanded = isOpen;
+    this.ariaLabel = isOpen ? 'close menu' : 'open menu';
   }
 }
 
@@ -140,33 +195,47 @@ export class FrontalButtonDirective implements OnInit, OnDestroy {
   selector: '[frontalLabel]',
   exportAs: 'frontalLabel',
 })
-export class FrontalLabelDirective {
-  @HostBinding('attr.id') attrId = createFrontalLabelId(this.frontal.state.id);
-  @HostBinding('attr.for') attrFor = createFrontalInputId(this.frontal.state.id);
+export class FrontalLabelDirective implements OnDestroy {
+  @HostBinding('attr.id') attrId = createFrontalLabelId(this.frontal.id);
+  @HostBinding('attr.for') attrFor = createFrontalInputId(this.frontal.id);
+  private destroy = new Subject<void>();
 
   constructor(
-    // prettier-ignore
-    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent,
+    @Inject(forwardRef(() => FrontalComponent))
+    private frontal: FrontalComponent,
   ) {}
+
+  ngOnDestroy() {
+    this.destroy.next();
+    this.destroy.complete();
+  }
 }
 
 @Directive({
   selector: '[frontalList]',
   exportAs: 'frontalList',
 })
-export class FrontalListDirective {
+export class FrontalListDirective implements AfterViewInit, OnDestroy {
   @HostBinding('attr.role') role = 'listbox';
-  @HostBinding('attr.id') attrId = createFrontalListId(this.frontal.state.id);
-  @HostBinding('attr.aria-labelledby') ariaLabeledBy = createFrontalLabelId(this.frontal.state.id);
+  @HostBinding('attr.id') attrId = createFrontalListId(this.frontal.id);
+  @HostBinding('attr.aria-labelledby') ariaLabeledBy = createFrontalLabelId(this.frontal.id);
+  private destroy = new Subject<void>();
 
   constructor(
-    // prettier-ignore
-    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent,
+    private element: ElementRef,
+    @Inject(forwardRef(() => FrontalComponent))
+    private frontal: FrontalComponent,
   ) {}
 
-  @HostListener('mousedown', ['$event'])
-  mousedown(event: MouseEvent) {
-    event.preventDefault();
+  ngAfterViewInit() {
+    fromEvent<MouseEvent>(this.element.nativeElement, 'mousedown')
+      .pipe(takeUntil(this.destroy))
+      .subscribe(event => event.preventDefault());
+  }
+
+  ngOnDestroy() {
+    this.destroy.next();
+    this.destroy.complete();
   }
 }
 
@@ -174,19 +243,18 @@ export class FrontalListDirective {
   selector: '[frontalItem]',
   exportAs: 'frontalItem',
 })
-export class FrontalItemDirective implements OnInit, OnDestroy {
+export class FrontalItemDirective implements OnInit, AfterViewInit, OnDestroy {
   private _index!: number;
 
   @HostBinding('attr.role') role = 'option';
   @HostBinding('attr.aria-selected') ariaSelected = false;
-  @HostBinding('attr.id') attrId = createFrontalItemId(this.frontal.state.id, generateId());
+  @HostBinding('attr.id') attrId = createFrontalItemId(this.frontal.id, generateId());
   @Input() value: any;
   @Input()
   set index(value: any) {
     const previousIndex = this._index;
     this._index = value;
-
-    if (previousIndex !== undefined) {
+    if (previousIndex !== undefined && previousIndex !== this.index) {
       this.frontal.updateFrontalItem(this, previousIndex);
     }
   }
@@ -195,43 +263,47 @@ export class FrontalItemDirective implements OnInit, OnDestroy {
     return this._index;
   }
 
+  private destroy = new Subject<void>();
+
   constructor(
-    // prettier-ignore
-    @Inject(forwardRef(() => FrontalComponent)) private frontal: FrontalComponent,
+    private element: ElementRef,
+    @Inject(forwardRef(() => FrontalComponent))
+    private frontal: FrontalComponent,
   ) {}
 
   ngOnInit() {
     this.frontal.addFrontalItem(this);
-    this.frontal.addListener({ id: this.attrId, listener: this.stateChange.bind(this) });
-    this.setAriaAttributes();
+    this.frontal.state.pipe(takeUntil(this.destroy)).subscribe(state => this.setAriaAttributes(state));
+  }
+
+  ngAfterViewInit() {
+    fromEvent(this.element.nativeElement, 'mousedown')
+      .pipe(takeUntil(this.destroy))
+      .subscribe(_ => this.frontal.itemClick(this.value));
+
+    // MouseMove because we want a user interaction
+    // MouseEnter selects an item when the mouse is hovering over an item while typing
+    fromEvent(this.element.nativeElement, 'mousemove')
+      .pipe(
+        withLatestFrom(this.frontal.state),
+        filter(([event, state]) => state.highlightedIndex !== this.index),
+        takeUntil(this.destroy),
+      )
+      .subscribe(_ => this.frontal.itemEnter(this.index));
+
+    fromEvent(this.element.nativeElement, 'mouseleave')
+      .pipe(takeUntil(this.destroy))
+      .subscribe(_ => this.frontal.itemLeave());
   }
 
   ngOnDestroy() {
     this.frontal.removeFrontalItem(this);
-    this.frontal.removeListener(this.attrId);
+    this.destroy.next();
+    this.destroy.complete();
   }
 
-  @HostListener('mousedown', ['$event'])
-  mousedown(event: MouseEvent) {
-    this.frontal.itemClick(this);
-  }
-
-  @HostListener('mousemove', ['$event'])
-  mousemove(event: MouseEvent) {
-    this.frontal.itemMove(this);
-  }
-
-  @HostListener('mouseleave', ['$event'])
-  mouseleave(event: MouseEvent) {
-    this.frontal.itemLeave(this);
-  }
-
-  private stateChange(state: State) {
-    this.setAriaAttributes();
-  }
-
-  private setAriaAttributes() {
-    const highlighted = this.frontal.getItemAtIndex(this.frontal.state.highlightedIndex);
+  private setAriaAttributes({ highlightedIndex }: State) {
+    const highlighted = this.frontal.getItemAtIndex(highlightedIndex);
     this.ariaSelected = (highlighted && highlighted.attrId === this.attrId) || false;
   }
 }
@@ -247,13 +319,19 @@ export const FRONTAL_VALUE_ACCESSOR: any = {
   exportAs: 'frontal',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ng-container *ngTemplateOutlet="template; context: state"></ng-container>
-    <p role="status" aria-live="assertive" [ngStyle]="statusStyle">{{ state | statusMessage }}</p>
+    <ng-container *ngTemplateOutlet="template; context: this.state.value"></ng-container>
+    <p role="status" aria-live="assertive" [ngStyle]="statusStyle">{{ this.state | async | statusMessage }}</p>
   `,
   providers: [FRONTAL_VALUE_ACCESSOR],
 })
-export class FrontalComponent implements ControlValueAccessor {
-  state: State = createState();
+export class FrontalComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
+  private _id = generateId();
+  private initialState = createState(this.id);
+  private destroy = new Subject<void>();
+
+  state = new BehaviorSubject(this.initialState);
+  actions = new Subject<Action>();
+
   statusStyle = {
     border: '0',
     clip: 'rect(0 0 0 0)',
@@ -266,24 +344,29 @@ export class FrontalComponent implements ControlValueAccessor {
   };
 
   @Input()
-  set reducer(fun: (state: State, action: Action) => Action) {
-    this.state.reducer = fun;
+  set reducer(
+    fun: ({ state, action, changes }: { state: State; action: Action; changes: Partial<State> }) => Partial<State>,
+  ) {
+    this.actions.next(updateState({ reducer: fun }));
   }
 
   @Input()
   set itemToString(fun: (value: any) => string) {
-    this.state.itemToString = fun;
+    this.actions.next(updateState({ itemToString: fun }));
   }
 
   @Input()
   set isOpen(value: boolean) {
-    this.state.isOpen = value;
+    this.actions.next(updateState({ isOpen: value }));
   }
 
   @Input()
   set defaultHighlightedIndex(value: number | null) {
-    this.state.defaultHighlightedIndex = value;
-    this.state.highlightedIndex = value;
+    this.actions.next(updateState({ defaultHighlightedIndex: value, highlightedIndex: value }));
+  }
+
+  get id() {
+    return this._id;
   }
 
   @Output() change = new EventEmitter<string>();
@@ -296,27 +379,67 @@ export class FrontalComponent implements ControlValueAccessor {
   // That's why we're taking this in our own hands, with the con that an index is required...
   frontalItems: FrontalItemDirective[] = [];
 
-  private _stateListeners: { id: string; listener: ((state: State) => void) }[] = [];
   private _onChange = (value: any) => {};
   private _onTouched = () => {};
 
-  constructor(private _changeDetector: ChangeDetectorRef) {}
+  constructor(private _changeDetector: ChangeDetectorRef, @Inject(PLATFORM_ID) private platformId: any) {
+    this.actions
+      .pipe(
+        scan(
+          ({ state, oldState }: { state: State; oldState: State }, action: Action) => {
+            const changes = this.stateReducer(state, action);
+            const externalChanges = state.reducer({ state, changes, action });
+            // tslint:disable-next-line:prefer-const
+            let extraChanges: Partial<State> = {};
+
+            if ('itemCount' in changes && changes.itemCount !== undefined && changes.itemCount !== state.itemCount) {
+              const highlighted = this.getItemAtIndex(state.highlightedIndex);
+              extraChanges.highlightedItem = highlighted ? highlighted.value : null;
+            } else if (
+              'highlightedIndex' in changes &&
+              changes.highlightedIndex !== undefined &&
+              changes.highlightedIndex !== state.highlightedIndex
+            ) {
+              const highlighted = this.getItemAtIndex(changes.highlightedIndex);
+              extraChanges.highlightedItem = highlighted ? highlighted.value : null;
+            }
+
+            return {
+              oldState: state,
+              state: { ...state, ...externalChanges, ...extraChanges },
+            };
+          },
+          { state: this.initialState, oldState: <State>{} },
+        ),
+        tap(this.emitSelect),
+        tap(this.emitOnChange),
+        takeUntil(this.destroy),
+      )
+      .subscribe(({ state }) => this.state.next(state));
+  }
+
+  ngAfterViewInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.state
+        .pipe(
+          auditTime(0, animationFrameScheduler),
+          filter(_ => {
+            const viewRef = this._changeDetector as ViewRef;
+            return viewRef && !viewRef.destroyed;
+          }),
+          takeUntil(this.destroy),
+        )
+        .subscribe(state => this._changeDetector.detectChanges());
+    }
+  }
+
+  ngOnDestroy() {
+    this.destroy.next();
+    this.destroy.complete();
+  }
 
   writeValue(value: any) {
-    // Otherwise the reactive form doesn't render
-    setTimeout(() => {
-      const inputText = value ? this.state.itemToString(value) : '';
-      this.handle({
-        type: StateChanges.InputChange,
-        payload: {
-          highlightedIndex: null,
-          selectedItem: value,
-          inputText,
-          inputValue: inputText,
-          isOpen: false,
-        },
-      });
-    });
+    this.actions.next(setItem(value));
   }
 
   registerOnChange(fn: any) {
@@ -327,233 +450,69 @@ export class FrontalComponent implements ControlValueAccessor {
     this._onTouched = fn;
   }
 
-  addListener({ id, listener }: { id: string; listener: (state: State) => void }) {
-    this._stateListeners = [...this._stateListeners, { id, listener }];
+  toggleList() {
+    this.actions.next(listToggle());
   }
 
-  removeListener(id: string) {
-    this._stateListeners = this._stateListeners.filter(p => p.id !== id);
+  openList() {
+    this.actions.next(listOpen());
   }
 
-  toggleMenu() {
-    this.handle({
-      type: StateChanges.ListToggle,
-      payload: {
-        isOpen: !this.state.isOpen,
-        highlightedIndex: this.state.isOpen ? null : this.state.defaultHighlightedIndex,
-      },
-    });
-  }
-
-  openMenu() {
-    this.handle({
-      type: StateChanges.ListOpen,
-      payload: {
-        isOpen: true,
-        highlightedIndex: this.state.defaultHighlightedIndex,
-      },
-    });
-  }
-
-  closeMenu() {
-    this.handle({
-      type: StateChanges.ListClose,
-      payload: {
-        isOpen: false,
-        highlightedIndex: null,
-      },
-    });
+  closeList() {
+    this.actions.next(listClose());
   }
 
   buttonClick() {
-    this.handle({
-      type: StateChanges.ButtonClick,
-      payload: {
-        isOpen: !this.state.isOpen,
-        highlightedIndex: this.state.isOpen ? null : this.state.defaultHighlightedIndex,
-      },
-    });
+    this.actions.next(buttonClick());
   }
 
   inputFocus() {
-    this.handle({
-      type: StateChanges.InputFocus,
-      payload: {},
-    });
+    this.actions.next(inputFocus());
   }
 
   inputBlur() {
-    if (this.state.isOpen) {
-      const value = this.state.highlightedItem ? this.state.itemToString(this.state.highlightedItem) : '';
-      this.handle({
-        type: StateChanges.InputBlur,
-        payload: {
-          isOpen: false,
-          highlightedIndex: null,
-          selectedItem: this.state.highlightedItem,
-          inputText: value,
-          inputValue: value,
-        },
-      });
-    }
+    this.actions.next(inputBlur());
   }
 
-  inputChange(event: KeyboardEvent) {
-    const inputText = (<HTMLInputElement>event.target).value;
-    this.handle({
-      type: StateChanges.InputChange,
-      payload: {
-        inputText,
-        inputValue: inputText,
-        isOpen: true,
-        selectedItem: null,
-        highlightedIndex: this.state.defaultHighlightedIndex,
-      },
-    });
+  inputChange(value: string) {
+    this.actions.next(inputChange(value));
   }
 
-  inputKeydown(event: KeyboardEvent) {
-    if (!this.state.isOpen) {
-      return;
-    }
-
-    const handlers: { [key: string]: () => Action } = {
-      ArrowDown: () => {
-        // Prevent cursor to change its place
-        event.preventDefault();
-        return {
-          type: StateChanges.InputKeydownArrowDown,
-          payload: {
-            selectedItem: null,
-            highlightedIndex:
-              this.state.itemCount === 0
-                ? null
-                : ((this.state.highlightedIndex === null ? -1 : this.state.highlightedIndex) + 1) %
-                  this.state.itemCount,
-          },
-        };
-      },
-      ArrowUp: () => {
-        // Prevent cursor to change its place
-        event.preventDefault();
-        return {
-          type: StateChanges.InputKeydownArrowUp,
-          payload: {
-            selectedItem: null,
-            highlightedIndex:
-              this.state.itemCount === 0
-                ? null
-                : ((this.state.highlightedIndex === null ? 1 : this.state.highlightedIndex) -
-                    1 +
-                    this.state.itemCount) %
-                  this.state.itemCount,
-          },
-        };
-      },
-      Enter: () => {
-        const value = this.state.highlightedItem ? this.state.itemToString(this.state.highlightedItem) : '';
-        return {
-          type: StateChanges.InputKeydownEnter,
-          payload: {
-            isOpen: false,
-            highlightedIndex: null,
-            selectedItem: this.state.highlightedItem,
-            inputText: value,
-            inputValue: value,
-          },
-        };
-      },
-      Escape: () => ({
-        type: StateChanges.InputKeydownEsc,
-        payload: {
-          isOpen: false,
-          highlightedIndex: null,
-          selectedItem: null,
-          inputText: '',
-          inputValue: '',
-        },
-      }),
-    };
-
-    const handler = handlers[event.key];
-    if (handler) {
-      this.handle(handler());
-    }
+  inputArrowDown() {
+    this.actions.next(inputKeydownArrowDown());
   }
 
-  itemClick(item: FrontalItemDirective) {
-    const inputText = this.state.itemToString(item.value);
-    this.handle({
-      type: StateChanges.ItemMouseClick,
-      payload: {
-        isOpen: false,
-        highlightedIndex: null,
-        selectedItem: item.value,
-        inputText,
-        inputValue: inputText,
-      },
-    });
+  inputArrowUp() {
+    this.actions.next(inputKeydownArrowUp());
   }
 
-  // MouseMove because we want a user interaction
-  // MouseEnter selects an item when the mouse is hovering over an item while typing
-  itemMove(item: FrontalItemDirective) {
-    if (item.index !== this.state.highlightedIndex) {
-      this.handle({
-        type: StateChanges.ItemMouseEnter,
-        payload: {
-          highlightedIndex: item.index,
-        },
-      });
-    }
+  inputEnter() {
+    this.actions.next(inputKeydownEnter());
   }
 
-  itemLeave(item: FrontalItemDirective) {
-    this.handle({
-      type: StateChanges.ItemMouseLeave,
-      payload: {
-        highlightedIndex: null,
-      },
-    });
+  inputEscape() {
+    this.actions.next(inputKeydownEsc());
+  }
+
+  itemClick(item: any) {
+    this.actions.next(itemMouseClick(item));
+  }
+
+  itemEnter(index: number) {
+    this.actions.next(itemMouseEnter(index));
+  }
+
+  itemLeave() {
+    this.actions.next(itemMouseLeave());
   }
 
   getItemAtIndex(index: number | null) {
-    return index === null || !this.frontalItems ? null : this.frontalItems.filter(Boolean)[index];
-  }
-
-  handle(action: Action) {
-    const { payload } = this.state.reducer(this.state, action);
-    const newState = {
-      ...this.state,
-      ...payload,
-    };
-
-    if (newState.highlightedIndex !== this.state.highlightedIndex) {
-      const highlighted = newState.highlightedIndex === null ? null : this.getItemAtIndex(newState.highlightedIndex);
-      newState.highlightedItem = highlighted ? highlighted.value : null;
-    }
-
-    if (newState.selectedItem !== this.state.selectedItem) {
-      this._onChange(newState.selectedItem);
-      if (newState.selectedItem !== null) {
-        this.select.emit(newState.selectedItem);
-      }
-    }
-
-    if (this.state.inputValue !== newState.inputValue) {
-      this.change.emit(newState.inputValue);
-    }
-
-    this.state = newState;
-
-    this.dispatchState();
-    this._changeDetector.detectChanges();
+    return index !== null && this.frontalItems ? this.frontalItems.filter(Boolean)[index] : null;
   }
 
   addFrontalItem(item: FrontalItemDirective) {
     this.frontalItems[item.index] = item;
-    this.patchFrontalItemsBasedState();
-    this._changeDetector.detectChanges();
+    this.patchItemCount();
   }
 
   updateFrontalItem(item: FrontalItemDirective, previousIndex: number) {
@@ -561,51 +520,139 @@ export class FrontalComponent implements ControlValueAccessor {
       delete this.frontalItems[previousIndex];
     }
     this.frontalItems[item.index] = item;
-    this.patchFrontalItemsBasedState();
+    this.patchItemCount();
   }
 
   removeFrontalItem(item: FrontalItemDirective) {
     delete this.frontalItems[item.index];
-    this.patchFrontalItemsBasedState();
-    setTimeout(() => {
-      const viewRef = this._changeDetector as ViewRef;
-      if (viewRef && !viewRef.destroyed) {
-        this._changeDetector.detectChanges();
+    this.patchItemCount();
+  }
+
+  private stateReducer(state: State, action: Action): Partial<State> {
+    switch (action.type) {
+      case StateChanges.UpdateState:
+      case StateChanges.UpdateItems:
+        return action.payload;
+      case StateChanges.SetItem:
+        const itemText = action.payload.item ? state.itemToString(action.payload.item) : '';
+        return {
+          highlightedIndex: null,
+          selectedItem: action.payload.item,
+          inputText: itemText,
+          inputValue: itemText,
+          isOpen: false,
+        };
+      case StateChanges.ListToggle:
+        return {
+          isOpen: !state.isOpen,
+          highlightedIndex: state.isOpen ? null : state.defaultHighlightedIndex,
+        };
+      case StateChanges.ListOpen:
+        return {
+          isOpen: true,
+          highlightedIndex: state.defaultHighlightedIndex,
+        };
+      case StateChanges.ListClose:
+        return {
+          isOpen: false,
+          highlightedIndex: null,
+        };
+      case StateChanges.ButtonClick:
+        return {
+          isOpen: !state.isOpen,
+          highlightedIndex: state.isOpen ? null : state.defaultHighlightedIndex,
+        };
+      case StateChanges.InputBlur:
+        const blurValue = state.highlightedItem ? state.itemToString(state.highlightedItem) : '';
+        return {
+          isOpen: false,
+          highlightedIndex: null,
+          selectedItem: state.highlightedItem,
+          inputText: blurValue,
+          inputValue: blurValue,
+        };
+      case StateChanges.InputFocus:
+        return {};
+      case StateChanges.InputChange:
+        return {
+          inputText: action.payload.value,
+          inputValue: action.payload.value,
+          isOpen: true,
+          selectedItem: null,
+          highlightedIndex: state.defaultHighlightedIndex,
+        };
+      case StateChanges.InputKeydownArrowDown:
+        return {
+          selectedItem: null,
+          highlightedIndex:
+            state.itemCount === 0
+              ? null
+              : ((state.highlightedIndex === null ? -1 : state.highlightedIndex) + 1) % state.itemCount,
+        };
+      case StateChanges.InputKeydownArrowUp:
+        return {
+          selectedItem: null,
+          highlightedIndex:
+            state.itemCount === 0
+              ? null
+              : ((state.highlightedIndex === null ? 1 : state.highlightedIndex) - 1 + state.itemCount) %
+                state.itemCount,
+        };
+      case StateChanges.InputKeydownEnter:
+        const enterValue = state.highlightedItem ? state.itemToString(state.highlightedItem) : '';
+        return {
+          isOpen: false,
+          highlightedIndex: null,
+          selectedItem: state.highlightedItem,
+          inputText: enterValue,
+          inputValue: enterValue,
+        };
+      case StateChanges.InputKeydownEsc:
+        return {
+          isOpen: false,
+          highlightedIndex: null,
+          selectedItem: null,
+          inputText: '',
+          inputValue: '',
+        };
+      case StateChanges.ItemMouseLeave:
+        return {
+          highlightedIndex: null,
+        };
+      case StateChanges.ItemMouseClick:
+        const inputText = state.itemToString(action.payload.item);
+        return {
+          isOpen: false,
+          highlightedIndex: null,
+          selectedItem: action.payload.item,
+          inputText,
+          inputValue: inputText,
+        };
+      case StateChanges.ItemMouseEnter:
+        return {
+          highlightedIndex: action.payload.index,
+        };
+      default:
+        return {};
+    }
+  }
+
+  private patchItemCount() {
+    this.actions.next(updateItems(this.frontalItems.filter(Boolean).length));
+  }
+
+  private emitSelect = ({ oldState, state }: { oldState: State; state: State }) => {
+    if (state.selectedItem !== oldState.selectedItem) {
+      this._onChange(state.selectedItem);
+      if (state.selectedItem !== null) {
+        this.select.emit(state.selectedItem);
       }
-    });
-  }
+    }
+  };
 
-  private patchFrontalItemsBasedState() {
-    const highlighted = this.getItemAtIndex(this.state.highlightedIndex);
-    this.state = {
-      ...this.state,
-      itemCount: this.frontalItems.filter(Boolean).length,
-      highlightedItem: highlighted ? highlighted.value : null,
-    };
-    this.dispatchState();
-  }
-
-  private dispatchState() {
-    this._stateListeners.forEach(({ listener }) => listener(this.state));
-  }
-}
-
-function createFrontalInputId(id: string) {
-  return `frontal-input-${id}`;
-}
-
-function createFrontalButtonId(id: string) {
-  return `frontal-button-${id}`;
-}
-
-function createFrontalLabelId(id: string) {
-  return `frontal-label-${id}`;
-}
-
-function createFrontalListId(id: string) {
-  return `frontal-list-${id}`;
-}
-
-function createFrontalItemId(frontalId: string, id: string) {
-  return `frontal-item-${frontalId}-${id}`;
+  private emitOnChange = ({ oldState, state }: { oldState: State; state: State }) => {
+    if (state.inputValue !== oldState.inputValue) {
+      this.change.emit(state.inputValue);
+    }
+  };
 }

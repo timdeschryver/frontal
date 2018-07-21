@@ -5,8 +5,7 @@ describe('Frontal disabled items', () => {
 
   describe('arrow movements', () => {
     before(() => {
-      cy
-        .getInputByLabelText('Select your hero')
+      cy.getInputByLabelText('Select your hero')
         .focus()
         .clear()
         .type('m{backspace}');
@@ -14,8 +13,7 @@ describe('Frontal disabled items', () => {
 
     it('should skip disabled items', () => {
       cy.focused().type('{downarrow}{downarrow}{downarrow}');
-      cy
-        .focused()
+      cy.focused()
         .getActiveDescendant()
         .contains('Celeritas');
     });
@@ -23,37 +21,43 @@ describe('Frontal disabled items', () => {
 
   describe('mouse movements', () => {
     before(() => {
-      cy
-        .getInputByLabelText('Select your hero')
+      cy.getInputByLabelText('Select your hero')
         .focus()
         .clear()
         .type('m{backspace}');
     });
 
     it("shouldn't activate a disabled item", () => {
-      cy.contains('Bombasto').trigger('mousemove');
-      cy
-        .focused()
-        .getActiveDescendant()
-        .should('not.exist');
-      cy.contains('Bombasto').trigger('mouseleave');
+      cy.contains('Bombasto')
+        .trigger('mousemove')
+        .then(() => {
+          cy.wait(25).then(() => {
+            cy.focused()
+              .getActiveDescendant()
+              .should('not.exist');
+            cy.contains('Bombasto').trigger('mouseleave');
+          });
+        });
     });
 
     it('should activate an enabled item', () => {
-      cy.contains('Narco').trigger('mousemove');
-      cy
-        .focused()
-        .getActiveDescendant()
-        .should('exist');
-      cy.contains('Narco').trigger('mouseleave');
+      cy.contains('Narco')
+        .trigger('mousemove')
+        .then(() => {
+          cy.wait(25).then(() => {
+            cy.focused()
+              .getActiveDescendant()
+              .should('exist');
+            cy.contains('Narco').trigger('mouseleave');
+          });
+        });
     });
   });
 
   describe('mouse click', () => {
     describe('on a disabled item', () => {
       before(() => {
-        cy
-          .getInputByLabelText('Select your hero')
+        cy.getInputByLabelText('Select your hero')
           .focus()
           .clear()
           .type('m{backspace}');
@@ -66,8 +70,7 @@ describe('Frontal disabled items', () => {
       });
 
       it("shouldn't close the list", () => {
-        cy
-          .getInputByLabelText('Select your hero')
+        cy.getInputByLabelText('Select your hero')
           .getControlled()
           .should('exist');
       });
@@ -75,8 +78,7 @@ describe('Frontal disabled items', () => {
 
     describe('on an enabled item', () => {
       before(() => {
-        cy
-          .getInputByLabelText('Select your hero')
+        cy.getInputByLabelText('Select your hero')
           .focus()
           .clear()
           .type('m{backspace}');
@@ -89,8 +91,7 @@ describe('Frontal disabled items', () => {
       });
 
       it('should close the list', () => {
-        cy
-          .getInputByLabelText('Select your hero')
+        cy.getInputByLabelText('Select your hero')
           .getControlled()
           .should('not.exist');
       });

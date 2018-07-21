@@ -1,4 +1,9 @@
+import { State } from '.';
+
 export enum StateChanges {
+  UpdateState = 'frontal_update_state',
+  UpdateItems = 'frontal_update_item',
+  SetItem = 'frontal_set_value',
   ListToggle = 'frontal_list_toggle',
   ListOpen = 'frontal_list_open',
   ListClose = 'frontal_list_close',
@@ -15,133 +20,184 @@ export enum StateChanges {
   ButtonClick = 'frontal_button_click',
 }
 
-export interface MenuToggle {
-  type: StateChanges.ListToggle;
+export interface UpdateState {
+  type: StateChanges.UpdateState;
+  payload: Partial<State>;
+}
+
+export const updateState = (payload: Partial<State>): UpdateState => ({
+  type: StateChanges.UpdateState,
+  payload: payload,
+});
+
+export interface UpdateItems {
+  type: StateChanges.UpdateItems;
   payload: {
-    isOpen: boolean;
-    highlightedIndex: number | null;
+    itemCount: number;
   };
 }
 
+export const updateItems = (itemCount: number): UpdateItems => ({
+  type: StateChanges.UpdateItems,
+  payload: {
+    itemCount,
+  },
+});
+
+export interface SetItem {
+  type: StateChanges.SetItem;
+  payload: {
+    item: any;
+  };
+}
+
+export const setItem = (item: any): SetItem => ({
+  type: StateChanges.SetItem,
+  payload: {
+    item,
+  },
+});
+
+export interface ListToggle {
+  type: StateChanges.ListToggle;
+}
+
+export const listToggle = (): ListToggle => ({
+  type: StateChanges.ListToggle,
+});
+
 export interface InputFocus {
   type: StateChanges.InputFocus;
-  payload: {};
 }
+
+export const inputFocus = (): InputFocus => ({
+  type: StateChanges.InputFocus,
+});
 
 export interface InputChange {
   type: StateChanges.InputChange;
   payload: {
-    highlightedIndex: number | null;
-    selectedItem: any;
-    inputText: string;
-    inputValue: string;
-    isOpen: boolean;
+    value: string;
   };
 }
 
-export interface MenuOpen {
+export const inputChange = (value: string): InputChange => {
+  return {
+    type: StateChanges.InputChange,
+    payload: {
+      value,
+    },
+  };
+};
+
+export interface ListOpen {
   type: StateChanges.ListOpen;
-  payload: {
-    isOpen: boolean;
-    highlightedIndex: number | null;
-  };
 }
 
-export interface MenuClose {
+export const listOpen = (): ListOpen => ({
+  type: StateChanges.ListOpen,
+});
+
+export interface ListClose {
   type: StateChanges.ListClose;
-  payload: {
-    isOpen: boolean;
-    highlightedIndex: number | null;
-  };
 }
+
+export const listClose = (): ListClose => ({
+  type: StateChanges.ListClose,
+});
 
 export interface ButtonClick {
   type: StateChanges.ButtonClick;
-  payload: {
-    isOpen: boolean;
-    highlightedIndex: number | null;
-  };
 }
+
+export const buttonClick = (): ButtonClick => ({
+  type: StateChanges.ButtonClick,
+});
 
 export interface InputBlur {
   type: StateChanges.InputBlur;
-  payload: {
-    isOpen: boolean;
-    highlightedIndex: null;
-    selectedItem: any;
-    inputText: string;
-    inputValue: string;
-  };
 }
+
+export const inputBlur = (): InputBlur => ({
+  type: StateChanges.InputBlur,
+});
 
 export interface ItemMouseClick {
   type: StateChanges.ItemMouseClick;
   payload: {
-    isOpen: boolean;
-    highlightedIndex: null;
-    selectedItem: any;
-    inputText: string;
-    inputValue: string;
+    item: any;
   };
 }
+
+export const itemMouseClick = (item: any): ItemMouseClick => ({
+  type: StateChanges.ItemMouseClick,
+  payload: {
+    item,
+  },
+});
 
 export interface ItemMouseEnter {
   type: StateChanges.ItemMouseEnter;
   payload: {
-    highlightedIndex: number;
+    index: number;
   };
 }
+
+export const itemMouseEnter = (index: number): ItemMouseEnter => ({
+  type: StateChanges.ItemMouseEnter,
+  payload: {
+    index,
+  },
+});
 
 export interface ItemMouseLeave {
   type: StateChanges.ItemMouseLeave;
-  payload: {
-    highlightedIndex: null;
-  };
 }
+
+export const itemMouseLeave = (): ItemMouseLeave => ({
+  type: StateChanges.ItemMouseLeave,
+});
 
 export interface InputKeydownArrowDown {
   type: StateChanges.InputKeydownArrowDown;
-  payload: {
-    selectedItem: null;
-    highlightedIndex: number | null;
-  };
 }
+
+export const inputKeydownArrowDown = (): InputKeydownArrowDown => ({
+  type: StateChanges.InputKeydownArrowDown,
+});
 
 export interface InputKeydownArrowUp {
   type: StateChanges.InputKeydownArrowUp;
-  payload: {
-    selectedItem: null;
-    highlightedIndex: number | null;
-  };
 }
+
+export const inputKeydownArrowUp = (): InputKeydownArrowUp => ({
+  type: StateChanges.InputKeydownArrowUp,
+});
 
 export interface InputKeydownEnter {
   type: StateChanges.InputKeydownEnter;
-  payload: {
-    isOpen: boolean;
-    highlightedIndex: number | null;
-    selectedItem: any;
-    inputText: string;
-    inputValue: string;
-  };
 }
+
+export const inputKeydownEnter = (): InputKeydownEnter => ({
+  type: StateChanges.InputKeydownEnter,
+});
 
 export interface InputKeydownEsc {
   type: StateChanges.InputKeydownEsc;
-  payload: {
-    isOpen: boolean;
-    highlightedIndex: number | null;
-    selectedItem: any | null;
-    inputText: string;
-    inputValue: string;
-  };
 }
 
+export const inputKeydownEsc = (): InputKeydownEsc => ({
+  type: StateChanges.InputKeydownEsc,
+});
+
 export type Action =
-  | MenuToggle
+  | UpdateState
+  | UpdateItems
+  | SetItem
+  | ListToggle
   | InputChange
-  | MenuOpen
-  | MenuClose
+  | ListOpen
+  | ListClose
   | ButtonClick
   | InputFocus
   | InputBlur

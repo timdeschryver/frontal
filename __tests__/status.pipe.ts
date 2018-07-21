@@ -49,6 +49,6 @@ const fixtures: { input: Partial<State>; output: string }[] = [
 
 fixtures.forEach(({ input, output }) => {
   test(`${JSON.stringify(input)} results in ${output}`, () => {
-    expect(new StatusMessagePipe().transform({ ...createState(), ...input })).toBe(output);
+    expect(new StatusMessagePipe().transform({ ...createState('abc'), ...input })).toBe(output);
   });
 });

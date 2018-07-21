@@ -10,105 +10,108 @@ import {
 } from '../src';
 
 test('reducer can change the state', async () => {
-  const reducer = (state: State, action: Action) => {
+  const reducer = ({
+    state,
+    action,
+    changes,
+  }: {
+    state: State;
+    action: Action;
+    changes: Partial<State>;
+  }): Partial<State> => {
     switch (action.type) {
       case StateChanges.ListOpen:
         return {
-          ...action,
-          payload: {
-            ...action.payload,
-            ...{
-              highlightedIndex: 3,
-            },
-          },
+          ...changes,
+          highlightedIndex: 3,
         };
       default:
-        return action;
+        return changes;
     }
   };
 
   const { frontal } = await setup({ reducer });
-  frontal.openMenu();
-  expect(frontal.state).toMatchObject(expect.objectContaining({ isOpen: true, highlightedIndex: 3 }));
+  frontal.openList();
+  expect(frontal.state.value).toMatchObject(expect.objectContaining({ isOpen: true, highlightedIndex: 3 }));
 
-  frontal.closeMenu();
-  expect(frontal.state).toMatchObject(expect.objectContaining({ isOpen: false }));
+  frontal.closeList();
+  expect(frontal.state.value).toMatchObject(expect.objectContaining({ isOpen: false }));
 });
 
 test('itemToString should be used when provided', async () => {
   const itemToString = ({ name }: { name: string }) => name;
   const { frontal } = await setup({ itemToString });
-  frontal.itemClick({ value: { name: 'Tim' } } as FrontalItemDirective);
+  frontal.itemClick({ name: 'Tim' });
 
-  expect(frontal.state).toMatchObject(expect.objectContaining({ inputText: 'Tim' }));
+  expect(frontal.state.value).toMatchObject(expect.objectContaining({ inputText: 'Tim' }));
 });
 
 test('defaultHighlightedIndex sets the initial highlighted index', async () => {
   const { frontal } = await setup({ defaultHighlightedIndex: 0 });
-  expect(frontal.state.highlightedIndex).toBe(0);
+  expect(frontal.state.value.highlightedIndex).toBe(0);
 });
 
 test('defaultHighlightedIndex is used to set the highlighted index on change', async () => {
   const { frontal } = await setup({ defaultHighlightedIndex: 0 });
-  frontal.handle = jest.fn();
+  frontal.actions.subscribe(action => {
+    expect(action).toMatchObject(
+      expect.objectContaining({ payload: expect.objectContaining({ highlightedIndex: 0 }) }),
+    );
+  });
   frontal.inputChange({ target: { value: 'abc' } } as any);
-
-  expect(frontal.handle).toHaveBeenCalledWith(
-    expect.objectContaining({ payload: expect.objectContaining({ highlightedIndex: 0 }) }),
-  );
 });
 
-test('defaultHighlightedIndex is used to set the highlighted index on menu open', async () => {
+test('defaultHighlightedIndex is used to set the highlighted index on list open', async () => {
   const { frontal } = await setup({ defaultHighlightedIndex: 0 });
-  frontal.handle = jest.fn();
-  frontal.openMenu();
-
-  expect(frontal.handle).toHaveBeenCalledWith(
-    expect.objectContaining({ payload: expect.objectContaining({ highlightedIndex: 0 }) }),
-  );
+  frontal.actions.subscribe(action => {
+    expect(action).toMatchObject(
+      expect.objectContaining({ payload: expect.objectContaining({ highlightedIndex: 0 }) }),
+    );
+  });
+  frontal.openList();
 });
 
-test('defaultHighlightedIndex is used to set the highlighted index on menu toggle', async () => {
+test('defaultHighlightedIndex is used to set the highlighted index on list toggle', async () => {
   const { frontal } = await setup({ defaultHighlightedIndex: 0 });
-  frontal.handle = jest.fn();
-  frontal.toggleMenu();
-
-  expect(frontal.handle).toHaveBeenCalledWith(
-    expect.objectContaining({ payload: expect.objectContaining({ highlightedIndex: 0 }) }),
-  );
+  frontal.actions.subscribe(action => {
+    expect(action).toMatchObject(
+      expect.objectContaining({ payload: expect.objectContaining({ highlightedIndex: 0 }) }),
+    );
+  });
+  frontal.toggleList();
 });
 
-test('toggleMenu resets the highlighted index', async () => {
+test('toggleList resets the highlighted index', async () => {
   const { frontal } = await setup({ defaultHighlightedIndex: 0, isOpen: true });
-  frontal.handle = jest.fn();
-  frontal.toggleMenu();
-
-  expect(frontal.handle).toHaveBeenCalledWith(
-    expect.objectContaining({ payload: expect.objectContaining({ highlightedIndex: null }) }),
-  );
+  frontal.actions.subscribe(action => {
+    expect(action).toMatchObject(
+      expect.objectContaining({ payload: expect.objectContaining({ highlightedIndex: null }) }),
+    );
+  });
+  frontal.toggleList();
 });
 
-test('closeMenu resets the highlighted index', async () => {
+test('closeList resets the highlighted index', async () => {
   const { frontal } = await setup({ defaultHighlightedIndex: 0, isOpen: true });
-  frontal.handle = jest.fn();
-  frontal.closeMenu();
-
-  expect(frontal.handle).toHaveBeenCalledWith(
-    expect.objectContaining({ payload: expect.objectContaining({ highlightedIndex: null }) }),
-  );
+  frontal.actions.subscribe(action => {
+    expect(action).toMatchObject(
+      expect.objectContaining({ payload: expect.objectContaining({ highlightedIndex: null }) }),
+    );
+  });
+  frontal.closeList();
 });
 
 test('change is getting called when input is changed', async () => {
   const { frontal } = await setup();
   frontal.change.emit = jest.fn();
 
-  frontal.inputChange({ target: { value: 'abc' } } as any);
+  frontal.inputChange('abc');
   expect(frontal.change.emit).toHaveBeenCalledWith('abc');
 
-  frontal.inputChange({ target: { value: 'abcd' } } as any);
+  frontal.inputChange('abcd');
   expect(frontal.change.emit).toHaveBeenCalledWith('abcd');
 
-  frontal.inputChange({ target: { value: 'abcd' } } as any);
+  frontal.inputChange('abcd');
   // because the target value is the same, change isn't triggered
   expect(frontal.change.emit).toHaveBeenCalledTimes(2);
 });
@@ -116,7 +119,7 @@ test('change is getting called when input is changed', async () => {
 test('select is getting called with the item value', async () => {
   const { frontal } = await setup();
   frontal.select.emit = jest.fn();
-  frontal.itemClick({ value: { name: 'Tim' } } as FrontalItemDirective);
+  frontal.itemClick({ name: 'Tim' });
 
   expect(frontal.select.emit).toHaveBeenCalledWith({ name: 'Tim' });
 });

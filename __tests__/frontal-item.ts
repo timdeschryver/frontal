@@ -1,6 +1,7 @@
 import { By } from '@angular/platform-browser';
 import { createComponent } from 'ngx-testing-library';
-import { FrontalComponent, FrontalItemDirective, StatusMessagePipe, resetId } from '../src';
+import { FrontalComponent, FrontalItemDirective, StatusMessagePipe, resetId, State } from '../src';
+import { updateState } from '../src/actions';
 
 test('sanity check for attributes', async () => {
   const { items } = await setup();
@@ -8,13 +9,14 @@ test('sanity check for attributes', async () => {
 });
 
 test('mouse down selects the item', async () => {
-  const { item, frontal, mouseDown } = await setup();
-  frontal.state.isOpen = true;
-  frontal.state.highlightedIndex = 1;
-  frontal.state.highlightedItem = 'foo';
+  const { item, frontal, mouseDown } = await setup({
+    isOpen: true,
+    highlightedIndex: 1,
+    highlightedItem: 'foo',
+  });
 
   mouseDown(item);
-  expect(frontal.state).toMatchObject(
+  expect(frontal.state.value).toMatchObject(
     expect.objectContaining({
       highlightedItem: null,
       highlightedIndex: null,
@@ -26,19 +28,17 @@ test('mouse down selects the item', async () => {
 });
 
 test('mouse down closes the list', async () => {
-  const { item, frontal, mouseDown } = await setup();
-  frontal.state.isOpen = true;
+  const { item, frontal, mouseDown } = await setup({ isOpen: true });
 
   mouseDown(item);
-  expect(frontal.state).toMatchObject(expect.objectContaining({ isOpen: false }));
+  expect(frontal.state.value).toMatchObject(expect.objectContaining({ isOpen: false }));
 });
 
 test('mouse move sets the highlighted index', async () => {
-  const { item, frontal, mouseMove } = await setup();
-  frontal.state.isOpen = true;
+  const { item, frontal, mouseMove } = await setup({ isOpen: true });
 
   mouseMove(item);
-  expect(frontal.state).toMatchObject(
+  expect(frontal.state.value).toMatchObject(
     expect.objectContaining({
       highlightedItem: 'uno',
       highlightedIndex: 0,
@@ -47,13 +47,14 @@ test('mouse move sets the highlighted index', async () => {
 });
 
 test('mouse leave resets the highlighted index', async () => {
-  const { item, frontal, mouseLeave } = await setup();
-  frontal.state.isOpen = true;
-  frontal.state.highlightedIndex = 0;
-  frontal.state.highlightedItem = 'uno';
+  const { item, frontal, mouseLeave } = await setup({
+    isOpen: true,
+    highlightedIndex: 0,
+    highlightedItem: 'uno',
+  });
 
   mouseLeave(item);
-  expect(frontal.state).toMatchObject(
+  expect(frontal.state.value).toMatchObject(
     expect.objectContaining({
       highlightedItem: null,
       highlightedIndex: null,
@@ -74,7 +75,7 @@ test('highlighted index sets aria selected', async () => {
   expect(items[1].getAttribute('aria-selected')).toBe('false');
 });
 
-async function setup() {
+async function setup(initialState: Partial<State> = {}) {
   const template = `
     <frontal>
       <ng-template>
@@ -89,9 +90,15 @@ async function setup() {
     declarations: [FrontalComponent, FrontalItemDirective, StatusMessagePipe],
   });
 
+  const frontal = fixture.debugElement.query(By.css('frontal')).componentInstance as FrontalComponent;
+
+  if (initialState) {
+    frontal.actions.next(updateState(initialState));
+  }
+
   return {
     fixture,
-    frontal: fixture.debugElement.query(By.css('frontal')).componentInstance,
+    frontal,
     item: container.querySelector('[frontalItem]') as HTMLElement,
     items: container.querySelectorAll('[frontalItem]') as NodeListOf<HTMLElement>,
     mouseDown,

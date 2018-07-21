@@ -1,7 +1,5 @@
 import { createState } from '../src';
 
-describe('createState', () => {
-  test('generates an id', () => {
-    expect(createState().id).toBeDefined();
-  });
+test('createState', () => {
+  expect(createState('123').id).toBe('123');
 });

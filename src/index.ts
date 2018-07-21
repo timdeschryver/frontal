@@ -1,11 +1,14 @@
 export { FrontalModule } from './frontal.module';
 export {
+  UpdateState,
+  UpdateItems,
+  SetItem,
   StateChanges,
   Action,
-  MenuToggle,
+  ListToggle,
   InputChange,
-  MenuOpen,
-  MenuClose,
+  ListOpen,
+  ListClose,
   ButtonClick,
   InputBlur,
   ItemMouseClick,

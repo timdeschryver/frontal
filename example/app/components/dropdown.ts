@@ -8,18 +8,18 @@ import { heroes, toString, toJson, Hero } from '../../data/hero';
     <frontal #frontal [itemToString]="heroToString" [isOpen]="true" on-select="onSelect($event)">
       <ng-template>
         <button frontalButton>
-          {{frontal.state.selectedItem ? frontal.state.selectedItem.name : 'Select your hero'}}
+          {{ frontal.state.value.selectedItem ? frontal.state.value.selectedItem.name : 'Select your hero' }}
         </button>
 
-        <ul *ngIf="frontal.state.isOpen" frontalList>
-          <li *ngFor="let hero of heroes; trackBy:trackById; let index=index;" frontalItem [value]="hero" [index]="index"
-            [class.highlight]="frontal.state.highlightedIndex === index">
-            {{hero.name}}
+        <ul *ngIf="frontal.state.value.isOpen" frontalList>
+          <li *ngFor="let hero of heroes; let index=index;" frontalItem [value]="hero" [index]="index"
+            [class.highlight]="frontal.state.value.highlightedIndex === index">
+            {{ hero.name }}
           </li>
         </ul>
 
         <h4>Selected hero:</h4>
-        <pre data-test="selected-item">{{frontal.state.selectedItem | json}}</pre>
+        <pre data-test="selected-item">{{ frontal.state.value.selectedItem | json }}</pre>
       </ng-template>
     </frontal>
   `,

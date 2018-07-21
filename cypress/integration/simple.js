@@ -9,15 +9,13 @@ describe('Frontal simple', () => {
     });
 
     it('should have a closed list', () => {
-      cy
-        .focused()
+      cy.focused()
         .getControlled()
         .should('not.exist');
     });
 
     it("shouldn't have an activated item", () => {
-      cy
-        .focused()
+      cy.focused()
         .getActiveDescendant()
         .should('not.exist');
     });
@@ -30,23 +28,20 @@ describe('Frontal simple', () => {
   describe('text input', () => {
     before(() => {
       // clicking on the label doesn't immediately set the focused elemt to the input?
-      cy
-        .getInputByLabelText('Select your hero')
+      cy.getInputByLabelText('Select your hero')
         .focus()
         .clear()
         .type('m');
     });
 
     it('should show the list', () => {
-      cy
-        .focused()
+      cy.focused()
         .getControlled()
         .should('exist');
     });
 
     it("shouldn't activate an item", () => {
-      cy
-        .focused()
+      cy.focused()
         .getActiveDescendant()
         .should('not.exist');
     });
@@ -62,8 +57,7 @@ describe('Frontal simple', () => {
 
   describe('text blur', () => {
     before(() => {
-      cy
-        .getInputByLabelText('Select your hero')
+      cy.getInputByLabelText('Select your hero')
         .focus()
         .clear()
         .type('m')
@@ -76,8 +70,7 @@ describe('Frontal simple', () => {
   describe('key handles', () => {
     describe('arrow down', () => {
       before(() => {
-        cy
-          .getInputByLabelText('Select your hero')
+        cy.getInputByLabelText('Select your hero')
           .focus()
           .clear()
           .type('m')
@@ -87,8 +80,7 @@ describe('Frontal simple', () => {
       testActive('Magneta');
 
       it('should move to the top if the last item is selected', () => {
-        cy
-          .focused()
+        cy.focused()
           .type('{downarrow}{downarrow}')
           .getActiveDescendant()
           .contains('Mr. Nice');
@@ -97,8 +89,7 @@ describe('Frontal simple', () => {
 
     describe('arrow up', () => {
       before(() => {
-        cy
-          .getInputByLabelText('Select your hero')
+        cy.getInputByLabelText('Select your hero')
           .focus()
           .clear()
           .type('m')
@@ -108,8 +99,7 @@ describe('Frontal simple', () => {
       testActive('Mr. Nice');
 
       it('should move to the bottom if the first item is selected', () => {
-        cy
-          .focused()
+        cy.focused()
           .type('{uparrow}')
           .getActiveDescendant()
           .contains('Magma');
@@ -118,8 +108,7 @@ describe('Frontal simple', () => {
 
     describe('enter', () => {
       before(() => {
-        cy
-          .getInputByLabelText('Select your hero')
+        cy.getInputByLabelText('Select your hero')
           .focus()
           .clear()
           .type('m')
@@ -132,8 +121,7 @@ describe('Frontal simple', () => {
     describe('escape', () => {
       describe('on an open list', () => {
         before(() => {
-          cy
-            .getInputByLabelText('Select your hero')
+          cy.getInputByLabelText('Select your hero')
             .focus()
             .type('m')
             .type('{esc}');
@@ -144,8 +132,7 @@ describe('Frontal simple', () => {
 
       describe('on a closed list', () => {
         before(() => {
-          cy
-            .getInputByLabelText('Select your hero')
+          cy.getInputByLabelText('Select your hero')
             .focus()
             .type('m')
             .type('{downarrow}{enter}')
@@ -159,8 +146,7 @@ describe('Frontal simple', () => {
 
   describe('mouse actions', () => {
     before(() => {
-      cy
-        .getInputByLabelText('Select your hero')
+      cy.getInputByLabelText('Select your hero')
         .focus()
         .clear()
         .type('m');
@@ -181,10 +167,13 @@ describe('Frontal simple', () => {
       });
 
       it('should deactivate an item on leave', () => {
-        cy
-          .focused()
-          .getActiveDescendant()
-          .should('not.exist');
+        cy.focused().then(element => {
+          cy.wait(25).then(() => {
+            cy.wrap(element)
+              .getActiveDescendant()
+              .should('not.exist');
+          });
+        });
       });
 
       it('should have a item-count status', () => {
@@ -194,8 +183,7 @@ describe('Frontal simple', () => {
 
     describe('mouse click', () => {
       before(() => {
-        cy
-          .getInputByLabelText('Select your hero')
+        cy.getInputByLabelText('Select your hero')
           .focus()
           .clear()
           .type('m');
@@ -207,8 +195,7 @@ describe('Frontal simple', () => {
 
     describe('mouse click outside the list', () => {
       before(() => {
-        cy
-          .getInputByLabelText('Select your hero')
+        cy.getInputByLabelText('Select your hero')
           .focus()
           .clear()
           .type('m');
@@ -222,8 +209,7 @@ describe('Frontal simple', () => {
 
   describe('no items found', () => {
     before(() => {
-      cy
-        .getInputByLabelText('Select your hero')
+      cy.getInputByLabelText('Select your hero')
         .focus()
         .clear()
         .type('foobar');
@@ -240,15 +226,13 @@ describe('Frontal simple', () => {
 
   function testActive(name) {
     it('should have an activated item', () => {
-      cy
-        .focused()
+      cy.focused()
         .getActiveDescendant()
         .contains(name);
     });
 
     it('should have a selected item', () => {
-      cy
-        .focused()
+      cy.focused()
         .getControlled()
         .getSelected()
         .contains(name);
@@ -269,15 +253,13 @@ describe('Frontal simple', () => {
     });
 
     it('should close the list', () => {
-      cy
-        .focused()
+      cy.focused()
         .getControlled()
         .should('not.exist');
     });
 
     it("shouldn't have an activated item", () => {
-      cy
-        .focused()
+      cy.focused()
         .getActiveDescendant()
         .should('not.exist');
     });
@@ -293,15 +275,13 @@ describe('Frontal simple', () => {
     });
 
     it('should close the list', () => {
-      cy
-        .getInputByLabelText('Select your hero')
+      cy.getInputByLabelText('Select your hero')
         .getControlled()
         .should('not.exist');
     });
 
     it("shouldn't have an activated item", () => {
-      cy
-        .getInputByLabelText('Select your hero')
+      cy.getInputByLabelText('Select your hero')
         .getActiveDescendant()
         .should('not.exist');
     });

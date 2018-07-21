@@ -15,7 +15,7 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
           <ul frontalList>
             <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;" frontalItem
               [value]="hero" [index]="index" [class.highlight]="highlightedIndex === index">
-              {{hero.name}}
+              {{ hero.name }}
             </li>
           </ul>
 
@@ -49,47 +49,33 @@ export class ReducerComponent {
     return toJson(hero);
   }
 
-  reducer(state: State, action: Action) {
-    console.log(action);
-
+  reducer({ state, action, changes }: { state: State; action: Action; changes: Partial<State> }) {
     switch (action.type) {
       case StateChanges.InputFocus:
         return {
-          ...action,
-          payload: {
-            ...action.payload,
-            isOpen: true,
-          },
+          ...changes,
+          isOpen: true,
         };
       case StateChanges.InputKeydownArrowDown:
       case StateChanges.InputKeydownArrowUp:
         return {
-          ...action,
-          payload: {
-            ...action.payload,
-            inputText:
-              action.payload.highlightedIndex === null
-                ? ''
-                : toString(filter(state.inputValue)[action.payload.highlightedIndex]),
-          },
+          ...changes,
+          inputText:
+            changes.highlightedIndex === null
+              ? ''
+              : toString(filter(state.inputValue || '')[changes.highlightedIndex || 0]),
         };
       case StateChanges.ItemMouseEnter:
       case StateChanges.ItemMouseLeave:
         return {
-          ...action,
-          payload: {
-            ...action.payload,
-            highlightedIndex: state.highlightedIndex,
-          },
+          ...changes,
+          highlightedIndex: state.highlightedIndex,
         };
       case StateChanges.ItemMouseClick:
       case StateChanges.InputBlur:
-        return {
-          ...action,
-          payload: {},
-        };
+        return {};
       default:
-        return action;
+        return changes;
     }
   }
 }

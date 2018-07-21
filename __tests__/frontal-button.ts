@@ -14,10 +14,10 @@ test('clicking on the button toggles the list', async () => {
   } = await setup();
 
   click();
-  expect(state).toMatchObject(expect.objectContaining({ isOpen: true, highlightedIndex: 0 }));
+  expect(state.value).toMatchObject(expect.objectContaining({ isOpen: true, highlightedIndex: 0 }));
 
   click();
-  expect(state).toMatchObject(expect.objectContaining({ isOpen: false, highlightedIndex: null }));
+  expect(state.value).toMatchObject(expect.objectContaining({ isOpen: false, highlightedIndex: null }));
 });
 
 test('isOpen toggles the aria label', async () => {
@@ -45,7 +45,7 @@ async function setup() {
 
   const button = container.querySelector('button') as HTMLElement;
   return {
-    frontal: fixture.debugElement.query(By.css('frontal')).componentInstance,
+    frontal: fixture.debugElement.query(By.css('frontal')).componentInstance as FrontalComponent,
     button,
     click: () => click(button),
   };

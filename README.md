@@ -43,7 +43,7 @@ Use the `frontal` component and directives:
     <ul *ngIf="isOpen" frontalList>
       <li *ngFor="let hero of filteredHeroes(value); let index=index;" frontalItem
        [value]="hero" [index]="index" [class.highlight]="highlightedIndex === index">
-        {{hero.name}}
+        {{ hero.name }}
       </li>
     </ul>
 
@@ -79,10 +79,11 @@ The initial `isOpen` value,
 
 ##### `reducer`
 
-For each action `frontal` will dispatch the current state with the dispatched action. Based on this it's possible to change the dispatched action to your own needs. These changes will then be applied to `frontal`'s state. <br>
+For each action `frontal` will dispatch the current state with the dispatched action and the changes that will apply on the state.
+Based on this it's possible to modify the changes to fit your own needs. These changes will then be applied to `frontal`'s state.
 The actions can be found at [actions.ts](src/actions.ts)
 
-> Optional. Default: `(state: State, action: Action) => action`
+> Optional. Default: `({ state: State; action: Action; changes: Partial<State> }) => Partial<State>`
 
 #### Output
 
