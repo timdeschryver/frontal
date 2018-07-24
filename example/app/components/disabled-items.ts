@@ -17,9 +17,9 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
                 </ng-container>
 
                 <ng-template #enabled>
-                  <div frontalItem [value]="hero" [index]="index" [class.highlight]="highlightedIndex === findIndex(hero, heroes)">
-                  {{ hero.name }}
-                </div>
+                  <div frontalItem [value]="hero" [class.highlight]="highlightedIndex === findIndex(hero, heroes)">
+                    {{ hero.name }}s
+                  </div>
                 </ng-template>
 
                 <ng-template #disabled>

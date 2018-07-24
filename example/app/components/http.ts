@@ -6,9 +6,10 @@ import { debounceTime, distinctUntilChanged, map, catchError, switchMap } from '
 @Injectable()
 export class GitHubService {
   getUsers(user: string): Observable<User[]> {
-    return this.http
-      .get<UserResponse>(`https://api.github.com/search/users?q=${user}`)
-      .pipe(map(u => u.items), catchError(_ => of<User[]>()));
+    return this.http.get<UserResponse>(`https://api.github.com/search/users?q=${user}`).pipe(
+      map(u => u.items),
+      catchError(_ => of<User[]>()),
+    );
   }
   constructor(private http: HttpClient) {}
 }
@@ -30,8 +31,8 @@ export class GitHubService {
           <ul frontalList>
             <li *ngFor="let user of users | async; trackBy:trackUserById; let index=index;"
               [class.highlight]="highlightedIndex === index">
-              <div frontalItem [value]="user" [index]="index">
-                <img [src]="user.avatar_url" width="32"  [style.verticalAlign]="'middle'">
+              <div frontalItem [value]="user">
+                <img [src]="user.avatar_url" width="32" [style.verticalAlign]="'middle'">
                 {{ user.login }}
               </div>
             </li>

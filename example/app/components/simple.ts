@@ -14,7 +14,7 @@ import { heroes, filter, toString, toJson, Hero } from '../../data/hero';
           <ng-container *ngIf="isOpen">
             <ul frontalList *ngIf="filteredHeroes(value) as heroes" [@listAnimation]="heroes.length">
               <li *ngFor="let hero of heroes; trackBy:trackHeroById; let index=index;" frontalItem
-                [value]="hero" [index]="index" [class.highlight]="highlightedIndex === index">
+                [value]="hero" [class.highlight]="highlightedIndex === index">
                 {{ hero.name }}
               </li>
             </ul>

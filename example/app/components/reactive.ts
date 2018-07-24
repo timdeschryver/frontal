@@ -15,7 +15,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
           <ng-container *ngIf="isOpen">
             <ul frontalList>
               <li *ngFor="let hero of filteredHeroes(value); trackBy:trackHeroById; let index=index;" frontalItem
-                [value]="hero" [index]="index" [class.highlight]="highlightedIndex === index">
+                [value]="hero" [class.highlight]="highlightedIndex === index">
                 {{ hero.name }}
               </li>
             </ul>

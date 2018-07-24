@@ -12,8 +12,7 @@ import { heroes, toString, toJson, Hero } from '../../data/hero';
         </button>
 
         <ul *ngIf="frontal.state.value.isOpen" frontalList>
-          <li *ngFor="let hero of heroes; let index=index;" frontalItem [value]="hero" [index]="index"
-            [class.highlight]="frontal.state.value.highlightedIndex === index">
+          <li *ngFor="let hero of heroes; let index=index;" frontalItem [value]="hero" [class.highlight]="frontal.state.value.highlightedIndex === index">
             {{ hero.name }}
           </li>
         </ul>

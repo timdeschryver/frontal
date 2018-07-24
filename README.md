@@ -42,7 +42,7 @@ Use the `frontal` component and directives:
 
     <ul *ngIf="isOpen" frontalList>
       <li *ngFor="let hero of filteredHeroes(value); let index=index;" frontalItem
-       [value]="hero" [index]="index" [class.highlight]="highlightedIndex === index">
+       [value]="hero" [class.highlight]="highlightedIndex === index">
         {{ hero.name }}
       </li>
     </ul>
@@ -170,12 +170,6 @@ The number of `frontalItems` in the list.
 The value of the list item.
 
 > Required. Any.
-
-##### `index`
-
-The index of the list item.
-
-> Required. Number.
 
 ## Example
 

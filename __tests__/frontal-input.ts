@@ -81,7 +81,7 @@ test('blur closes the list', async () => {
 });
 
 test('blur sets the value to the highlighted item', async () => {
-  const { textbox, frontal, blur } = await setup({ isOpen: true, highlightedItem: 'foo' });
+  const { textbox, frontal, blur } = await setup({ isOpen: true, highlightedIndex: 0, highlightedItem: 'foo' });
   blur(textbox);
   expect(frontal.state.value).toMatchObject(
     expect.objectContaining({ inputValue: 'foo', inputText: 'foo', selectedItem: 'foo' }),
@@ -175,7 +175,7 @@ test('enter does nothing on a closed list', async () => {
 });
 
 test('enter closes the list', async () => {
-  const { textbox, frontal, keyDown } = await setup({ isOpen: true, highlightedIndex: 1, highlightedItem: 'foo' });
+  const { textbox, frontal, keyDown } = await setup({ isOpen: true, highlightedIndex: 0, highlightedItem: 'foo' });
   keyDown(textbox, { key: 'Enter' });
   expect(frontal.state.value).toMatchObject(
     expect.objectContaining({ isOpen: false, highlightedItem: null, highlightedIndex: null }),
@@ -183,7 +183,7 @@ test('enter closes the list', async () => {
 });
 
 test('enter sets the value to the highlighted item', async () => {
-  const { textbox, frontal, keyDown } = await setup({ isOpen: true, highlightedItem: 'foo' });
+  const { textbox, frontal, keyDown } = await setup({ isOpen: true, highlightedIndex: 0, highlightedItem: 'foo' });
   keyDown(textbox, { key: 'Enter' });
   expect(frontal.state.value).toMatchObject(
     expect.objectContaining({ inputText: 'foo', inputValue: 'foo', selectedItem: 'foo' }),
@@ -238,9 +238,9 @@ async function setup(initialState?: Partial<State>) {
     <frontal>
       <ng-template>
         <input frontalInput/>
-        <div frontalItem [index]="0"></div>
-        <div frontalItem [index]="1"></div>
-        <div frontalItem [index]="2"></div>
+        <div frontalItem [value]="'foo'"></div>
+        <div frontalItem [value]="'bar'"></div>
+        <div frontalItem [value]="'baz'"></div>
       </ng-template>
     </frontal>`;
 
@@ -254,6 +254,9 @@ async function setup(initialState?: Partial<State>) {
   if (initialState) {
     frontal.actions.next(updateState(initialState));
   }
+
+  fixture.changeDetectorRef.detectChanges();
+  await fixture.whenStable();
 
   return {
     frontal,

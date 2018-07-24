@@ -18,10 +18,12 @@ import {
   ViewRef,
   AfterViewInit,
   PLATFORM_ID,
+  QueryList,
+  ContentChildren,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { fromEvent, Subject, BehaviorSubject, animationFrameScheduler } from 'rxjs';
-import { takeUntil, tap, scan, withLatestFrom, filter, auditTime } from 'rxjs/operators';
+import { fromEvent, Subject, BehaviorSubject, animationFrameScheduler, of } from 'rxjs';
+import { takeUntil, tap, scan, withLatestFrom, filter, auditTime, distinctUntilChanged, map } from 'rxjs/operators';
 import {
   Action,
   StateChanges,
@@ -245,25 +247,12 @@ export class FrontalListDirective implements AfterViewInit, OnDestroy {
 })
 export class FrontalItemDirective implements OnInit, AfterViewInit, OnDestroy {
   private _index!: number;
+  private destroy = new Subject<void>();
 
   @HostBinding('attr.role') role = 'option';
   @HostBinding('attr.aria-selected') ariaSelected = false;
   @HostBinding('attr.id') attrId = createFrontalItemId(this.frontal.id, generateId());
   @Input() value: any;
-  @Input()
-  set index(value: any) {
-    const previousIndex = this._index;
-    this._index = value;
-    if (previousIndex !== undefined && previousIndex !== this.index) {
-      this.frontal.updateFrontalItem(this, previousIndex);
-    }
-  }
-
-  get index() {
-    return this._index;
-  }
-
-  private destroy = new Subject<void>();
 
   constructor(
     private element: ElementRef,
@@ -272,7 +261,7 @@ export class FrontalItemDirective implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.frontal.addFrontalItem(this);
+    this.frontal.frontalItems.notifyOnChanges();
     this.frontal.state.pipe(takeUntil(this.destroy)).subscribe(state => this.setAriaAttributes(state));
   }
 
@@ -286,10 +275,14 @@ export class FrontalItemDirective implements OnInit, AfterViewInit, OnDestroy {
     fromEvent(this.element.nativeElement, 'mousemove')
       .pipe(
         withLatestFrom(this.frontal.state),
-        filter(([event, state]) => state.highlightedIndex !== this.index),
+        map(([_, state]) => ({
+          currentIndex: state.highlightedIndex,
+          myIndex: this.frontal.frontalItems.toArray().indexOf(this),
+        })),
+        filter(({ currentIndex, myIndex }) => currentIndex !== myIndex),
         takeUntil(this.destroy),
       )
-      .subscribe(_ => this.frontal.itemEnter(this.index));
+      .subscribe(({ myIndex }) => this.frontal.itemEnter(myIndex));
 
     fromEvent(this.element.nativeElement, 'mouseleave')
       .pipe(takeUntil(this.destroy))
@@ -297,7 +290,7 @@ export class FrontalItemDirective implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.frontal.removeFrontalItem(this);
+    this.frontal.frontalItems.notifyOnChanges();
     this.destroy.next();
     this.destroy.complete();
   }
@@ -374,10 +367,8 @@ export class FrontalComponent implements AfterViewInit, OnDestroy, ControlValueA
 
   @ContentChild(TemplateRef) template!: TemplateRef<any>;
   @ContentChild(FrontalInputDirective) frontalInput!: FrontalInputDirective;
-  // We're not using ContentChildren because even when the change detection is fired,
-  // the content won't update 'in time'.
-  // That's why we're taking this in our own hands, with the con that an index is required...
-  frontalItems: FrontalItemDirective[] = [];
+  @ContentChildren(FrontalItemDirective, { descendants: true })
+  frontalItems!: QueryList<FrontalItemDirective>;
 
   private _onChange = (value: any) => {};
   private _onTouched = () => {};
@@ -420,6 +411,15 @@ export class FrontalComponent implements AfterViewInit, OnDestroy, ControlValueA
 
   ngAfterViewInit() {
     if (isPlatformBrowser(this.platformId)) {
+      this.frontalItems.changes
+        .pipe(
+          auditTime(0, animationFrameScheduler),
+          tap(_ => this._changeDetector.markForCheck()),
+          map((items: QueryList<FrontalItemDirective>) => items.length),
+          distinctUntilChanged(),
+        )
+        .subscribe(itemCount => this.actions.next(updateItems(itemCount)));
+
       this.state
         .pipe(
           auditTime(0, animationFrameScheduler),
@@ -429,7 +429,9 @@ export class FrontalComponent implements AfterViewInit, OnDestroy, ControlValueA
           }),
           takeUntil(this.destroy),
         )
-        .subscribe(state => this._changeDetector.detectChanges());
+        .subscribe(_ => this._changeDetector.detectChanges());
+
+      this.frontalItems.notifyOnChanges();
     }
   }
 
@@ -494,8 +496,8 @@ export class FrontalComponent implements AfterViewInit, OnDestroy, ControlValueA
     this.actions.next(inputKeydownEsc());
   }
 
-  itemClick(item: any) {
-    this.actions.next(itemMouseClick(item));
+  itemClick(value: any) {
+    this.actions.next(itemMouseClick(value));
   }
 
   itemEnter(index: number) {
@@ -507,25 +509,7 @@ export class FrontalComponent implements AfterViewInit, OnDestroy, ControlValueA
   }
 
   getItemAtIndex(index: number | null) {
-    return index !== null && this.frontalItems ? this.frontalItems.filter(Boolean)[index] : null;
-  }
-
-  addFrontalItem(item: FrontalItemDirective) {
-    this.frontalItems[item.index] = item;
-    this.patchItemCount();
-  }
-
-  updateFrontalItem(item: FrontalItemDirective, previousIndex: number) {
-    if (this.frontalItems[previousIndex] === item) {
-      delete this.frontalItems[previousIndex];
-    }
-    this.frontalItems[item.index] = item;
-    this.patchItemCount();
-  }
-
-  removeFrontalItem(item: FrontalItemDirective) {
-    delete this.frontalItems[item.index];
-    this.patchItemCount();
+    return index !== null && this.frontalItems ? this.frontalItems.toArray()[index] : null;
   }
 
   private stateReducer(state: State, action: Action): Partial<State> {
@@ -635,10 +619,6 @@ export class FrontalComponent implements AfterViewInit, OnDestroy, ControlValueA
       default:
         return {};
     }
-  }
-
-  private patchItemCount() {
-    this.actions.next(updateItems(this.frontalItems.filter(Boolean).length));
   }
 
   private emitSelect = ({ oldState, state }: { oldState: State; state: State }) => {

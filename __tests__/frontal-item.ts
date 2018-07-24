@@ -63,8 +63,9 @@ test('mouse leave resets the highlighted index', async () => {
 });
 
 test('highlighted index sets aria selected', async () => {
-  const { items, frontal, mouseMove } = await setup();
-  frontal.isOpen = true;
+  const { items, frontal, mouseMove } = await setup({
+    isOpen: true,
+  });
 
   mouseMove(items[1]);
   expect(items[0].getAttribute('aria-selected')).toBe('false');
@@ -79,9 +80,9 @@ async function setup(initialState: Partial<State> = {}) {
   const template = `
     <frontal>
       <ng-template>
-        <div frontalItem [value]="'uno'" [index]="0"></div>
-        <div frontalItem [value]="'dos'" [index]="1"></div>
-        <div frontalItem [value]="'tres'" [index]="2"></div>
+        <div frontalItem [value]="'uno'"></div>
+        <div frontalItem [value]="'dos'"></div>
+        <div frontalItem [value]="'tres'"></div>
       </ng-template>
     </frontal>`;
 
@@ -95,6 +96,9 @@ async function setup(initialState: Partial<State> = {}) {
   if (initialState) {
     frontal.actions.next(updateState(initialState));
   }
+
+  fixture.changeDetectorRef.detectChanges();
+  await fixture.whenStable();
 
   return {
     fixture,
