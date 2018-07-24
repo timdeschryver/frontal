@@ -68,10 +68,9 @@ test('inputText sets the input value', async () => {
 test('blur does nothing on a closed list', async () => {
   const { frontal, blur, textbox } = await setup();
 
-  frontal.actions.pipe(filterUpdateActionsOut()).subscribe(action => {
-    fail(`This shouldn't be called but is called with: ${JSON.stringify(action)}`);
-  });
+  const stateCopy = { ...frontal.state.value };
   blur(textbox);
+  expect(stateCopy).toEqual(frontal.state.value);
 });
 
 test('blur closes the list', async () => {
@@ -107,10 +106,10 @@ test('highlighted item sets aria activedescendant to the highlighted id', async 
 
 test('arrow down does nothing on a closed list', async () => {
   const { textbox, frontal, keyDown } = await setup();
-  frontal.actions.pipe(filterUpdateActionsOut()).subscribe(action => {
-    fail(`This shouldn't be called but is called with: ${JSON.stringify(action)}`);
-  });
+
+  const stateCopy = { ...frontal.state.value };
   keyDown(textbox, { key: 'ArrowDown' });
+  expect(stateCopy).toEqual(frontal.state.value);
 });
 
 test('arrow down resets the selected item', async () => {
@@ -138,10 +137,10 @@ test('arrow down sets the highlighted index', async () => {
 
 test('arrow up does nothing on a closed list', async () => {
   const { textbox, frontal, keyDown } = await setup();
-  frontal.actions.pipe(filterUpdateActionsOut()).subscribe(action => {
-    fail(`This shouldn't be called but is called with: ${JSON.stringify(action)}`);
-  });
+
+  const stateCopy = { ...frontal.state.value };
   keyDown(textbox, { key: 'ArrowUp' });
+  expect(stateCopy).toEqual(frontal.state.value);
 });
 
 test('arrow up resets the selected item', async () => {
@@ -168,10 +167,10 @@ test('arrow up sets the highlighted index', async () => {
 
 test('enter does nothing on a closed list', async () => {
   const { textbox, frontal, keyDown } = await setup();
-  frontal.actions.pipe(filterUpdateActionsOut()).subscribe(action => {
-    fail(`This shouldn't be called but is called with: ${JSON.stringify(action)}`);
-  });
+
+  const stateCopy = { ...frontal.state.value };
   keyDown(textbox, { key: 'Enter' });
+  expect(stateCopy).toEqual(frontal.state.value);
 });
 
 test('enter closes the list', async () => {
@@ -192,10 +191,10 @@ test('enter sets the value to the highlighted item', async () => {
 
 test('escape does nothing on a closed list', async () => {
   const { textbox, frontal, keyDown } = await setup();
-  frontal.actions.pipe(filterUpdateActionsOut()).subscribe(action => {
-    fail(`This shouldn't be called but is called with: ${JSON.stringify(action)}`);
-  });
+
+  const stateCopy = { ...frontal.state.value };
   keyDown(textbox, { key: 'Escape' });
+  expect(stateCopy).toEqual(frontal.state.value);
 });
 
 test('escape resets the state', async () => {

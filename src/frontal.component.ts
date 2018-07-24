@@ -95,7 +95,6 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
     fromEvent(this.element.nativeElement, 'blur')
       .pipe(
         withLatestFrom(this.frontal.state),
-        filter(([_, state]) => state.isOpen),
         takeUntil(this.destroy),
       )
       .subscribe(_ => this.frontal.inputBlur());
@@ -107,7 +106,6 @@ export class FrontalInputDirective implements OnInit, AfterViewInit, OnDestroy {
     fromEvent<KeyboardEvent>(this.element.nativeElement, 'keydown')
       .pipe(
         withLatestFrom(this.frontal.state),
-        filter(([_, state]) => state.isOpen),
         takeUntil(this.destroy),
       )
       .subscribe(([event]) => {
@@ -547,6 +545,10 @@ export class FrontalComponent implements AfterViewInit, OnDestroy, ControlValueA
           highlightedIndex: state.isOpen ? null : state.defaultHighlightedIndex,
         };
       case StateChanges.InputBlur:
+        if (!state.isOpen) {
+          return {};
+        }
+
         const blurValue = state.highlightedItem ? state.itemToString(state.highlightedItem) : '';
         return {
           isOpen: false,
@@ -566,6 +568,10 @@ export class FrontalComponent implements AfterViewInit, OnDestroy, ControlValueA
           highlightedIndex: state.defaultHighlightedIndex,
         };
       case StateChanges.InputKeydownArrowDown:
+        if (!state.isOpen) {
+          return {};
+        }
+
         return {
           selectedItem: null,
           highlightedIndex:
@@ -574,6 +580,10 @@ export class FrontalComponent implements AfterViewInit, OnDestroy, ControlValueA
               : ((state.highlightedIndex === null ? -1 : state.highlightedIndex) + 1) % state.itemCount,
         };
       case StateChanges.InputKeydownArrowUp:
+        if (!state.isOpen) {
+          return {};
+        }
+
         return {
           selectedItem: null,
           highlightedIndex:
@@ -583,6 +593,10 @@ export class FrontalComponent implements AfterViewInit, OnDestroy, ControlValueA
                 state.itemCount,
         };
       case StateChanges.InputKeydownEnter:
+        if (!state.isOpen) {
+          return {};
+        }
+
         const enterValue = state.highlightedItem ? state.itemToString(state.highlightedItem) : '';
         return {
           isOpen: false,
@@ -592,6 +606,10 @@ export class FrontalComponent implements AfterViewInit, OnDestroy, ControlValueA
           inputValue: enterValue,
         };
       case StateChanges.InputKeydownEsc:
+        if (!state.isOpen) {
+          return {};
+        }
+
         return {
           isOpen: false,
           highlightedIndex: null,
