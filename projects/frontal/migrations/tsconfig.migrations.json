@@ -15,12 +15,13 @@
     "skipLibCheck": true,
     "module": "commonjs",
     "strict": true,
-    "outDir": "../../../dist/frontal/migrations/2_0_0",
+    "outDir": "../../../dist/frontal/migrations/",
     "lib": [
       "es5"
     ]
   },
   "files": [
-    "./2_0_0/index.ts"
+    "./2_0_0/index.ts",
+    "./3_0_0/index.ts"
   ]
 }

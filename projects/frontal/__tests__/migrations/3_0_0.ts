@@ -26,11 +26,11 @@ const versions = ['1.0.0', '2.0.0'];
 const prefixes = ['~', '^', ''];
 versions.forEach(version => {
   prefixes.forEach(prefix => {
-    test(`installs version ${prefix}3.0.0 when ${version} is installed`, () => {
+    test(`installs version ${prefix}3.0.1 when ${version} is installed`, () => {
       const { runner, tree } = setup(prefix, version);
       const updatedTree = runner.runSchematic('frontal-migration-03', {}, tree);
       const pkg = JSON.parse(updatedTree.readContent(packagePath));
-      expect(pkg.dependencies['frontal']).toBe(`${prefix}3.0.0`);
+      expect(pkg.dependencies['frontal']).toBe(`${prefix}3.0.1`);
     });
   });
 });

@@ -23,7 +23,7 @@ export default function(): Rule {
       const firstChar = pkg.dependencies['frontal'][0];
       const suffix = match(firstChar, '^') || match(firstChar, '~');
 
-      pkg.dependencies['frontal'] = `${suffix}3.0.0`;
+      pkg.dependencies['frontal'] = `${suffix}3.0.1`;
       tree.overwrite(pkgPath, JSON.stringify(pkg, null, 2));
     }
 
