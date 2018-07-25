@@ -5,6 +5,11 @@
       "description": "Upgrade to version 2",
       "version": "1.0.0",
       "factory": "./2_0_0/index"
+    },
+    "frontal-migration-03": {
+      "description": "Upgrade to version 3",
+      "version": "2.0.0",
+      "factory": "./3_0_0/index"
     }
   }
 }
