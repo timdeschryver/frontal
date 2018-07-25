@@ -1,5 +1,6 @@
 import { Rule, SchematicContext, Tree, SchematicsException } from '@angular-devkit/schematics';
 
+/* istanbul ignore next */
 export default function(): Rule {
   return (tree: Tree, context: SchematicContext) => {
     const pkgPath = '/package.json';

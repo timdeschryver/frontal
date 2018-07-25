@@ -116,6 +116,24 @@ test('select is getting called with the item value', async () => {
   expect(frontal.select.emit).toHaveBeenCalledWith({ name: 'Tim' });
 });
 
+test('writeValue sets the value', async () => {
+  const { frontal } = await setup();
+  frontal.writeValue('foo');
+
+  expect(frontal.state.value).toMatchObject(
+    expect.objectContaining({
+      selectedItem: 'foo',
+      inputText: 'foo',
+      inputValue: 'foo',
+    }),
+  );
+});
+
+test('handles an anonymous action', async () => {
+  const { frontal } = await setup();
+  frontal.actions.next({ type: 'anonymous' } as any);
+});
+
 async function setup(parameters: Partial<FrontalComponent> = {}) {
   resetId();
 

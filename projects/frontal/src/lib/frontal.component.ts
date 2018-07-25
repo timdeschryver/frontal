@@ -195,20 +195,14 @@ export class FrontalButtonDirective implements OnInit, AfterViewInit, OnDestroy 
   selector: '[frontalLabel]',
   exportAs: 'frontalLabel',
 })
-export class FrontalLabelDirective implements OnDestroy {
+export class FrontalLabelDirective {
   @HostBinding('attr.id') attrId = createFrontalLabelId(this.frontal.id);
   @HostBinding('attr.for') attrFor = createFrontalInputId(this.frontal.id);
-  private destroy = new Subject<void>();
 
   constructor(
     @Inject(forwardRef(() => FrontalComponent))
     private frontal: FrontalComponent,
   ) {}
-
-  ngOnDestroy() {
-    this.destroy.next();
-    this.destroy.complete();
-  }
 }
 
 @Directive({
@@ -228,6 +222,7 @@ export class FrontalListDirective implements AfterViewInit, OnDestroy {
   ) {}
 
   ngAfterViewInit() {
+    /* istanbul ignore next line */
     fromEvent<MouseEvent>(this.element.nativeElement, 'mousedown')
       .pipe(takeUntil(this.destroy))
       .subscribe(event => event.preventDefault());
@@ -442,10 +437,12 @@ export class FrontalComponent implements AfterViewInit, OnDestroy, ControlValueA
     this.actions.next(setItem(value));
   }
 
+  /* istanbul ignore next line */
   registerOnChange(fn: any) {
     this._onChange = fn;
   }
 
+  /* istanbul ignore next line */
   registerOnTouched(fn: any) {}
 
   toggleList() {
