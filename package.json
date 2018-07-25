@@ -3,27 +3,26 @@
   "version": "2.0.0",
   "scripts": {
     "start": "ng serve",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
+    "test": "jest --config ./projects/frontal/jest.config.js",
+    "test:watch": "npm run test -- --watch",
+    "test:cov": "npm run test -- --coverage",
+    "prebuild:frontal": "rm -rf ./dist/*",
+    "build:frontal": "npm run build:lib && npm run build:lib-migrations",
+    "build:lib": "ng build frontal --prod",
+    "postbuild:lib": "cp ./README.md ./dist/frontal",
+    "build:lib-migrations": "tsc -p ./projects/frontal/migrations/tsconfig.migrations.json",
+    "postbuild:lib-migrations": "cp ./projects/frontal/migrations/migration.json ./dist/frontal/migrations",
     "build:server": "npm run build:client-and-server-bundles && npm run webpack:server",
+    "build:client-and-server-bundles": "ng build app --prod && ng build server --prod",
+    "build:prerender": "npm run build:server && npm run generate:prerender",
     "start:server": "node dist/server.js",
     "webpack:server": "webpack --config webpack.server.config.js --progress --colors",
-    "build:client-and-server-bundles": "ng build --prod --project=app && ng build --prod --project=server",
-    "build:prerender": "npm run build:server && npm run generate:prerender",
-    "serve:prerender": "node dist/prerender.js",
     "generate:prerender": "node dist/prerender.js",
+    "serve:prerender": "node dist/prerender.js",
     "pree2e": "npm run build:server",
     "e2e": "npm-run-all --parallel --race start:server \"cypress:run -- --config=baseUrl=http://localhost:4000\"",
-    "lint": "ng lint --type-check",
+    "lint": "ng lint frontal --type-check && ng lint app --type-check",
     "precommit": "lint-staged",
-    "transpile": "ngc -p ./src/tsconfig.build.json",
-    "package": "rollup -c ./src/rollup.config.js",
-    "minify": "uglifyjs ./dist/bundles/frontal.umd.js --screw-ie8 --compress --mangle --comments --output ./dist/bundles/frontal.umd.min.js",
-    "transpile-migrations": "tsc -p ./migrations/tsconfig.migrations.json",
-    "prebuild": "rm -rf ./dist/*",
-    "build": "npm run transpile && npm run package && npm run minify && npm run transpile-migrations",
-    "postbuild": "cp ./README.md ./dist && cp ./src/package.json ./dist && cp ./migrations/migration.json ./dist/migrations",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run"
   },
@@ -32,15 +31,6 @@
       "prettier --write",
       "git add"
     ]
-  },
-  "jest": {
-    "globals": {
-      "ts-jest": {
-        "tsConfigFile": "./__tests__/tsconfig.test.json"
-      }
-    },
-    "preset": "jest-preset-angular",
-    "setupTestFrameworkScriptFile": "<rootDir>/test.ts"
   },
   "dependencies": {
     "@angular/animations": "^6.0.1",
@@ -59,7 +49,9 @@
     "zone.js": "^0.8.26"
   },
   "devDependencies": {
+    "@angular-devkit/build-ng-packagr": "~0.6.8",
     "@angular-devkit/build-angular": "~0.6.1",
+    "ng-packagr": "^3.0.0-rc.2",
     "@angular/cli": "~6.0.1",
     "@angular/compiler-cli": "^6.0.1",
     "@angular/language-service": "^6.0.1",
@@ -76,13 +68,13 @@
     "ngx-testing-library": "0.0.5",
     "npm-run-all": "^4.1.2",
     "prettier": "^1.11.1",
-    "rollup": "^0.57.1",
     "rxjs-compat": "6.1.0",
     "ts-loader": "^4.2.0",
     "ts-node": "~5.0.1",
     "tslint": "~5.9.1",
+    "tsickle": ">=0.25.5",
+    "tslib": "^1.7.1",
     "typescript": "~2.7.2",
-    "uglify-js": "^3.3.15",
     "webpack-cli": "^2.1.2"
   }
 }

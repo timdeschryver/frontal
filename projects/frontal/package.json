@@ -1,0 +1,32 @@
+{
+  "name": "frontal",
+  "version": "2.0.0",
+  "description": "An Angular select/dropdown component",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/timdeschryver/frontal.git"
+  },
+  "keywords": [
+    "Angular",
+    "select",
+    "selectbox",
+    "combobox",
+    "typeahead",
+    "autocomplete",
+    "dropdown"
+  ],
+  "author": "Tim Deschryver",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/timdeschryver/frontal/issues"
+  },
+  "homepage": "https://github.com/timdeschryver/frontal#readme",
+  "peerDependencies": {
+    "@angular/common": "^6.0.0",
+    "@angular/core": "^6.0.0",
+    "@angular/forms": "^6.0.0"
+  },
+  "ng-update": {
+    "migrations": "./migrations/migration.json"
+   }
+}

@@ -8,11 +8,11 @@ import { provideModuleMap } from '@nguniversal/module-map-ngfactory-loader';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
-import { routes } from './example/app/app.module';
+import { routes } from './src/app/app.module';
 
 enableProdMode();
 
-const ROUTES = routes.map(r => (r.path === '**' ? './' : r.path) as string);
+const ROUTES = routes.map(route => (route.path === '**' ? './' : route.path) as string);
 
 // * NOTE :: leave this as require() since this file is built Dynamically from webpack
 const { AppServerModuleNgFactory, LAZY_MODULE_MAP } = require('./dist/server/main');

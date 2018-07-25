@@ -10,25 +10,25 @@
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
             "outputPath": "dist/app",
-            "index": "example/index.html",
-            "main": "example/main.ts",
-            "tsConfig": "example/tsconfig.app.json",
-            "polyfills": "example/polyfills.ts",
+            "index": "src/index.html",
+            "main": "src/main.ts",
+            "tsConfig": "src/tsconfig.app.json",
+            "polyfills": "src/polyfills.ts",
             "assets": [
               {
                 "glob": "**/*",
-                "input": "example/assets",
+                "input": "src/assets",
                 "output": "/assets"
               },
               {
                 "glob": "favicon.ico",
-                "input": "example",
+                "input": "src",
                 "output": "/"
               }
             ],
             "styles": [
               {
-                "input": "example/styles.scss"
+                "input": "src/styles.scss"
               }
             ],
             "scripts": []
@@ -46,8 +46,8 @@
               "buildOptimizer": true,
               "fileReplacements": [
                 {
-                  "src": "example/environments/environment.ts",
-                  "replaceWith": "example/environments/environment.prod.ts"
+                  "src": "src/environments/environment.ts",
+                  "replaceWith": "src/environments/environment.prod.ts"
                 }
               ]
             }
@@ -74,8 +74,7 @@
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
             "tsConfig": [
-              "example/tsconfig.app.json",
-              "src/tsconfig.build.json"
+              "src/tsconfig.app.json"
             ],
             "exclude": [
               "**/node_modules/**"
@@ -92,8 +91,8 @@
           "builder": "@angular-devkit/build-angular:server",
           "options": {
             "outputPath": "dist/server",
-            "main": "example/main.server.ts",
-            "tsConfig": "example/tsconfig.server.json"
+            "main": "src/main.server.ts",
+            "tsConfig": "src/tsconfig.server.json"
           },
           "configurations": {
             "production": {
@@ -104,6 +103,46 @@
               "extractLicenses": true,
               "vendorChunk": false
             }
+          }
+        }
+      }
+    },
+    "frontal": {
+      "root": "projects/frontal",
+      "sourceRoot": "projects/frontal/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/frontal/tsconfig.lib.json",
+            "project": "projects/frontal/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/frontal/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/frontal/src/test.ts",
+            "tsConfig": "projects/frontal/tsconfig.spec.json",
+            "karmaConfig": "projects/frontal/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/frontal/tsconfig.lib.json",
+              "projects/frontal/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
           }
         }
       }
