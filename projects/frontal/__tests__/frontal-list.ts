@@ -8,28 +8,28 @@ test('sanity check for attributes', async () => {
 });
 
 test('listOpen opens the list', async () => {
-  const { frontal, list } = await setup();
+  const { frontal } = await setup();
   frontal.openList();
 
   expect(frontal.state.value).toMatchObject(expect.objectContaining({ isOpen: true }));
 });
 
 test('listOpen sets the highlighted index', async () => {
-  const { frontal, list } = await setup({ defaultHighlightedIndex: 3 });
+  const { frontal } = await setup({ defaultHighlightedIndex: 3 });
   frontal.openList();
 
   expect(frontal.state.value).toMatchObject(expect.objectContaining({ isOpen: true, highlightedIndex: 3 }));
 });
 
 test('lostClose closes the list', async () => {
-  const { frontal, list } = await setup({ highlightedIndex: 3 });
+  const { frontal } = await setup({ highlightedIndex: 3 });
   frontal.closeList();
 
   expect(frontal.state.value).toMatchObject(expect.objectContaining({ isOpen: false, highlightedIndex: null }));
 });
 
 test('toggleList opens and closes the list', async () => {
-  const { frontal, list } = await setup();
+  const { frontal } = await setup();
 
   frontal.toggleList();
   expect(frontal.state.value).toMatchObject(expect.objectContaining({ isOpen: true }));
